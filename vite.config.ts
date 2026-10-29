@@ -13,12 +13,8 @@ export default defineConfig(() => {
     },
     server: {
       allowedHosts: ['sb-1ugv4joh7x6n.vercel.run'],
-      // Route Vite HMR through the hosted preview's secure WebSocket proxy.
-      hmr: {
-        protocol: 'wss',
-        host: 'sb-1ugv4joh7x6n.vercel.run',
-        clientPort: 443,
-      },
+      // The hosted preview does not proxy Vite's development WebSocket.
+      hmr: false,
       watch: {},
     },
   };
