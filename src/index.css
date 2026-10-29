@@ -1,34 +1,63 @@
 @import "tailwindcss";
 
+@theme {
+  --color-background: #131517;
+  --color-foreground: #f5f6f2;
+  --color-card: #1a1c1f;
+  --color-card-foreground: #f5f6f2;
+  --color-popover: #1c1e21;
+  --color-popover-foreground: #f5f6f2;
+  --color-primary: #d1fe17;
+  --color-primary-foreground: #131517;
+  --color-secondary: #26292d;
+  --color-secondary-foreground: #f5f6f2;
+  --color-muted: #1c1e21;
+  --color-muted-foreground: #898a8b;
+  --color-accent: #d1fe17;
+  --color-accent-foreground: #131517;
+  --color-border: #303338;
+  --color-input: #303338;
+  --color-ring: #d1fe17;
+}
+
 @layer base {
   * {
-    border-color: #E4E4E7;
+    border-color: #303338;
   }
 
   body {
     font-family: 'Readex Pro', 'Cairo', system-ui, -apple-system, sans-serif;
-    color: #09090B;
-    background-color: #FAFAFA;
+    color: #f5f6f2;
+    background-color: #131517;
+    text-rendering: optimizeLegibility;
   }
 
-  /* Tabular numbers for financial precision */
+  ::selection {
+    color: #131517;
+    background: #d1fe17;
+  }
+
+  :focus-visible {
+    outline: 2px solid #d1fe17;
+    outline-offset: 3px;
+  }
+
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
 }
 
-/* Custom minimal scrollbar for editorial aesthetic */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #131517;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D4D4D8;
-  border-radius: 2px;
+  background: #3a3d42;
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #A1A1AA;
+  background: #d1fe17;
 }

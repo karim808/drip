@@ -265,13 +265,13 @@ export const CustomerApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-zinc-950 font-['Readex_Pro',sans-serif]">
+    <div className="min-h-screen bg-[#131517] text-[#f5f6f2] font-['Readex_Pro',sans-serif]">
       {/* Top Bar (Zara / Farfetch Clean Contract) */}
-      <header className="border-b border-zinc-200 sticky top-0 bg-white/95 backdrop-blur-xs z-30 px-6 py-4">
+      <header className="border-b border-[#303338] sticky top-0 bg-[#131517]/95 backdrop-blur-xs z-30 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
           {/* Brand Wordmark */}
           <div className="flex items-center gap-3 shrink-0">
-            <span className="font-bold tracking-widest text-lg uppercase text-zinc-950">
+            <span className="font-bold tracking-[0.18em] text-lg uppercase text-[#d1fe17]">
               VOGUE FAST
             </span>
             <span className="text-zinc-300">·</span>

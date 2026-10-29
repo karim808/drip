@@ -17,21 +17,21 @@ export const PortalSwitcherBar: React.FC = () => {
   return (
     <aside
       aria-label="شريط التنقل بين بوابات النظام"
-      className="bg-zinc-950 text-zinc-200 border-b border-zinc-800 text-xs px-3 sm:px-6 py-2 select-none"
+      className="bg-[#131517] text-[#f5f6f2] border-b border-[#303338] text-xs px-3 sm:px-6 py-2.5 select-none"
     >
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <span className="font-bold tracking-wider text-white uppercase text-xs">VOGUE FAST</span>
+          <span className="font-bold tracking-[0.2em] text-[#d1fe17] uppercase text-xs">VOGUE FAST</span>
           <span className="text-zinc-500">|</span>
           <span className="text-zinc-400 hidden md:inline">نظام التوصيل السريع للأزياء والذمم المالية</span>
         </div>
 
-        <div className="flex items-center gap-1 bg-zinc-900 p-1 rounded-md border border-zinc-800">
+        <div className="flex items-center gap-1 bg-[#1c1e21] p-1 rounded-lg border border-[#303338]">
           <button
             onClick={() => setActivePortal('customer')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'customer'
-                ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm'
+                ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -43,7 +43,7 @@ export const PortalSwitcherBar: React.FC = () => {
             onClick={() => setActivePortal('vendor')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'vendor'
-                ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm'
+                ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -55,7 +55,7 @@ export const PortalSwitcherBar: React.FC = () => {
             onClick={() => setActivePortal('driver')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'driver'
-                ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm'
+                ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -67,7 +67,7 @@ export const PortalSwitcherBar: React.FC = () => {
             onClick={() => setActivePortal('admin')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'admin'
-                ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm'
+                ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >
@@ -79,7 +79,7 @@ export const PortalSwitcherBar: React.FC = () => {
             onClick={() => setActivePortal('onboarding')}
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'onboarding'
-                ? 'bg-zinc-100 text-zinc-950 font-bold shadow-sm'
+                ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
                 : 'text-zinc-400 hover:text-white'
             }`}
           >

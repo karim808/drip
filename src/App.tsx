@@ -19,7 +19,7 @@ const AppContent: React.FC = () => {
   const { activePortal } = usePlatform();
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col font-['Readex_Pro','Cairo',sans-serif]">
+    <div className="min-h-screen bg-background text-foreground flex flex-col font-['Readex_Pro','Cairo',sans-serif]">
       {/* Main Active Standalone Portal View */}
       <div className="flex-1">
         {activePortal === 'admin' && (
