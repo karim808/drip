@@ -1,0 +1,6 @@
+{
+  "name": "VOGUE FAST | منصة توصيل الأزياء السريعة",
+  "description": "منصة التوصيل السريع لملابس وبراندات الشارع والأزياء في مصر، مع نظام مالي ذكي لإدارة الخزينة والذمم والأسطول.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
