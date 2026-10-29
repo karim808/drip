@@ -18,6 +18,8 @@ import {
   Map as MapIcon,
   ChevronDown,
   ChevronUp,
+  LogOut,
+  ExternalLink,
 } from 'lucide-react';
 import { DriverDeliveryMap } from '../maps/DriverDeliveryMap';
 import { ImageUploadField } from '../common/ImageUploadField';
@@ -35,6 +37,7 @@ export const DriverApp: React.FC = () => {
     driverCompleteDelivery,
     driverTriggerInstantReturn,
     submitSettlement,
+    logoutDriver,
     showToast,
   } = usePlatform();
 
@@ -188,25 +191,35 @@ export const DriverApp: React.FC = () => {
             </div>
           </div>
 
-          {/* Online Toggle Switch */}
-          <button
-            onClick={() => toggleDriverOnline(currentDriver.id)}
-            disabled={isFrozen || currentDriver.hasPendingSettlement}
-            className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
-              isFrozen || currentDriver.hasPendingSettlement
-                ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
-                : currentDriver.isOnline
-                ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
-                : 'bg-zinc-800 text-zinc-400 hover:text-white'
-            }`}
-          >
-            <span
-              className={`w-2 h-2 rounded-full ${
-                currentDriver.isOnline ? 'bg-white animate-pulse' : 'bg-zinc-500'
+          {/* Online Toggle Switch & Logout */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => toggleDriverOnline(currentDriver.id)}
+              disabled={isFrozen || currentDriver.hasPendingSettlement}
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all ${
+                isFrozen || currentDriver.hasPendingSettlement
+                  ? 'bg-zinc-800 text-zinc-500 cursor-not-allowed'
+                  : currentDriver.isOnline
+                  ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-900/40'
+                  : 'bg-zinc-800 text-zinc-400 hover:text-white'
               }`}
-            />
-            <span>{currentDriver.isOnline ? 'متصل ومتاح للطلبات' : 'غير متصل'}</span>
-          </button>
+            >
+              <span
+                className={`w-2 h-2 rounded-full ${
+                  currentDriver.isOnline ? 'bg-white animate-pulse' : 'bg-zinc-500'
+                }`}
+              />
+              <span>{currentDriver.isOnline ? 'متصل ومتاح للطلبات' : 'غير متصل'}</span>
+            </button>
+
+            <button
+              onClick={logoutDriver}
+              title="تسجيل الخروج"
+              className="p-2 rounded-full bg-zinc-800 hover:bg-zinc-700 text-zinc-400 hover:text-red-400 transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </header>
 
@@ -365,14 +378,30 @@ export const DriverApp: React.FC = () => {
         {/* ACTIVE TRIP CARD (IF ANY) */}
         {myActiveTrip ? (
           <div className="bg-zinc-900 border-2 border-white rounded-lg p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-800">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-zinc-800">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
                 <span className="font-bold text-sm text-white">مشوارك الحالي قيد التنفيذ</span>
               </div>
-              <span className="font-mono font-bold text-xs bg-zinc-800 px-2 py-0.5 rounded text-zinc-200">
-                {myActiveTrip.orderNumber}
-              </span>
+              <div className="flex items-center gap-2">
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${
+                    (myActiveTrip.customerCoordinates || getOrderLocations(myActiveTrip).destination).lat
+                  },${
+                    (myActiveTrip.customerCoordinates || getOrderLocations(myActiveTrip).destination).lng
+                  }&travelmode=driving`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-3 py-1.5 rounded-md shadow-xs transition-colors"
+                >
+                  <Navigation className="w-3.5 h-3.5" />
+                  <span>التوجه للعميل (Navigate to Customer)</span>
+                  <ExternalLink className="w-3 h-3 opacity-80" />
+                </a>
+                <span className="font-mono font-bold text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-200">
+                  {myActiveTrip.orderNumber}
+                </span>
+              </div>
             </div>
 
             {/* Interactive Live Delivery Map with Route & Google Maps Navigation (Requirement 2) */}
@@ -395,6 +424,30 @@ export const DriverApp: React.FC = () => {
                   </div>
                   <div className="text-sm font-bold text-white">{myActiveTrip.vendorName}</div>
                   <div className="text-xs text-zinc-400">{myActiveTrip.vendorArea}</div>
+                </div>
+
+                {/* Customer Destination Quick Navigation Preview */}
+                <div className="border border-zinc-800 rounded-lg p-3 bg-zinc-950/70 flex flex-wrap items-center justify-between gap-2 text-xs">
+                  <div>
+                    <div className="text-zinc-400 text-[11px]">وجهة العميل التالية:</div>
+                    <div className="font-bold text-white">
+                      {myActiveTrip.customerName} · {myActiveTrip.customerArea}
+                    </div>
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${
+                      (myActiveTrip.customerCoordinates || getOrderLocations(myActiveTrip).destination).lat
+                    },${
+                      (myActiveTrip.customerCoordinates || getOrderLocations(myActiveTrip).destination).lng
+                    }&travelmode=driving`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 bg-zinc-800 hover:bg-zinc-700 text-emerald-400 border border-zinc-700 font-bold px-3 py-1.5 rounded-md transition-colors"
+                  >
+                    <Navigation className="w-3.5 h-3.5" />
+                    <span>Navigate to Customer</span>
+                    <ExternalLink className="w-3 h-3 opacity-80" />
+                  </a>
                 </div>
 
                 {/* Cash rule alert */}
@@ -422,19 +475,40 @@ export const DriverApp: React.FC = () => {
             {/* STEP 2: ON THE WAY TO CUSTOMER & CASH COLLECTION */}
             {myActiveTrip.status === 'picked_up_paid_store' && (
               <div className="space-y-4">
-                <div className="border border-zinc-700 rounded-lg p-3.5 bg-zinc-950 space-y-2">
-                  <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
-                    <Navigation className="w-4 h-4" />
-                    <span>الخطوة 2: في الطريق لعنوان العميل</span>
+                <div className="border border-zinc-700 rounded-lg p-3.5 bg-zinc-950 space-y-2.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-xs font-bold text-emerald-400">
+                      <Navigation className="w-4 h-4" />
+                      <span>الخطوة 2: في الطريق لعنوان العميل</span>
+                    </div>
+                    {myActiveTrip.customerCoordinates && (
+                      <span className="text-[10px] font-mono text-zinc-400 bg-zinc-900 px-2 py-0.5 rounded border border-zinc-800">
+                        {myActiveTrip.customerCoordinates.lat.toFixed(4)}, {myActiveTrip.customerCoordinates.lng.toFixed(4)}
+                      </span>
+                    )}
                   </div>
                   <div className="text-sm font-bold text-white">{myActiveTrip.customerName}</div>
                   <div className="text-xs text-zinc-300">
                     {myActiveTrip.customerArea} · {myActiveTrip.customerAddress}
                   </div>
-                  <div className="flex items-center gap-3 pt-1 text-xs">
+                  <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs">
+                    <a
+                      href={`https://www.google.com/maps/dir/?api=1&destination=${
+                        (myActiveTrip.customerCoordinates || getOrderLocations(myActiveTrip).destination).lat
+                      },${
+                        (myActiveTrip.customerCoordinates || getOrderLocations(myActiveTrip).destination).lng
+                      }&travelmode=driving`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-md shadow-xs transition-colors"
+                    >
+                      <Navigation className="w-3.5 h-3.5" />
+                      <span>التوجه للعميل عبر خرائط جوجل (Navigate to Customer)</span>
+                      <ExternalLink className="w-3 h-3 opacity-80" />
+                    </a>
                     <a
                       href={`tel:${myActiveTrip.customerPhone}`}
-                      className="flex items-center gap-1.5 text-emerald-400 font-bold bg-zinc-900 border border-zinc-800 px-3 py-1 rounded"
+                      className="flex items-center justify-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-bold bg-zinc-900 border border-zinc-800 px-3.5 py-2 rounded-md transition-colors"
                     >
                       <Phone className="w-3.5 h-3.5" />
                       <span>اتصال بالعميل ({myActiveTrip.customerPhone})</span>

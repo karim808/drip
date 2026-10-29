@@ -19,6 +19,7 @@ import {
   Phone,
   Edit,
   Trash2,
+  LogOut,
 } from 'lucide-react';
 import { ImageUploadField } from '../common/ImageUploadField';
 
@@ -38,6 +39,7 @@ export const VendorPortal: React.FC = () => {
     updateProduct,
     deleteProduct,
     toggleProductStock,
+    logoutVendor,
     showToast,
   } = usePlatform();
 
@@ -286,17 +288,28 @@ export const VendorPortal: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Pay Button */}
-          <button
-            onClick={() => {
-              setPayAmount(Math.min(currentVendor.currentDebt, currentVendor.debtLimit));
-              setIsPayModalOpen(true);
-            }}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white rounded-md text-xs font-bold hover:bg-zinc-800 transition-colors shadow-xs"
-          >
-            <Upload className="w-4 h-4" />
-            <span>سداد جزء من المديونية / تصفير الحساب</span>
-          </button>
+          {/* Quick Pay & Logout Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setPayAmount(Math.min(currentVendor.currentDebt, currentVendor.debtLimit));
+                setIsPayModalOpen(true);
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-950 text-white rounded-md text-xs font-bold hover:bg-zinc-800 transition-colors shadow-xs"
+            >
+              <Upload className="w-4 h-4" />
+              <span>سداد جزء من المديونية / تصفير الحساب</span>
+            </button>
+
+            <button
+              onClick={logoutVendor}
+              title="تبديل المتجر / تسجيل الخروج"
+              className="flex items-center gap-1.5 px-3 py-2 border border-zinc-200 hover:border-zinc-300 bg-white hover:bg-zinc-50 text-zinc-700 rounded-md text-xs font-bold transition-colors"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span>تبديل المتجر / خروج</span>
+            </button>
+          </div>
         </div>
       </header>
 

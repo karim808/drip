@@ -7,8 +7,8 @@ export type CustomerPaymentMethod = 'cash_on_delivery' | 'vodafone_cash' | 'inst
 export interface CustomerUser {
   id: string;
   name: string;
+  email: string;
   phone: string;
-  password?: string;
   area: string;
   address: string;
   coordinates?: { lat: number; lng: number };
@@ -19,8 +19,8 @@ export interface Vendor {
   id: string;
   name: string;
   slug: string;
+  email: string;
   phone: string;
-  password?: string;
   area: string;
   address: string;
   coordinates?: { lat: number; lng: number };
@@ -41,8 +41,8 @@ export interface Vendor {
 export interface Driver {
   id: string;
   name: string;
+  email: string;
   phone: string;
-  password?: string;
   vehicle: string;
   vehicleNumber: string;
   area: string;
@@ -132,6 +132,11 @@ export interface Order {
   returnCode?: string;
   vendorRejectedReason?: string;
   returnReceivedAt?: string;
+  vendorRating?: number; // 1 to 5 stars for store
+  vendorReview?: string;
+  driverRating?: number; // 1 to 5 stars for driver
+  driverReview?: string;
+  ratedAt?: string;
   createdAt: string;
   notes?: string;
 }

@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { PlatformProvider, usePlatform } from './context/PlatformContext';
-import { PortalSwitcherBar } from './components/common/PortalSwitcherBar';
 import { ImageReceiptModal } from './components/common/ImageReceiptModal';
 import { ToastContainer } from './components/common/ToastContainer';
 import { SuperAdminDashboard } from './components/admin/SuperAdminDashboard';
@@ -14,20 +13,30 @@ import { DriverApp } from './components/driver/DriverApp';
 import { CustomerApp } from './components/customer/CustomerApp';
 import { OnboardingScreen } from './components/onboarding/OnboardingScreen';
 import { GoogleMapsWrapper } from './components/maps/GoogleMapsWrapper';
+import { PortalAuthGate } from './components/auth/PortalAuthGate';
 
 const AppContent: React.FC = () => {
   const { activePortal } = usePlatform();
 
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col font-['Readex_Pro','Cairo',sans-serif]">
-      {/* Top Prototype Switcher Bar */}
-      <PortalSwitcherBar />
-
-      {/* Main Active View */}
+      {/* Main Active Standalone Portal View */}
       <div className="flex-1">
-        {activePortal === 'admin' && <SuperAdminDashboard />}
-        {activePortal === 'vendor' && <VendorPortal />}
-        {activePortal === 'driver' && <DriverApp />}
+        {activePortal === 'admin' && (
+          <PortalAuthGate portal="admin">
+            <SuperAdminDashboard />
+          </PortalAuthGate>
+        )}
+        {activePortal === 'vendor' && (
+          <PortalAuthGate portal="vendor">
+            <VendorPortal />
+          </PortalAuthGate>
+        )}
+        {activePortal === 'driver' && (
+          <PortalAuthGate portal="driver">
+            <DriverApp />
+          </PortalAuthGate>
+        )}
         {activePortal === 'customer' && <CustomerApp />}
         {activePortal === 'onboarding' && <OnboardingScreen />}
       </div>

@@ -29,9 +29,14 @@ export const OnboardingScreen: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<OnboardingType>(onboardingType);
 
+  React.useEffect(() => {
+    setActiveTab(onboardingType);
+  }, [onboardingType]);
+
   // Vendor Form
   const [vendorName, setVendorName] = useState('');
   const [vendorOwner, setVendorOwner] = useState('');
+  const [vendorEmail, setVendorEmail] = useState('');
   const [vendorPhone, setVendorPhone] = useState('');
   const [vendorArea, setVendorArea] = useState('المعادي');
   const [vendorAddress, setVendorAddress] = useState('');
@@ -43,6 +48,7 @@ export const OnboardingScreen: React.FC = () => {
 
   // Driver Form & KYC
   const [driverName, setDriverName] = useState('');
+  const [driverEmail, setDriverEmail] = useState('');
   const [driverPhone, setDriverPhone] = useState('');
   const [driverNationalId, setDriverNationalId] = useState('');
   const [driverVehicle, setDriverVehicle] = useState('سكوتر هوندا فورزا 300');
@@ -65,36 +71,40 @@ export const OnboardingScreen: React.FC = () => {
     driverLicensePhoto
   );
 
-  const handleVendorSubmit = (e: React.FormEvent) => {
+  const handleVendorSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!vendorName || !vendorPhone) return;
+    if (!vendorName || !vendorEmail || !vendorPhone || !vendorPassword) return;
 
-    registerVendorApplication({
+    const ok = await registerVendorApplication({
       name: vendorName,
+      email: vendorEmail,
       phone: vendorPhone,
-      password: vendorPassword || 'vendor123',
+      password: vendorPassword,
       area: vendorArea,
       address: vendorAddress || `${vendorArea}، القاهرة`,
       category: vendorCategory,
       logoUrl: vendorLogo,
       instagram: vendorInstagram,
     });
-    setVendorSubmitted(true);
+    if (ok) {
+      setVendorSubmitted(true);
+    }
   };
 
-  const handleDriverSubmit = (e: React.FormEvent) => {
+  const handleDriverSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!driverName || !driverPhone || !driverNationalId) return;
+    if (!driverName || !driverEmail || !driverPhone || !driverNationalId || !driverPassword) return;
 
     if (!areAllKycUploaded) {
       showToast('⚠️ إلزامي: يجب رفع الصور والمستندات الـ 4 الرسمية كاملة قبل المتابعة', 'error');
       return;
     }
 
-    registerDriverApplication({
+    const ok = await registerDriverApplication({
       name: driverName,
+      email: driverEmail,
       phone: driverPhone,
-      password: driverPassword || 'driver123',
+      password: driverPassword,
       vehicle: driverVehicle,
       vehicleNumber: driverPlate,
       area: driverArea,
@@ -104,7 +114,9 @@ export const OnboardingScreen: React.FC = () => {
       nationalIdPhoto: driverNationalIdPhoto,
       licensePhoto: driverLicensePhoto,
     });
-    setDriverSubmitted(true);
+    if (ok) {
+      setDriverSubmitted(true);
+    }
   };
 
   return (
@@ -223,6 +235,20 @@ export const OnboardingScreen: React.FC = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block font-semibold text-zinc-700 mb-1">
+                      البريد الإلكتروني الرسمي للمتجر:
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      placeholder="brand@voguefast.eg"
+                      value={vendorEmail}
+                      onChange={(e) => setVendorEmail(e.target.value)}
+                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold text-zinc-700 mb-1">
                       رقم الهاتف / واتساب المحل:
                     </label>
                     <input
@@ -234,25 +260,25 @@ export const OnboardingScreen: React.FC = () => {
                       className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
                     />
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
-                      المنطقة والحي:
-                    </label>
-                    <select
-                      value={vendorArea}
-                      onChange={(e) => setVendorArea(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded bg-white focus:outline-none focus:border-zinc-900 font-medium"
-                    >
-                      <option value="المعادي">المعادي (دجلة والشارع 9)</option>
-                      <option value="الزمالك">الزمالك</option>
-                      <option value="التجمع الخامس">التجمع الخامس (التسعين)</option>
-                      <option value="مصر الجديدة">مصر الجديدة (الكوربة)</option>
-                      <option value="الشيخ زايد">الشيخ زايد (أركان وكابيتال)</option>
-                      <option value="الدقي والمهندسين">الدقي والمهندسين</option>
-                      <option value="مدينة نصر">مدينة نصر</option>
-                    </select>
-                  </div>
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">
+                    المنطقة والحي:
+                  </label>
+                  <select
+                    value={vendorArea}
+                    onChange={(e) => setVendorArea(e.target.value)}
+                    className="w-full p-2.5 border border-zinc-300 rounded bg-white focus:outline-none focus:border-zinc-900 font-medium"
+                  >
+                    <option value="المعادي">المعادي (دجلة والشارع 9)</option>
+                    <option value="الزمالك">الزمالك</option>
+                    <option value="التجمع الخامس">التجمع الخامس (التسعين)</option>
+                    <option value="مصر الجديدة">مصر الجديدة (الكوربة)</option>
+                    <option value="الشيخ زايد">الشيخ زايد (أركان وكابيتال)</option>
+                    <option value="الدقي والمهندسين">الدقي والمهندسين</option>
+                    <option value="مدينة نصر">مدينة نصر</option>
+                  </select>
                 </div>
 
                 <div>
@@ -385,17 +411,31 @@ export const OnboardingScreen: React.FC = () => {
 
                   <div>
                     <label className="block font-semibold text-zinc-700 mb-1">
-                      رقم الهاتف (المسجل بفودافون كاش أو إنستاباي):
+                      البريد الإلكتروني للكابتن:
                     </label>
                     <input
-                      type="tel"
+                      type="email"
                       required
-                      placeholder="010XXXXXXXX"
-                      value={driverPhone}
-                      onChange={(e) => setDriverPhone(e.target.value)}
+                      placeholder="captain@voguefast.eg"
+                      value={driverEmail}
+                      onChange={(e) => setDriverEmail(e.target.value)}
                       className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block font-semibold text-zinc-700 mb-1">
+                    رقم الهاتف (المسجل بفودافون كاش أو إنستاباي):
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="010XXXXXXXX"
+                    value={driverPhone}
+                    onChange={(e) => setDriverPhone(e.target.value)}
+                    className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

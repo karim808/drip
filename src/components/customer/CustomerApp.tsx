@@ -25,6 +25,10 @@ import {
   ExternalLink,
   RotateCcw,
   Navigation,
+  Star,
+  Store,
+  Bike,
+  MessageSquare,
 } from 'lucide-react';
 import { LocationPickerMap } from '../maps/LocationPickerMap';
 import { LiveOrderTrackingMap } from '../maps/LiveOrderTrackingMap';
@@ -46,10 +50,10 @@ export const CustomerApp: React.FC = () => {
     calculateDeliveryFee,
     placeOrder,
     currentCustomer,
-    customers,
     loginCustomer,
     registerCustomer,
     logoutCustomer,
+    submitOrderRating,
     showToast,
   } = usePlatform();
 
@@ -62,30 +66,60 @@ export const CustomerApp: React.FC = () => {
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const [selectedSize, setSelectedSize] = useState<string>('');
 
-  // Customer Auth Modal
+  // Customer Auth Modal (Email + Password, no pre-filled demo credentials)
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
-  const [authPhone, setAuthPhone] = useState('01018301830');
-  const [authName, setAuthName] = useState('كريم مجدي');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authPhone, setAuthPhone] = useState('');
+  const [authName, setAuthName] = useState('');
   const [authArea, setAuthArea] = useState('التجمع الخامس');
-  const [authAddress, setAuthAddress] = useState('شارع التسعين، فيلا 14، التجمع الخامس');
+  const [authAddress, setAuthAddress] = useState('');
+  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
 
   // Customer Orders History Drawer
   const [isOrdersDrawerOpen, setIsOrdersDrawerOpen] = useState(false);
 
   // Checkout inputs
-  const [custName, setCustName] = useState(currentCustomer?.name || 'كريم مجدي');
-  const [custPhone, setCustPhone] = useState(currentCustomer?.phone || '01018301830');
+  const [custName, setCustName] = useState(currentCustomer?.name || '');
+  const [custPhone, setCustPhone] = useState(currentCustomer?.phone || '');
   const [custArea, setCustArea] = useState(currentCustomer?.area || 'التجمع الخامس');
-  const [custAddress, setCustAddress] = useState(currentCustomer?.address || 'شارع التسعين، فيلا 14، التجمع الخامس');
+  const [custAddress, setCustAddress] = useState(currentCustomer?.address || '');
   const [custCoordinates, setCustCoordinates] = useState<{ lat: number; lng: number }>(
     currentCustomer?.coordinates || { lat: 30.0131, lng: 31.4289 }
   );
   const [custRoadDistanceKm, setCustRoadDistanceKm] = useState<number>(14.5);
-  const [custNotes, setCustNotes] = useState('برجاء الاتصال قبل الوصول لباب العمارة بـ 5 دقائق');
+  const [custNotes, setCustNotes] = useState('');
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<CustomerPaymentMethod>('cash_on_delivery');
   const [latestPlacedOrder, setLatestPlacedOrder] = useState<Order | null>(null);
-  const [openMapOrderIds, setOpenMapOrderIds] = useState<string[]>(['ord-101']);
+  const [openMapOrderIds, setOpenMapOrderIds] = useState<string[]>([]);
+
+  // Post-delivery Store & Driver Rating Modal State
+  const [ratingModalOrder, setRatingModalOrder] = useState<Order | null>(null);
+  const [vendorRatingVal, setVendorRatingVal] = useState<number>(5);
+  const [vendorReviewVal, setVendorReviewVal] = useState<string>('');
+  const [driverRatingVal, setDriverRatingVal] = useState<number>(5);
+  const [driverReviewVal, setDriverReviewVal] = useState<string>('');
+
+  const handleOpenRatingModal = (ord: Order) => {
+    setRatingModalOrder(ord);
+    setVendorRatingVal(ord.vendorRating || 5);
+    setVendorReviewVal(ord.vendorReview || '');
+    setDriverRatingVal(ord.driverRating || 5);
+    setDriverReviewVal(ord.driverReview || '');
+  };
+
+  const handleSaveOrderRating = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!ratingModalOrder) return;
+    submitOrderRating(ratingModalOrder.id, {
+      vendorRating: vendorRatingVal,
+      vendorReview: vendorReviewVal,
+      driverRating: driverRatingVal,
+      driverReview: driverReviewVal,
+    });
+    setRatingModalOrder(null);
+  };
 
   // Sync inputs if currentCustomer changes
   React.useEffect(() => {
@@ -97,6 +131,10 @@ export const CustomerApp: React.FC = () => {
       if (currentCustomer.coordinates) {
         setCustCoordinates(currentCustomer.coordinates);
       }
+    } else {
+      setCustName('');
+      setCustPhone('');
+      setCustAddress('');
     }
   }, [currentCustomer]);
 
@@ -163,22 +201,24 @@ export const CustomerApp: React.FC = () => {
   const deliveryFee = calculateDeliveryFee(estimatedDistance);
   const totalCodAmount = clothesSubtotal + deliveryFee;
 
-  // Customer's order history
+  // Customer's order history — strictly scoped to authenticated customer ID
   const customerOrders = useMemo(() => {
     if (!currentCustomer) return [];
-    return orders.filter(
-      (o) =>
-        o.customerId === currentCustomer.id ||
-        o.customerPhone.trim() === currentCustomer.phone.trim()
-    );
+    return orders.filter((o) => o.customerId === currentCustomer.id);
   }, [orders, currentCustomer]);
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (cart.length === 0) return;
+    if (!currentCustomer) {
+      showToast('يرجى تسجيل الدخول بحسابك أولاً لإتمام طلب التوصيل', 'error');
+      setAuthMode('login');
+      setIsAuthModalOpen(true);
+      return;
+    }
 
     const ord = placeOrder({
-      customerId: currentCustomer?.id,
+      customerId: currentCustomer.id,
       name: custName,
       phone: custPhone,
       area: custArea,
@@ -193,25 +233,34 @@ export const CustomerApp: React.FC = () => {
     }
   };
 
-  const handleAuthSubmit = (e: React.FormEvent) => {
+  const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (authMode === 'login') {
-      const success = loginCustomer(authPhone);
-      if (!success) {
-        showToast('لم يتم العثور على حساب بهذا الرقم. يرجى إنشاء حساب جديد.', 'error');
-        setAuthMode('register');
+    if (isAuthSubmitting) return;
+    setIsAuthSubmitting(true);
+    try {
+      if (authMode === 'login') {
+        const success = await loginCustomer(authEmail, authPassword);
+        if (success) {
+          setIsAuthModalOpen(false);
+          setAuthPassword('');
+        }
       } else {
-        setIsAuthModalOpen(false);
+        if (!authName || !authEmail || !authPhone || !authPassword) return;
+        const created = await registerCustomer({
+          name: authName,
+          email: authEmail,
+          phone: authPhone,
+          password: authPassword,
+          area: authArea,
+          address: authAddress,
+        });
+        if (created) {
+          setIsAuthModalOpen(false);
+          setAuthPassword('');
+        }
       }
-    } else {
-      if (!authName || !authPhone) return;
-      registerCustomer({
-        name: authName,
-        phone: authPhone,
-        area: authArea,
-        address: authAddress,
-      });
-      setIsAuthModalOpen(false);
+    } finally {
+      setIsAuthSubmitting(false);
     }
   };
 
@@ -1090,6 +1139,78 @@ export const CustomerApp: React.FC = () => {
                           الإجمالي: {ord.totalAmount.toLocaleString('ar-EG')} ج.م
                         </div>
                       </div>
+
+                      {/* POST-DELIVERY STORE & DRIVER RATING SECTION */}
+                      {(isDelivered || isPickedUp) && (
+                        <div className="pt-2 border-t border-zinc-200">
+                          {ord.vendorRating || ord.driverRating ? (
+                            <div className="bg-amber-50/70 border border-amber-200 rounded-lg p-3 space-y-2 text-xs">
+                              <div className="flex items-center justify-between">
+                                <span className="font-bold text-amber-950 flex items-center gap-1.5">
+                                  <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                                  <span>تقييمك المسجل للطلب</span>
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenRatingModal(ord)}
+                                  className="text-[11px] font-bold text-zinc-700 hover:text-zinc-950 underline cursor-pointer"
+                                >
+                                  تعديل التقييم
+                                </button>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                                <div className="bg-white p-2.5 rounded border border-amber-200/80 space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-bold text-zinc-800 flex items-center gap-1">
+                                      <Store className="w-3.5 h-3.5 text-zinc-600" />
+                                      <span>المحل: {ord.vendorName}</span>
+                                    </span>
+                                    <span className="inline-flex items-center gap-0.5 font-mono font-bold text-amber-600">
+                                      {ord.vendorRating || 5}/5 ★
+                                    </span>
+                                  </div>
+                                  {ord.vendorReview && (
+                                    <p className="text-[11px] text-zinc-600 leading-normal">
+                                      "{ord.vendorReview}"
+                                    </p>
+                                  )}
+                                </div>
+
+                                <div className="bg-white p-2.5 rounded border border-amber-200/80 space-y-1">
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-bold text-zinc-800 flex items-center gap-1">
+                                      <Bike className="w-3.5 h-3.5 text-emerald-600" />
+                                      <span>الكابتن: {ord.driverName || 'كابتن التوصيل'}</span>
+                                    </span>
+                                    <span className="inline-flex items-center gap-0.5 font-mono font-bold text-amber-600">
+                                      {ord.driverRating || 5}/5 ★
+                                    </span>
+                                  </div>
+                                  {ord.driverReview && (
+                                    <p className="text-[11px] text-zinc-600 leading-normal">
+                                      "{ord.driverReview}"
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleOpenRatingModal(ord)}
+                              className="w-full py-2.5 px-3 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black rounded-lg text-xs flex items-center justify-center gap-2 transition-colors shadow-xs cursor-pointer"
+                            >
+                              <Star className="w-4 h-4 fill-zinc-950 text-zinc-950" />
+                              <span>
+                                {isDelivered
+                                  ? 'قيّم تجربتك مع المحل وكابتن التوصيل بعد الاستلام'
+                                  : 'تأكيد استلام الطلب وتقييم المحل والكابتن الآن'}
+                              </span>
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })
@@ -1125,28 +1246,6 @@ export const CustomerApp: React.FC = () => {
               </button>
             </div>
 
-            {/* Quick Demo Switcher */}
-            <div className="p-2.5 bg-zinc-50 border border-zinc-200 rounded text-xs space-y-1.5">
-              <span className="text-zinc-500 font-semibold block text-[11px]">
-                أو اختر حساب عميل تجريبي فوراً:
-              </span>
-              <div className="flex gap-2">
-                {customers.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    onClick={() => {
-                      loginCustomer(c.phone);
-                      setIsAuthModalOpen(false);
-                    }}
-                    className="flex-1 py-1 px-2 border border-zinc-300 rounded text-center text-xs font-bold hover:bg-white hover:border-zinc-900 transition-all"
-                  >
-                    {c.name} ({c.area})
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <form onSubmit={handleAuthSubmit} className="space-y-3.5 text-xs">
               {authMode === 'register' && (
                 <div>
@@ -1163,19 +1262,32 @@ export const CustomerApp: React.FC = () => {
               )}
 
               <div>
-                <label className="block text-zinc-700 font-semibold mb-1">رقم الهاتف:</label>
+                <label className="block text-zinc-700 font-semibold mb-1">البريد الإلكتروني:</label>
                 <input
-                  type="tel"
+                  type="email"
                   required
-                  placeholder="010XXXXXXXX"
-                  value={authPhone}
-                  onChange={(e) => setAuthPhone(e.target.value)}
+                  autoComplete="email"
+                  placeholder="name@example.com"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
                   className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs font-mono"
                 />
               </div>
 
               {authMode === 'register' && (
                 <>
+                  <div>
+                    <label className="block text-zinc-700 font-semibold mb-1">رقم الهاتف:</label>
+                    <input
+                      type="tel"
+                      required
+                      placeholder="010XXXXXXXX"
+                      value={authPhone}
+                      onChange={(e) => setAuthPhone(e.target.value)}
+                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs font-mono"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-zinc-700 font-semibold mb-1">المنطقة:</label>
                     <select
@@ -1212,9 +1324,12 @@ export const CustomerApp: React.FC = () => {
                 <input
                   type="password"
                   required
+                  minLength={6}
+                  autoComplete={authMode === 'login' ? 'current-password' : 'new-password'}
                   placeholder="••••••••"
-                  defaultValue="123456"
-                  className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs font-mono"
                 />
               </div>
 
@@ -1240,9 +1355,14 @@ export const CustomerApp: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-zinc-950 text-white rounded text-xs font-bold hover:bg-zinc-800 transition-colors"
+                  disabled={isAuthSubmitting}
+                  className="px-5 py-2 bg-zinc-950 text-white rounded text-xs font-bold hover:bg-zinc-800 disabled:opacity-50 transition-colors"
                 >
-                  {authMode === 'login' ? 'تسجيل الدخول' : 'تأكيد التسجيل'}
+                  {isAuthSubmitting
+                    ? 'جاري التحقق...'
+                    : authMode === 'login'
+                    ? 'تسجيل الدخول'
+                    : 'تأكيد التسجيل'}
                 </button>
               </div>
             </form>
@@ -1315,6 +1435,193 @@ export const CustomerApp: React.FC = () => {
                 متابعة التسوق
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Post-Delivery Store & Driver Rating Modal */}
+      {ratingModalOrder && (
+        <div className="fixed inset-0 z-50 bg-zinc-950/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl border border-zinc-200 max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+              <div>
+                <h3 className="font-bold text-sm text-zinc-950 flex items-center gap-2">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                  <span>تقييم المحل وكابتن التوصيل بعد الاستلام</span>
+                </h3>
+                <p className="text-[11px] text-zinc-500 mt-0.5">
+                  الطلب رقم <span className="font-mono font-bold text-zinc-800">{ratingModalOrder.orderNumber}</span> · يظهر تقييمك مباشرة في لوحة تحكم الإدارة
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRatingModalOrder(null)}
+                className="p-1 rounded text-zinc-400 hover:text-zinc-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveOrderRating} className="space-y-4 text-xs">
+              {/* 1. Store / Vendor Rating Section */}
+              <div className="p-4 rounded-lg bg-zinc-50 border border-zinc-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-zinc-950 flex items-center gap-1.5">
+                    <Store className="w-4 h-4 text-zinc-700" />
+                    <span>1. تقييم المتجر والملابس: {ratingModalOrder.vendorName}</span>
+                  </div>
+                  <span className="font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                    {vendorRatingVal} / 5 نجوم
+                  </span>
+                </div>
+
+                {/* Interactive 5-Star Selector for Store */}
+                <div className="flex items-center justify-center gap-2 py-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setVendorRatingVal(star)}
+                      className="p-1.5 rounded-full hover:scale-110 transition-transform cursor-pointer"
+                      title={`${star} نجوم للمتجر`}
+                    >
+                      <Star
+                        className={`w-7 h-7 transition-colors ${
+                          star <= vendorRatingVal
+                            ? 'fill-amber-400 text-amber-500'
+                            : 'text-zinc-300 hover:text-amber-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Quick Chips for Store */}
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    'خامة ممتازة ومقاس مظبوط',
+                    'تغليف شيك وأصلي',
+                    'نفس الصورة بالظبط',
+                    'المقاس يحتاج ضبط بسيط',
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() =>
+                        setVendorReviewVal((prev) =>
+                          prev.includes(chip) ? prev : prev ? `${prev}، ${chip}` : chip
+                        )
+                      }
+                      className="text-[11px] bg-white hover:bg-zinc-900 hover:text-white text-zinc-700 border border-zinc-300 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                    >
+                      + {chip}
+                    </button>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="block text-zinc-600 mb-1 font-medium">
+                    ملاحظاتك على المتجر وجودة القطعة (اختياري):
+                  </label>
+                  <input
+                    type="text"
+                    value={vendorReviewVal}
+                    onChange={(e) => setVendorReviewVal(e.target.value)}
+                    placeholder="اكتب رأيك في جودة القماش والمقاس والتغليف..."
+                    className="w-full p-2.5 bg-white border border-zinc-300 rounded-md text-xs focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
+              </div>
+
+              {/* 2. Driver Rating Section */}
+              <div className="p-4 rounded-lg bg-zinc-50 border border-zinc-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="font-bold text-zinc-950 flex items-center gap-1.5">
+                    <Bike className="w-4 h-4 text-emerald-600" />
+                    <span>
+                      2. تقييم كابتن التوصيل: {ratingModalOrder.driverName || 'كابتن التوصيل'}
+                    </span>
+                  </div>
+                  <span className="font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                    {driverRatingVal} / 5 نجوم
+                  </span>
+                </div>
+
+                {/* Interactive 5-Star Selector for Driver */}
+                <div className="flex items-center justify-center gap-2 py-1">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      type="button"
+                      onClick={() => setDriverRatingVal(star)}
+                      className="p-1.5 rounded-full hover:scale-110 transition-transform cursor-pointer"
+                      title={`${star} نجوم للكابتن`}
+                    >
+                      <Star
+                        className={`w-7 h-7 transition-colors ${
+                          star <= driverRatingVal
+                            ? 'fill-amber-400 text-amber-500'
+                            : 'text-zinc-300 hover:text-amber-300'
+                        }`}
+                      />
+                    </button>
+                  ))}
+                </div>
+
+                {/* Quick Chips for Driver */}
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    'وصل في الموعد بسرعة',
+                    'كابتن محترم ولبق جداً',
+                    'انتظرني أعاين القطعة بهدوء',
+                    'حافظ على نظافة الشحنة',
+                  ].map((chip) => (
+                    <button
+                      key={chip}
+                      type="button"
+                      onClick={() =>
+                        setDriverReviewVal((prev) =>
+                          prev.includes(chip) ? prev : prev ? `${prev}، ${chip}` : chip
+                        )
+                      }
+                      className="text-[11px] bg-white hover:bg-zinc-900 hover:text-white text-zinc-700 border border-zinc-300 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                    >
+                      + {chip}
+                    </button>
+                  ))}
+                </div>
+
+                <div>
+                  <label className="block text-zinc-600 mb-1 font-medium">
+                    ملاحظاتك على الكابتن وسرعة التوصيل (اختياري):
+                  </label>
+                  <input
+                    type="text"
+                    value={driverReviewVal}
+                    onChange={(e) => setDriverReviewVal(e.target.value)}
+                    placeholder="اكتب رأيك في تعامل الكابتن وسرعة الوصول..."
+                    className="w-full p-2.5 bg-white border border-zinc-300 rounded-md text-xs focus:outline-none focus:border-zinc-900"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRatingModalOrder(null)}
+                  className="px-4 py-2 border border-zinc-300 rounded-md text-zinc-700 font-medium hover:bg-zinc-100 cursor-pointer"
+                >
+                  إلغاء
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 bg-zinc-950 hover:bg-zinc-800 text-white font-bold rounded-md shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+                  <span>اعتماد وإرسال التقييم</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

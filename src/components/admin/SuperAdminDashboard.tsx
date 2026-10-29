@@ -7,33 +7,44 @@ import {
   Bike,
   Settings,
   ShieldCheck,
-  Bell,
   ChevronLeft,
   KeyRound,
+  LogOut,
+  ExternalLink,
+  Package,
 } from 'lucide-react';
 import { AdminAnalytics } from './AdminAnalytics';
+import { AdminOrders } from './AdminOrders';
 import { AdminSettlements } from './AdminSettlements';
 import { AdminVendors } from './AdminVendors';
 import { AdminDrivers } from './AdminDrivers';
 import { AdminSettings } from './AdminSettings';
 import { AdminCredentials } from './AdminCredentials';
 
-type AdminSection = 'analytics' | 'settlements' | 'vendors' | 'drivers' | 'credentials' | 'settings';
+type AdminSection = 'analytics' | 'orders' | 'settlements' | 'vendors' | 'drivers' | 'credentials' | 'settings';
 
 export const SuperAdminDashboard: React.FC = () => {
-  const { settlements, vendors, drivers, customers } = usePlatform();
+  const { settlements, vendors, drivers, customers, orders, logoutAdmin } = usePlatform();
   const [activeSection, setActiveSection] = useState<AdminSection>('analytics');
 
   const pendingSettlementsCount = settlements.filter((s) => s.status === 'pending').length;
   const pendingVendorsCount = vendors.filter((v) => v.status === 'pending').length;
   const pendingDriversCount = drivers.filter((d) => d.status === 'pending').length;
+  const activeOrdersCount = orders.filter(
+    (o) =>
+      o.status !== 'delivered' &&
+      o.status !== 'returned_completed' &&
+      o.status !== 'cancelled' &&
+      o.status !== 'cancelled_by_vendor'
+  ).length;
 
   const sectionTitles: Record<AdminSection, string> = {
     analytics: 'النظرة العامة والإحصائيات المالية',
+    orders: 'إدارة ومتابعة الطلبات وتصفية الحالات',
     settlements: 'خزنة التحصيل واعتماد السدادات',
     vendors: 'إدارة البراندات ومحلات الأزياء',
     drivers: 'إدارة أسطول كباتن التوصيل',
-    credentials: 'سجل الحسابات وكلمات المرور (Users & Passwords)',
+    credentials: 'سجل الحسابات وكلمات المرور والروابط المستقلة',
     settings: 'إعدادات التسعير والخزنة والمحافظ',
   };
 
@@ -68,6 +79,24 @@ export const SuperAdminDashboard: React.FC = () => {
                 <TrendingUp className="w-4 h-4" />
                 <span>النظرة العامة والإحصائيات</span>
               </div>
+            </button>
+
+            {/* 1.5 Orders Management & Status Filtering */}
+            <button
+              onClick={() => setActiveSection('orders')}
+              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-md font-medium transition-colors ${
+                activeSection === 'orders'
+                  ? 'bg-zinc-800 text-white font-bold'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Package className="w-4 h-4 text-sky-400" />
+                <span>إدارة ومتابعة الطلبات</span>
+              </div>
+              <span className="bg-sky-600 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full tabular-nums">
+                {activeOrdersCount > 0 ? activeOrdersCount : orders.length}
+              </span>
             </button>
 
             {/* 2. Settlements Vault (Most Important) */}
@@ -141,7 +170,7 @@ export const SuperAdminDashboard: React.FC = () => {
             >
               <div className="flex items-center gap-2.5">
                 <KeyRound className="w-4 h-4 text-amber-400" />
-                <span>الحسابات وكلمات المرور</span>
+                <span>الحسابات والروابط المستقلة</span>
               </div>
               <span className="bg-zinc-800 text-zinc-300 border border-zinc-700 text-[10px] font-bold px-1.5 py-0.2 rounded-full tabular-nums">
                 {vendors.length + drivers.length + customers.length}
@@ -163,10 +192,71 @@ export const SuperAdminDashboard: React.FC = () => {
               </div>
             </button>
           </nav>
+
+          {/* Unified Single-Domain Portal Routes Box */}
+          <div className="mx-3 mt-4 p-3 rounded-lg bg-zinc-900/90 border border-zinc-800 space-y-2 text-[11px]">
+            <div className="font-bold text-zinc-300">مسارات المنصة الموحدة:</div>
+            <div className="space-y-1">
+              <a
+                href="/store"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between text-zinc-400 hover:text-white py-1 px-1.5 rounded hover:bg-zinc-800 transition-colors"
+              >
+                <span>متجر العملاء (/store)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+              <a
+                href="/vendor"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between text-zinc-400 hover:text-white py-1 px-1.5 rounded hover:bg-zinc-800 transition-colors"
+              >
+                <span>بوابة التاجر (/vendor)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+              <a
+                href="/driver"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between text-zinc-400 hover:text-white py-1 px-1.5 rounded hover:bg-zinc-800 transition-colors"
+              >
+                <span>تطبيق الكابتن (/driver)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+              <a
+                href="/join"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between text-zinc-400 hover:text-white py-1 px-1.5 rounded hover:bg-zinc-800 transition-colors"
+              >
+                <span>انضمام الشركاء (/join)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+              <a
+                href="/join/vendor"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between text-zinc-400 hover:text-white py-1 px-1.5 rounded hover:bg-zinc-800 transition-colors"
+              >
+                <span>تسجيل متجر (/join/vendor)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+              <a
+                href="/join/driver"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center justify-between text-zinc-400 hover:text-white py-1 px-1.5 rounded hover:bg-zinc-800 transition-colors"
+              >
+                <span>تسجيل كابتن (/join/driver)</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Admin User Footer Card */}
-        <div className="p-4 border-t border-zinc-900 text-xs text-zinc-400">
+        <div className="p-4 border-t border-zinc-900 text-xs text-zinc-400 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-zinc-800 flex items-center justify-center font-bold text-white text-xs">
               AD
@@ -176,6 +266,13 @@ export const SuperAdminDashboard: React.FC = () => {
               <div className="text-[10px] text-zinc-500 font-mono">admin@voguefast.eg</div>
             </div>
           </div>
+          <button
+            onClick={logoutAdmin}
+            title="تسجيل الخروج"
+            className="p-1.5 rounded hover:bg-zinc-800 text-zinc-400 hover:text-red-400 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
       </aside>
 
@@ -200,7 +297,10 @@ export const SuperAdminDashboard: React.FC = () => {
 
         {/* Active Section Content */}
         <div className="p-6">
-          {activeSection === 'analytics' && <AdminAnalytics />}
+          {activeSection === 'analytics' && (
+            <AdminAnalytics onNavigateToOrders={() => setActiveSection('orders')} />
+          )}
+          {activeSection === 'orders' && <AdminOrders />}
           {activeSection === 'settlements' && <AdminSettlements />}
           {activeSection === 'vendors' && <AdminVendors />}
           {activeSection === 'drivers' && <AdminDrivers />}
