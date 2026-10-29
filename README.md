@@ -1,34 +1,20 @@
-# VOGUE FAST | منصة توصيل الأزياء السريعة
+<div align="center">
+<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
+</div>
 
-Unified single-deployment platform for fast fashion delivery, merchant POS, fleet dispatch, and financial vault management.
+# Run and deploy your AI Studio app
 
-## Unified Application Routes (Single Domain)
+This contains everything you need to run your app locally.
 
-All portals are hosted inside one consolidated Vercel project (`vogue-fast`) under a single shared domain (`https://vogue-fast.vercel.app`):
-
-- `/store` — Customer storefront
-- `/vendor` — Merchant POS portal (requires Vendor authentication)
-- `/driver` — Driver application (requires Driver authentication)
-- `/admin` — Super Admin financial vault & dashboard (requires Super Admin authentication)
-- `/join` — Partner onboarding hub
-- `/join/vendor` — Merchant registration
-- `/join/driver` — Driver registration
-
-## Authentication & Role-Based Authorization
-
-Server-side authentication and role-based session verification are enforced via `/api/auth` using HMAC-SHA256 signed `HttpOnly` session cookies (`vf_token_admin`, `vf_token_vendor`, `vf_token_driver`, `vf_token_customer`).
+View your app in AI Studio: https://ai.studio/apps/9c0e89af-273b-4dd8-b8b3-4f7156158edb
 
 ## Run Locally
 
+**Prerequisites:**  Node.js
+
+
 1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
-3. Build for production:
-   ```bash
-   npm run build
-   ```
+   `npm install`
+2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+3. Run the app:
+   `npm run dev`

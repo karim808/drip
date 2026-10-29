@@ -11,16 +11,11 @@ import {
   Search,
   Eye,
   ShieldAlert,
-  Flame,
-  Star,
 } from 'lucide-react';
-import { AdminOrderDensityHeatmap } from '../maps/AdminOrderDensityHeatmap';
 
 export const AdminDrivers: React.FC = () => {
   const {
     drivers,
-    orders,
-    vendors,
     updateDriverLimit,
     toggleDriverStatus,
     approvePendingDriver,
@@ -28,7 +23,7 @@ export const AdminDrivers: React.FC = () => {
     setPreviewImage,
   } = usePlatform();
 
-  const [activeTab, setActiveTab] = useState<'active' | 'pending' | 'heatmap'>('active');
+  const [activeTab, setActiveTab] = useState<'active' | 'pending'>('active');
   const [searchQuery, setSearchQuery] = useState('');
 
   const [editLimitDriver, setEditLimitDriver] = useState<Driver | null>(null);
@@ -121,18 +116,6 @@ export const AdminDrivers: React.FC = () => {
               </span>
             )}
           </button>
-
-          <button
-            onClick={() => setActiveTab('heatmap')}
-            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors ${
-              activeTab === 'heatmap'
-                ? 'border-red-600 text-red-600'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
-            }`}
-          >
-            <Flame className="w-3.5 h-3.5 text-red-600" />
-            <span>خريطة الكثافة الحرارية ومناطق التوظيف (Heatmap)</span>
-          </button>
         </div>
 
         {activeTab === 'active' && (
@@ -176,17 +159,6 @@ export const AdminDrivers: React.FC = () => {
                   const isOverLimit = driver.currentDebt >= driver.debtLimit;
                   const isNearLimit = usedPercent >= 80 && usedPercent < 100;
 
-                  const ratedDriverOrders = orders.filter(
-                    (o) => o.driverId === driver.id && typeof o.driverRating === 'number'
-                  );
-                  const avgDriverRating =
-                    ratedDriverOrders.length > 0
-                      ? (
-                          ratedDriverOrders.reduce((s, o) => s + (o.driverRating || 5), 0) /
-                          ratedDriverOrders.length
-                        ).toFixed(1)
-                      : '4.9';
-
                   return (
                     <tr key={driver.id} className="hover:bg-zinc-50/70 transition-colors">
                       <td className="px-4 py-3.5">
@@ -211,13 +183,7 @@ export const AdminDrivers: React.FC = () => {
                             </div>
                           )}
                           <div>
-                            <div className="font-bold text-zinc-950 text-xs flex items-center gap-1.5">
-                              <span>{driver.name}</span>
-                              <span className="inline-flex items-center gap-0.5 text-[10px] font-mono bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded">
-                                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
-                                {avgDriverRating}
-                              </span>
-                            </div>
+                            <div className="font-bold text-zinc-950 text-xs">{driver.name}</div>
                             <div className="text-[11px] text-zinc-400 font-mono">{driver.phone}</div>
                           </div>
                         </div>
@@ -480,16 +446,6 @@ export const AdminDrivers: React.FC = () => {
             </div>
           )}
         </div>
-      )}
-
-      {/* Order Density & Driver Recruitment Heatmap Tab */}
-      {activeTab === 'heatmap' && (
-        <AdminOrderDensityHeatmap
-          orders={orders}
-          drivers={drivers}
-          vendors={vendors}
-          onSwitchToDriversSection={() => setActiveTab('pending')}
-        />
       )}
 
       {/* Edit Limit Modal */}

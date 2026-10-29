@@ -13,13 +13,11 @@ import {
   ExternalLink,
   Percent,
   Coins,
-  Star,
 } from 'lucide-react';
 
 export const AdminVendors: React.FC = () => {
   const {
     vendors,
-    orders,
     updateVendorCommissionAndLimit,
     toggleVendorStatus,
     approvePendingVendor,
@@ -41,8 +39,6 @@ export const AdminVendors: React.FC = () => {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [newVendorName, setNewVendorName] = useState('');
-  const [newVendorEmail, setNewVendorEmail] = useState('');
-  const [newVendorPassword, setNewVendorPassword] = useState('');
   const [newVendorPhone, setNewVendorPhone] = useState('');
   const [newVendorArea, setNewVendorArea] = useState('المعادي');
   const [newVendorAddress, setNewVendorAddress] = useState('');
@@ -85,14 +81,11 @@ export const AdminVendors: React.FC = () => {
 
   const handleAddVendorSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newVendorName || !newVendorEmail || !newVendorPhone || !newVendorPassword) return;
+    if (!newVendorName || !newVendorPhone) return;
 
-    const slug = newVendorName.toLowerCase().replace(/\s+/g, '-');
     addVendorManual({
       name: newVendorName,
-      slug,
-      email: newVendorEmail.trim().toLowerCase(),
-      password: newVendorPassword,
+      slug: newVendorName.toLowerCase().replace(/\s+/g, '-'),
       phone: newVendorPhone,
       area: newVendorArea,
       address: newVendorAddress || `${newVendorArea}، القاهرة`,
@@ -106,8 +99,6 @@ export const AdminVendors: React.FC = () => {
 
     setIsAddModalOpen(false);
     setNewVendorName('');
-    setNewVendorEmail('');
-    setNewVendorPassword('');
     setNewVendorPhone('');
     setNewVendorAddress('');
   };
@@ -214,17 +205,6 @@ export const AdminVendors: React.FC = () => {
                   const isNearLimit = usedPercent >= 80 && usedPercent < 100;
                   const isOverLimit = vendor.currentDebt >= vendor.debtLimit;
 
-                  const ratedVendorOrders = orders.filter(
-                    (o) => o.vendorId === vendor.id && typeof o.vendorRating === 'number'
-                  );
-                  const avgVendorRating =
-                    ratedVendorOrders.length > 0
-                      ? (
-                          ratedVendorOrders.reduce((s, o) => s + (o.vendorRating || 5), 0) /
-                          ratedVendorOrders.length
-                        ).toFixed(1)
-                      : '4.9';
-
                   return (
                     <tr key={vendor.id} className="hover:bg-zinc-50/70 transition-colors">
                       <td className="px-4 py-3.5">
@@ -236,13 +216,7 @@ export const AdminVendors: React.FC = () => {
                             referrerPolicy="no-referrer"
                           />
                           <div>
-                            <div className="font-bold text-zinc-950 text-xs flex items-center gap-1.5">
-                              <span>{vendor.name}</span>
-                              <span className="inline-flex items-center gap-0.5 text-[10px] font-mono bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded">
-                                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
-                                {avgVendorRating}
-                              </span>
-                            </div>
+                            <div className="font-bold text-zinc-950 text-xs">{vendor.name}</div>
                             <div className="text-[11px] text-zinc-500">{vendor.category}</div>
                           </div>
                         </div>
@@ -588,36 +562,6 @@ export const AdminVendors: React.FC = () => {
                     value={newVendorPhone}
                     onChange={(e) => setNewVendorPhone(e.target.value)}
                     className="w-full text-xs p-2 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
-                    البريد الإلكتروني للدخول:
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    placeholder="brand@voguefast.eg"
-                    value={newVendorEmail}
-                    onChange={(e) => setNewVendorEmail(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md font-mono focus:outline-none focus:border-zinc-900"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
-                    كلمة المرور الأولية:
-                  </label>
-                  <input
-                    type="password"
-                    required
-                    minLength={6}
-                    placeholder="••••••••"
-                    value={newVendorPassword}
-                    onChange={(e) => setNewVendorPassword(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md font-mono focus:outline-none focus:border-zinc-900"
                   />
                 </div>
               </div>

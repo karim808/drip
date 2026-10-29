@@ -38,33 +38,15 @@ interface PlatformContextType {
   onboardingType: OnboardingType;
   setOnboardingType: (type: OnboardingType) => void;
 
-  // Portal Authentication (Server-verified RBAC)
-  isAdminAuthenticated: boolean;
-  loginAdmin: (email: string, password: string) => Promise<boolean>;
-  logoutAdmin: () => void;
-  isVendorAuthenticated: boolean;
-  loginVendor: (email: string, password: string) => Promise<boolean>;
-  logoutVendor: () => void;
-  isDriverAuthenticated: boolean;
-  loginDriver: (email: string, password: string) => Promise<boolean>;
-  logoutDriver: () => void;
-
   // Customer Authentication & Management
   customers: CustomerUser[];
   currentCustomer: CustomerUser | null;
-  loginCustomer: (email: string, password: string) => Promise<boolean>;
-  registerCustomer: (data: {
-    name: string;
-    email: string;
-    phone: string;
-    password: string;
-    area: string;
-    address: string;
-  }) => Promise<CustomerUser | null>;
+  loginCustomer: (phone: string, name?: string) => boolean;
+  registerCustomer: (data: { name: string; phone: string; area: string; address: string }) => CustomerUser;
   logoutCustomer: () => void;
   setCurrentCustomer: (customer: CustomerUser | null) => void;
 
-  // Selected Entities (Locked to authenticated session)
+  // Selected Entities
   activeVendorId: string;
   setActiveVendorId: (id: string) => void;
   activeDriverId: string;
@@ -109,20 +91,8 @@ interface PlatformContextType {
   driverConfirmStorePickup: (orderId: string) => void;
   driverCompleteDelivery: (orderId: string) => void;
   driverTriggerInstantReturn: (orderId: string, reason: string) => void;
-  submitOrderRating: (
-    orderId: string,
-    ratingData: {
-      vendorRating: number;
-      vendorReview?: string;
-      driverRating?: number;
-      driverReview?: string;
-    }
-  ) => void;
-  updateUserPassword: (
-    type: 'vendor' | 'driver' | 'customer',
-    id: string,
-    newPass: string
-  ) => Promise<boolean>;
+  updateUserPassword: (type: 'vendor' | 'driver' | 'customer', id: string, newPass: string) => void;
+  quickImpersonate: (type: 'vendor' | 'driver' | 'customer', id: string) => void;
 
   // Settlements Actions
   submitSettlement: (data: {
@@ -157,11 +127,7 @@ interface PlatformContextType {
     debtLimit: number
   ) => void;
   rejectPendingVendor: (vendorId: string) => void;
-  addVendorManual: (
-    vendor: Omit<Vendor, 'id' | 'currentDebt' | 'totalSales' | 'createdAt'> & {
-      password?: string;
-    }
-  ) => void;
+  addVendorManual: (vendor: Omit<Vendor, 'id' | 'currentDebt' | 'totalSales' | 'createdAt'>) => void;
 
   updateDriverLimit: (driverId: string, debtLimit: number) => void;
   toggleDriverStatus: (driverId: string) => void;
@@ -179,20 +145,18 @@ interface PlatformContextType {
   // Onboarding submissions
   registerVendorApplication: (data: {
     name: string;
-    email: string;
     phone: string;
-    password: string;
+    password?: string;
     area: string;
     address: string;
     category: string;
     logoUrl?: string;
     instagram?: string;
-  }) => Promise<boolean>;
+  }) => void;
   registerDriverApplication: (data: {
     name: string;
-    email: string;
     phone: string;
-    password: string;
+    password?: string;
     vehicle: string;
     vehicleNumber: string;
     area: string;
@@ -201,7 +165,7 @@ interface PlatformContextType {
     vehiclePhoto?: string;
     nationalIdPhoto?: string;
     licensePhoto?: string;
-  }) => Promise<boolean>;
+  }) => void;
 
   // Modal Image Preview
   previewImage: { url: string; title: string; subtitle?: string } | null;
@@ -215,596 +179,67 @@ interface PlatformContextType {
 
 const PlatformContext = createContext<PlatformContextType | undefined>(undefined);
 
-function detectPortalFromUrl(): { portal: UserPortal; onboarding?: OnboardingType } {
-  if (typeof window === 'undefined') return { portal: 'customer' };
-
-  const pathname = window.location.pathname.toLowerCase();
-
-  if (pathname === '/admin' || pathname.startsWith('/admin/')) {
-    return { portal: 'admin' };
-  }
-  if (pathname === '/vendor' || pathname.startsWith('/vendor/')) {
-    return { portal: 'vendor' };
-  }
-  if (pathname === '/driver' || pathname.startsWith('/driver/')) {
-    return { portal: 'driver' };
-  }
-  if (pathname === '/join/driver' || pathname.startsWith('/join/driver/')) {
-    return { portal: 'onboarding', onboarding: 'driver' };
-  }
-  if (pathname === '/join/vendor' || pathname.startsWith('/join/vendor/')) {
-    return { portal: 'onboarding', onboarding: 'vendor' };
-  }
-  if (pathname === '/join' || pathname.startsWith('/join/')) {
-    return { portal: 'onboarding' };
-  }
-  if (pathname === '/store' || pathname.startsWith('/store/')) {
-    return { portal: 'customer' };
-  }
-
-  return { portal: 'customer' };
-}
-
-function sanitizeStoredEntities<T extends { id: string; email: string }>(
-  items: T[],
-  defaults: T[]
-): T[] {
-  return items.map((item) => {
-    const copy = { ...item } as T & { password?: string };
-    delete copy.password;
-    if (!copy.email) {
-      const def = defaults.find((d) => d.id === copy.id);
-      if (def?.email) copy.email = def.email;
-    }
-    return copy;
-  });
-}
-
-function loadFromStorage<T>(key: string, fallback: T): T {
-  if (typeof window === 'undefined') return fallback;
-  try {
-    const raw = window.localStorage.getItem(key);
-    if (!raw) return fallback;
-    return JSON.parse(raw) as T;
-  } catch {
-    return fallback;
-  }
-}
-
 export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const initialRoute = detectPortalFromUrl();
-  const [activePortalState, setActivePortalState] = useState<UserPortal>(initialRoute.portal);
-  const [onboardingTypeState, setOnboardingTypeState] = useState<OnboardingType>(
-    initialRoute.onboarding || 'vendor'
-  );
+  const [activePortal, setActivePortal] = useState<UserPortal>('admin');
+  const [onboardingType, setOnboardingType] = useState<OnboardingType>('vendor');
 
-  const setOnboardingType = (type: OnboardingType) => {
-    setOnboardingTypeState(type);
-    if (typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/join')) {
-      const targetPath = type === 'driver' ? '/join/driver' : '/join/vendor';
-      if (window.location.pathname !== targetPath) {
-        window.history.pushState({ portal: 'onboarding', onboarding: type }, '', targetPath);
-      }
-    }
-  };
+  const [pricingConfig, setPricingConfig] = useState<PricingConfig>(initialPricingConfig);
+  const [vendors, setVendors] = useState<Vendor[]>(initialVendors);
+  const [drivers, setDrivers] = useState<Driver[]>(initialDrivers);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [settlements, setSettlements] = useState<SettlementRequest[]>(initialSettlements);
 
-  const setActivePortal = (portal: UserPortal) => {
-    setActivePortalState(portal);
-    if (typeof window !== 'undefined') {
-      const pathMap: Record<UserPortal, string> = {
-        customer: '/store',
-        vendor: '/vendor',
-        driver: '/driver',
-        admin: '/admin',
-        onboarding:
-          onboardingTypeState === 'driver'
-            ? '/join/driver'
-            : onboardingTypeState === 'vendor'
-            ? '/join/vendor'
-            : '/join',
-      };
-      const targetPath = pathMap[portal] || '/store';
-      if (window.location.pathname !== targetPath) {
-        window.history.pushState({ portal }, '', targetPath);
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  // Customer Management
+  const [customers, setCustomers] = useState<CustomerUser[]>(initialCustomers);
+  const [currentCustomer, setCurrentCustomer] = useState<CustomerUser | null>(initialCustomers[0]);
 
-  useEffect(() => {
-    const handlePopState = () => {
-      const detected = detectPortalFromUrl();
-      setActivePortalState(detected.portal);
-      if (detected.onboarding) setOnboardingTypeState(detected.onboarding);
-    };
-    window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
-  }, []);
-
-  const [pricingConfig, setPricingConfig] = useState<PricingConfig>(() =>
-    loadFromStorage('vf_pricing_v1', initialPricingConfig)
-  );
-  const [vendors, setVendors] = useState<Vendor[]>(() =>
-    sanitizeStoredEntities(loadFromStorage('vf_vendors_v1', initialVendors), initialVendors)
-  );
-  const [drivers, setDrivers] = useState<Driver[]>(() =>
-    sanitizeStoredEntities(loadFromStorage('vf_drivers_v1', initialDrivers), initialDrivers)
-  );
-  const [products, setProducts] = useState<Product[]>(() =>
-    loadFromStorage('vf_products_v1', initialProducts)
-  );
-  const [orders, setOrders] = useState<Order[]>(() =>
-    loadFromStorage('vf_orders_v1', initialOrders)
-  );
-  const [settlements, setSettlements] = useState<SettlementRequest[]>(() =>
-    loadFromStorage('vf_settlements_v1', initialSettlements)
-  );
-
-  // Customer Management — NO auto-login of demo customer
-  const [customers, setCustomers] = useState<CustomerUser[]>(() =>
-    sanitizeStoredEntities(loadFromStorage('vf_customers_v1', initialCustomers), initialCustomers)
-  );
-  const [currentCustomer, setCurrentCustomer] = useState<CustomerUser | null>(null);
-
-  const [activeVendorId, setActiveVendorIdState] = useState<string>('');
-  const [activeDriverId, setActiveDriverIdState] = useState<string>('');
-
-  // Portal Auth States — strictly derived from server-side /api/auth session
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
-  const [isVendorAuthenticated, setIsVendorAuthenticated] = useState<boolean>(false);
-  const [isDriverAuthenticated, setIsDriverAuthenticated] = useState<boolean>(false);
-
-  // Prevent cross-account switching by non-admins
-  const setActiveVendorId = (id: string) => {
-    if (isVendorAuthenticated && !isAdminAuthenticated && activeVendorId && id !== activeVendorId) {
-      showToast('غير مصرح: لا يمكنك الوصول إلى بيانات متجر آخر', 'error');
-      return;
-    }
-    setActiveVendorIdState(id);
-  };
-
-  const setActiveDriverId = (id: string) => {
-    if (isDriverAuthenticated && !isAdminAuthenticated && activeDriverId && id !== activeDriverId) {
-      showToast('غير مصرح: لا يمكنك الوصول إلى حساب كابتن آخر', 'error');
-      return;
-    }
-    setActiveDriverIdState(id);
-  };
-
-  // Helper to verify server-side authorization before sensitive mutations
-  const authorizeServerMutation = async (
-    requiredRole: 'admin' | 'vendor' | 'driver' | 'customer',
-    mutation: string,
-    targetEntityId?: string
-  ): Promise<boolean> => {
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'authorize-mutation',
-          requiredRole,
-          targetEntityId,
-          mutation,
-        }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        showToast(err.error || 'غير مصرح لك بتنفيذ هذا الإجراء', 'error');
-        return false;
-      }
+  const loginCustomer = (phone: string, name?: string): boolean => {
+    const existing = customers.find((c) => c.phone.trim() === phone.trim());
+    if (existing) {
+      setCurrentCustomer(existing);
+      showToast(`مرحباً بعودتك، ${existing.name}!`, 'success');
       return true;
-    } catch {
-      showToast('تعذر التحقق من الصلاحية الأمنية من الخادم', 'error');
-      return false;
     }
-  };
-
-  // Server-side RBAC session verification on mount and portal switch
-  useEffect(() => {
-    let cancelled = false;
-    async function verifyServerSession() {
-      try {
-        const res = await fetch('/api/auth?action=session', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        if (!res.ok || cancelled) return;
-        const data = await res.json();
-        if (cancelled) return;
-
-        const session = data?.session;
-        if (!session) {
-          setIsAdminAuthenticated(false);
-          setIsVendorAuthenticated(false);
-          setIsDriverAuthenticated(false);
-          setCurrentCustomer(null);
-          return;
-        }
-
-        // Strict single-role session enforcement
-        setIsAdminAuthenticated(session.role === 'admin');
-        setIsVendorAuthenticated(session.role === 'vendor');
-        setIsDriverAuthenticated(session.role === 'driver');
-
-        if (session.role === 'vendor' && session.entityId) {
-          setActiveVendorIdState(session.entityId);
-        } else if (session.role !== 'vendor') {
-          setActiveVendorIdState('');
-        }
-
-        if (session.role === 'driver' && session.entityId) {
-          setActiveDriverIdState(session.entityId);
-        } else if (session.role !== 'driver') {
-          setActiveDriverIdState('');
-        }
-
-        if (session.role === 'customer' && session.entityId) {
-          const foundCust = customers.find((c) => c.id === session.entityId);
-          if (foundCust) {
-            setCurrentCustomer(foundCust);
-          } else {
-            setCurrentCustomer({
-              id: session.entityId,
-              name: session.name,
-              email: session.email,
-              phone: session.phone || '',
-              area: 'القاهرة',
-              address: 'القاهرة',
-              createdAt: new Date().toISOString().slice(0, 10),
-            });
-          }
-        } else if (session.role !== 'customer') {
-          setCurrentCustomer(null);
-        }
-      } catch {
-        // If server unreachable, default to unauthenticated
-        setIsAdminAuthenticated(false);
-        setIsVendorAuthenticated(false);
-        setIsDriverAuthenticated(false);
-        setCurrentCustomer(null);
-      }
-    }
-    verifyServerSession();
-    return () => {
-      cancelled = true;
-    };
-  }, [activePortalState]);
-
-  // Persist non-sensitive operational data to localStorage (never store passwords or auth tokens)
-  useEffect(() => {
-    try {
-      window.localStorage.setItem('vf_pricing_v1', JSON.stringify(pricingConfig));
-      window.localStorage.setItem('vf_vendors_v1', JSON.stringify(vendors));
-      window.localStorage.setItem('vf_drivers_v1', JSON.stringify(drivers));
-      window.localStorage.setItem('vf_products_v1', JSON.stringify(products));
-      window.localStorage.setItem('vf_orders_v1', JSON.stringify(orders));
-      window.localStorage.setItem('vf_settlements_v1', JSON.stringify(settlements));
-      window.localStorage.setItem('vf_customers_v1', JSON.stringify(customers));
-      // Clean up legacy insecure auth keys if present
-      window.localStorage.removeItem('vf_current_customer_v1');
-      window.localStorage.removeItem('vf_auth_admin_v1');
-      window.localStorage.removeItem('vf_auth_vendor_v1');
-      window.localStorage.removeItem('vf_auth_driver_v1');
-    } catch {
-      // ignore storage quota errors
-    }
-  }, [pricingConfig, vendors, drivers, products, orders, settlements, customers]);
-
-  useEffect(() => {
-    const handleStorageSync = (e: StorageEvent) => {
-      if (!e.key || !e.newValue) return;
-      try {
-        const parsed = JSON.parse(e.newValue);
-        if (e.key === 'vf_pricing_v1') setPricingConfig(parsed);
-        if (e.key === 'vf_vendors_v1') setVendors(sanitizeStoredEntities(parsed, initialVendors));
-        if (e.key === 'vf_drivers_v1') setDrivers(sanitizeStoredEntities(parsed, initialDrivers));
-        if (e.key === 'vf_products_v1') setProducts(parsed);
-        if (e.key === 'vf_orders_v1') setOrders(parsed);
-        if (e.key === 'vf_settlements_v1') setSettlements(parsed);
-        if (e.key === 'vf_customers_v1') setCustomers(sanitizeStoredEntities(parsed, initialCustomers));
-      } catch {
-        // ignore parse errors
-      }
-    };
-    window.addEventListener('storage', handleStorageSync);
-    return () => window.removeEventListener('storage', handleStorageSync);
-  }, []);
-
-  // ============================================================================
-  // STRICT EMAIL + PASSWORD AUTHENTICATION HANDLERS
-  // ============================================================================
-
-  const loginCustomer = async (email: string, password: string): Promise<boolean> => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPassword = password.trim();
-    if (!cleanEmail || !cleanPassword) {
-      showToast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'error');
-      return false;
-    }
-
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'login',
-          role: 'customer',
-          email: cleanEmail,
-          password: cleanPassword,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok || data?.session?.role !== 'customer') {
-        showToast(data?.error || 'البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error');
-        return false;
-      }
-
-      const session = data.session;
-      const existing = customers.find(
-        (c) => c.id === session.entityId || c.email.toLowerCase() === cleanEmail
-      );
-      const custRecord: CustomerUser = existing || {
-        id: session.entityId,
-        name: session.name,
-        email: session.email,
-        phone: session.phone || '',
+    if (name) {
+      const newCust: CustomerUser = {
+        id: `cust-${Date.now().toString().slice(-4)}`,
+        name,
+        phone,
         area: 'التجمع الخامس',
         address: 'القاهرة',
         createdAt: new Date().toISOString().slice(0, 10),
       };
-
-      setIsAdminAuthenticated(false);
-      setIsVendorAuthenticated(false);
-      setIsDriverAuthenticated(false);
-      setCurrentCustomer(custRecord);
-      showToast(`مرحباً بعودتك، ${custRecord.name}!`, 'success');
-      return true;
-    } catch {
-      showToast('خطأ في الاتصال بخادم المصادقة', 'error');
-      return false;
-    }
-  };
-
-  const registerCustomer = async (data: {
-    name: string;
-    email: string;
-    phone: string;
-    password: string;
-    area: string;
-    address: string;
-  }): Promise<CustomerUser | null> => {
-    const cleanEmail = data.email.trim().toLowerCase();
-    const cleanPass = data.password.trim();
-    if (!cleanEmail || !cleanPass || !data.name.trim() || !data.phone.trim()) {
-      showToast('يرجى استكمال كافة البيانات المطلوبة', 'error');
-      return null;
-    }
-
-    const newId = `cust-${Date.now().toString().slice(-4)}`;
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'register',
-          role: 'customer',
-          entityId: newId,
-          name: data.name.trim(),
-          email: cleanEmail,
-          phone: data.phone.trim(),
-          password: cleanPass,
-        }),
-      });
-      const respData = await res.json().catch(() => ({}));
-      if (!res.ok || !respData?.ok) {
-        showToast(respData?.error || 'تعذر إنشاء الحساب', 'error');
-        return null;
-      }
-
-      const newCust: CustomerUser = {
-        id: respData.session?.entityId || newId,
-        name: data.name.trim(),
-        email: cleanEmail,
-        phone: data.phone.trim(),
-        area: data.area,
-        address: data.address,
-        createdAt: new Date().toISOString().slice(0, 10),
-      };
       setCustomers((prev) => [...prev, newCust]);
       setCurrentCustomer(newCust);
-      showToast(`تم إنشاء حسابك بنجاح! مرحباً بك ${newCust.name}`, 'success');
-      return newCust;
-    } catch {
-      showToast('خطأ في الاتصال بالخادم أثناء إنشاء الحساب', 'error');
-      return null;
+      showToast(`أهلاً بك في VOGUE FAST، ${newCust.name}! تم إنشاء حسابك بنجاح.`, 'success');
+      return true;
     }
+    return false;
+  };
+
+  const registerCustomer = (data: { name: string; phone: string; area: string; address: string }): CustomerUser => {
+    const newCust: CustomerUser = {
+      id: `cust-${Date.now().toString().slice(-4)}`,
+      name: data.name,
+      phone: data.phone,
+      area: data.area,
+      address: data.address,
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+    setCustomers((prev) => [...prev, newCust]);
+    setCurrentCustomer(newCust);
+    showToast(`تم إنشاء حسابك بنجاح! مرحباً بك ${newCust.name}`, 'success');
+    return newCust;
   };
 
   const logoutCustomer = () => {
     setCurrentCustomer(null);
-    fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
-    }).catch(() => {});
     showToast('تم تسجيل الخروج من حساب العميل', 'info');
   };
 
-  const loginAdmin = async (email: string, password: string): Promise<boolean> => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
-    if (!cleanEmail || !cleanPass) {
-      showToast('يرجى إدخال البريد الإلكتروني وكلمة المرور', 'error');
-      return false;
-    }
-
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'login',
-          role: 'admin',
-          email: cleanEmail,
-          password: cleanPass,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok || data?.session?.role !== 'admin') {
-        setIsAdminAuthenticated(false);
-        showToast(data?.error || 'بيانات الدخول غير صحيحة. تأكد من البريد وكلمة المرور.', 'error');
-        return false;
-      }
-
-      setIsVendorAuthenticated(false);
-      setIsDriverAuthenticated(false);
-      setCurrentCustomer(null);
-      setIsAdminAuthenticated(true);
-      showToast('مرحباً بك في لوحة الإدارة العليا والخزنة المالية', 'success');
-      return true;
-    } catch {
-      setIsAdminAuthenticated(false);
-      showToast('تعذر الاتصال بخادم التحقق الأمني', 'error');
-      return false;
-    }
-  };
-
-  const logoutAdmin = () => {
-    setIsAdminAuthenticated(false);
-    fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
-    }).catch(() => {});
-    showToast('تم تسجيل الخروج من لوحة الإدارة العليا', 'info');
-  };
-
-  const loginVendor = async (email: string, password: string): Promise<boolean> => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
-    if (!cleanEmail || !cleanPass) {
-      showToast('يرجى إدخال البريد الإلكتروني وكلمة المرور للمتجر', 'error');
-      return false;
-    }
-
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'login',
-          role: 'vendor',
-          email: cleanEmail,
-          password: cleanPass,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok || data?.session?.role !== 'vendor') {
-        setIsVendorAuthenticated(false);
-        showToast(data?.error || 'البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error');
-        return false;
-      }
-
-      const entityId = data.session.entityId;
-      const matched = vendors.find((v) => v.id === entityId || v.email.toLowerCase() === cleanEmail);
-      if (matched && matched.status === 'pending') {
-        showToast('حساب المتجر لا يزال قيد المراجعة من الإدارة العليا', 'error');
-        return false;
-      }
-
-      setIsAdminAuthenticated(false);
-      setIsDriverAuthenticated(false);
-      setCurrentCustomer(null);
-      setActiveVendorIdState(entityId);
-      setIsVendorAuthenticated(true);
-      showToast(`تم تسجيل الدخول إلى بوابة متجر: ${matched?.name || data.session.name}`, 'success');
-      return true;
-    } catch {
-      setIsVendorAuthenticated(false);
-      showToast('تعذر الاتصال بخادم التحقق الأمني', 'error');
-      return false;
-    }
-  };
-
-  const logoutVendor = () => {
-    setIsVendorAuthenticated(false);
-    setActiveVendorIdState('');
-    fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
-    }).catch(() => {});
-    showToast('تم تسجيل الخروج من بوابة المتجر', 'info');
-  };
-
-  const loginDriver = async (email: string, password: string): Promise<boolean> => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
-    if (!cleanEmail || !cleanPass) {
-      showToast('يرجى إدخال البريد الإلكتروني وكلمة المرور للكابتن', 'error');
-      return false;
-    }
-
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'login',
-          role: 'driver',
-          email: cleanEmail,
-          password: cleanPass,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok || data?.session?.role !== 'driver') {
-        setIsDriverAuthenticated(false);
-        showToast(data?.error || 'البريد الإلكتروني أو كلمة المرور غير صحيحة', 'error');
-        return false;
-      }
-
-      const entityId = data.session.entityId;
-      const matched = drivers.find((d) => d.id === entityId || d.email.toLowerCase() === cleanEmail);
-      if (matched && matched.status === 'pending') {
-        showToast('حساب الكابتن لا يزال قيد فحص الأوراق من الإدارة', 'error');
-        return false;
-      }
-
-      setIsAdminAuthenticated(false);
-      setIsVendorAuthenticated(false);
-      setCurrentCustomer(null);
-      setActiveDriverIdState(entityId);
-      setIsDriverAuthenticated(true);
-      showToast(`أهلاً بك يا ${matched?.name || data.session.name}!`, 'success');
-      return true;
-    } catch {
-      setIsDriverAuthenticated(false);
-      showToast('تعذر الاتصال بخادم التحقق الأمني', 'error');
-      return false;
-    }
-  };
-
-  const logoutDriver = () => {
-    setIsDriverAuthenticated(false);
-    setActiveDriverIdState('');
-    fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
-    }).catch(() => {});
-    showToast('تم تسجيل الخروج من تطبيق الكابتن', 'info');
-  };
+  const [activeVendorId, setActiveVendorId] = useState<string>('v-1');
+  const [activeDriverId, setActiveDriverId] = useState<string>('d-1');
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -837,6 +272,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Cart operations
   const addToCart = (product: Product, size: string) => {
+    // If cart has items from another vendor, warn or replace
     const hasOtherVendor = cart.some((c) => c.product.vendorId !== product.vendorId);
     if (hasOtherVendor) {
       if (
@@ -900,11 +336,6 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }): Order | null => {
     if (cart.length === 0) return null;
 
-    if (!currentCustomer) {
-      showToast('يرجى تسجيل الدخول بحساب العميل أولاً لإتمام الطلب', 'error');
-      return null;
-    }
-
     const vendorId = cart[0].product.vendorId;
     const vendor = vendors.find((v) => v.id === vendorId);
     if (!vendor) return null;
@@ -919,6 +350,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     const clothesTotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
+    // Precise distance calculation: using real GPS/map coordinates if available, otherwise area heuristic
     let estimatedDistance = 11.5;
     if (customerInfo.coordinates && vendor.coordinates) {
       const realKm = calculateGeoDistanceKm(
@@ -927,6 +359,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         customerInfo.coordinates.lat,
         customerInfo.coordinates.lng
       );
+      // Delivery route driving distance is typically ~1.25x haversine direct line in urban Cairo
       estimatedDistance = Math.max(1.5, Math.round(realKm * 1.25 * 10) / 10);
     } else if (customerInfo.area === vendor.area) {
       estimatedDistance = 4.2;
@@ -951,7 +384,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const newOrder: Order = {
       id: `ord-${Date.now().toString().slice(-4)}`,
       orderNumber: `VF-${Math.floor(1000 + Math.random() * 9000)}`,
-      customerId: currentCustomer.id,
+      customerId: customerInfo.customerId || currentCustomer?.id,
       customerName: customerInfo.name,
       customerPhone: customerInfo.phone,
       customerArea: customerInfo.area,
@@ -985,16 +418,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Vendor confirms stock is available and prepares order -> becomes visible in Driver radar
-  const vendorConfirmStockAndPrepare = async (orderId: string) => {
-    const target = orders.find((o) => o.id === orderId);
-    if (!target) return;
-    if (target.vendorId !== activeVendorId && !isAdminAuthenticated) {
-      showToast('غير مصرح: هذا الطلب يخص متجراً آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('vendor', 'confirm-stock', target.vendorId);
-    if (!allowed) return;
-
+  const vendorConfirmStockAndPrepare = (orderId: string) => {
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: 'ready_for_driver' } : ord))
     );
@@ -1002,16 +426,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Vendor rejects order because size is out of stock -> cancelled_by_vendor
-  const vendorCancelOutOfStock = async (orderId: string, reason?: string) => {
-    const target = orders.find((o) => o.id === orderId);
-    if (!target) return;
-    if (target.vendorId !== activeVendorId && !isAdminAuthenticated) {
-      showToast('غير مصرح: هذا الطلب يخص متجراً آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('vendor', 'cancel-out-of-stock', target.vendorId);
-    if (!allowed) return;
-
+  const vendorCancelOutOfStock = (orderId: string, reason?: string) => {
     const cancelReason = reason || 'المقاس غير متوفر بالمخزن - اعتذار وإلغاء الطلب';
     setOrders((prev) =>
       prev.map((ord) =>
@@ -1023,19 +438,13 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('تم إلغاء الطلب والاعتذار للعميل لعدم توفر المقاس بالمخزن.', 'error');
   };
 
+  // Vendor marks order ready (alias for backward compatibility)
   const vendorPrepareOrder = (orderId: string) => {
     vendorConfirmStockAndPrepare(orderId);
   };
 
   // Driver accepts order
-  const driverAcceptOrder = async (orderId: string, driverId: string) => {
-    if (driverId !== activeDriverId && !isAdminAuthenticated) {
-      showToast('غير مصرح: لا يمكنك قبول طلب باسم كابتن آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('driver', 'accept-order', driverId);
-    if (!allowed) return;
-
+  const driverAcceptOrder = (orderId: string, driverId: string) => {
     const driver = drivers.find((d) => d.id === driverId);
     if (!driver) return;
 
@@ -1071,24 +480,16 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Driver pays store 100% cash & confirms pickup
-  const driverConfirmStorePickup = async (orderId: string) => {
+  const driverConfirmStorePickup = (orderId: string) => {
     const targetOrder = orders.find((o) => o.id === orderId);
     if (!targetOrder) return;
-    if (targetOrder.driverId && targetOrder.driverId !== activeDriverId && !isAdminAuthenticated) {
-      showToast('غير مصرح: هذا الطلب مسند لكابتن آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation(
-      'driver',
-      'confirm-pickup',
-      targetOrder.driverId || activeDriverId
-    );
-    if (!allowed) return;
 
+    // 1. Update order status
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: 'picked_up_paid_store' } : ord))
     );
 
+    // 2. Add vendor commission debt & increase total sales
     setVendors((prev) =>
       prev.map((v) => {
         if (v.id === targetOrder.vendorId) {
@@ -1113,24 +514,16 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Driver collects from customer & completes delivery
-  const driverCompleteDelivery = async (orderId: string) => {
+  const driverCompleteDelivery = (orderId: string) => {
     const targetOrder = orders.find((o) => o.id === orderId);
     if (!targetOrder) return;
-    if (targetOrder.driverId && targetOrder.driverId !== activeDriverId && !isAdminAuthenticated) {
-      showToast('غير مصرح: هذا الطلب مسند لكابتن آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation(
-      'driver',
-      'complete-delivery',
-      targetOrder.driverId || activeDriverId
-    );
-    if (!allowed) return;
 
+    // 1. Update order status
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: 'delivered' } : ord))
     );
 
+    // 2. Driver records delivery commission debt, trip count & earnings
     if (targetOrder.driverId) {
       setDrivers((prev) =>
         prev.map((d) => {
@@ -1159,88 +552,14 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
   };
 
-  // Customer submits rating & review for Vendor (Store) and Driver after receiving order
-  const submitOrderRating = (
-    orderId: string,
-    ratingData: {
-      vendorRating: number;
-      vendorReview?: string;
-      driverRating?: number;
-      driverReview?: string;
-    }
-  ) => {
-    const targetOrder = orders.find((o) => o.id === orderId);
-    if (!targetOrder) return;
-
-    const cleanVendorRating = Math.min(5, Math.max(1, Math.round(ratingData.vendorRating || 5)));
-    const cleanDriverRating = ratingData.driverRating
-      ? Math.min(5, Math.max(1, Math.round(ratingData.driverRating)))
-      : 5;
-    const nowStr = new Date().toISOString().replace('T', ' ').slice(0, 16);
-
-    const wasNotDeliveredYet = targetOrder.status === 'picked_up_paid_store';
-
-    setOrders((prev) =>
-      prev.map((ord) =>
-        ord.id === orderId
-          ? {
-              ...ord,
-              status: 'delivered',
-              vendorRating: cleanVendorRating,
-              vendorReview: ratingData.vendorReview?.trim() || undefined,
-              driverRating: cleanDriverRating,
-              driverReview: ratingData.driverReview?.trim() || undefined,
-              ratedAt: nowStr,
-            }
-          : ord
-      )
-    );
-
-    if (wasNotDeliveredYet && targetOrder.driverId) {
-      setDrivers((prev) =>
-        prev.map((d) => {
-          if (d.id === targetOrder.driverId) {
-            const newDebt = d.currentDebt + targetOrder.driverCommission;
-            const newTrips = d.totalTrips + 1;
-            const netTripProfit = targetOrder.deliveryFee - targetOrder.driverCommission;
-            const newEarnings = d.totalDeliveryEarnings + netTripProfit;
-            const isFrozen = newDebt >= d.debtLimit;
-            return {
-              ...d,
-              currentDebt: newDebt,
-              totalTrips: newTrips,
-              totalDeliveryEarnings: newEarnings,
-              status: isFrozen ? 'frozen' : d.status,
-            };
-          }
-          return d;
-        })
-      );
-    }
-
-    showToast(
-      `شكراً لك! تم حفظ تقييمك للمحل (${cleanVendorRating}/5 ⭐) وللكابتن (${cleanDriverRating}/5 ⭐) وظهوره في لوحة التحكم.`,
-      'success'
-    );
-  };
-
   // Driver Instant Return (مرتجع فوري نفس اليوم) -> status becomes returning_to_vendor
-  const driverTriggerInstantReturn = async (orderId: string, reason: string) => {
+  const driverTriggerInstantReturn = (orderId: string, reason: string) => {
     const targetOrder = orders.find((o) => o.id === orderId);
     if (!targetOrder) return;
-    if (targetOrder.driverId && targetOrder.driverId !== activeDriverId && !isAdminAuthenticated) {
-      showToast('غير مصرح: هذا الطلب مسند لكابتن آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation(
-      'driver',
-      'instant-return',
-      targetOrder.driverId || activeDriverId
-    );
-    if (!allowed) return;
 
     const returnCode = `RET-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    // Update order status to returning_to_vendor so the store sees it coming
     setOrders((prev) =>
       prev.map((ord) =>
         ord.id === orderId
@@ -1254,6 +573,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       )
     );
 
+    // Annul the vendor's commission debt for this order immediately since the sale failed!
     setVendors((prev) =>
       prev.map((v) => {
         if (v.id === targetOrder.vendorId) {
@@ -1278,15 +598,9 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Vendor confirms receipt of returned item and refunds cash to driver
-  const vendorConfirmReturnReceived = async (orderId: string) => {
+  const vendorConfirmReturnReceived = (orderId: string) => {
     const targetOrder = orders.find((o) => o.id === orderId);
     if (!targetOrder) return;
-    if (targetOrder.vendorId !== activeVendorId && !isAdminAuthenticated) {
-      showToast('غير مصرح: هذا الطلب يخص متجراً آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('vendor', 'confirm-return', targetOrder.vendorId);
-    if (!allowed) return;
 
     setOrders((prev) =>
       prev.map((ord) =>
@@ -1306,45 +620,52 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     );
   };
 
-  // Update account password via server-side scrypt hashing (Super Admin or Owner only)
-  const updateUserPassword = async (
-    type: 'vendor' | 'driver' | 'customer',
-    id: string,
-    newPass: string
-  ): Promise<boolean> => {
+  // Update account password (Super Admin or Profile)
+  const updateUserPassword = (type: 'vendor' | 'driver' | 'customer', id: string, newPass: string) => {
+    if (!newPass.trim()) return;
     const trimmed = newPass.trim();
-    if (!trimmed || trimmed.length < 6) {
-      showToast('كلمة المرور الجديدة يجب أن تتكون من 6 أحرف على الأقل', 'error');
-      return false;
-    }
 
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'update-password',
-          targetRole: type,
-          targetEntityId: id,
-          newPassword: trimmed,
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok) {
-        showToast(data?.error || 'غير مصرح لك بتغيير كلمة المرور', 'error');
-        return false;
+    if (type === 'vendor') {
+      setVendors((prev) => prev.map((v) => (v.id === id ? { ...v, password: trimmed } : v)));
+    } else if (type === 'driver') {
+      setDrivers((prev) => prev.map((d) => (d.id === id ? { ...d, password: trimmed } : d)));
+    } else if (type === 'customer') {
+      setCustomers((prev) => prev.map((c) => (c.id === id ? { ...c, password: trimmed } : c)));
+      if (currentCustomer && currentCustomer.id === id) {
+        setCurrentCustomer({ ...currentCustomer, password: trimmed });
       }
-      showToast('تم تشفير وتحديث كلمة المرور للحساب بنجاح', 'success');
-      return true;
-    } catch {
-      showToast('تعذر تحديث كلمة المرور على الخادم', 'error');
-      return false;
+    }
+    showToast('تم تحديث كلمة المرور للحساب بنجاح', 'success');
+  };
+
+  // Quick Impersonate (Admin switcher)
+  const quickImpersonate = (type: 'vendor' | 'driver' | 'customer', id: string) => {
+    if (type === 'vendor') {
+      const v = vendors.find((vend) => vend.id === id);
+      if (v) {
+        setActiveVendorId(v.id);
+        setActivePortal('vendor');
+        showToast(`تم تسجيل الدخول السريع كمتجر: ${v.name}`, 'success');
+      }
+    } else if (type === 'driver') {
+      const d = drivers.find((drv) => drv.id === id);
+      if (d) {
+        setActiveDriverId(d.id);
+        setActivePortal('driver');
+        showToast(`تم تسجيل الدخول السريع كطيار: ${d.name}`, 'success');
+      }
+    } else if (type === 'customer') {
+      const c = customers.find((cust) => cust.id === id);
+      if (c) {
+        setCurrentCustomer(c);
+        setActivePortal('customer');
+        showToast(`تم تسجيل الدخول السريع كعميل: ${c.name}`, 'success');
+      }
     }
   };
 
-  // Submit settlement request (from Vendor or Driver — ownership verified)
-  const submitSettlement = async ({
+  // Submit settlement request (from Vendor or Driver)
+  const submitSettlement = ({
     entityType,
     entityId,
     amount,
@@ -1361,9 +682,6 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     notes?: string;
     customReceiptImage?: string;
   }) => {
-    const allowed = await authorizeServerMutation(entityType, 'submit-settlement', entityId);
-    if (!allowed) return;
-
     let entityName = '';
     let entityArea = '';
     if (entityType === 'vendor') {
@@ -1403,13 +721,14 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setSettlements((prev) => [newSettlement, ...prev]);
 
+    // Rule 1: Accounts remain locked/frozen with pending settlement banner until Admin approves
     if (entityType === 'vendor') {
       setVendors((prev) =>
         prev.map((v) =>
           v.id === entityId
             ? {
                 ...v,
-                status: 'frozen',
+                status: 'frozen', // Remains or becomes locked
                 hasPendingSettlement: true,
                 pendingSettlementAmount: amount,
                 pendingSettlementRef: transactionRef,
@@ -1423,7 +742,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           d.id === entityId
             ? {
                 ...d,
-                status: 'frozen',
+                status: 'frozen', // Remains or becomes locked
                 isOnline: false,
                 hasPendingSettlement: true,
                 pendingSettlementAmount: amount,
@@ -1441,13 +760,11 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Super Admin: Approve Settlement & Reset Debt & Unfreeze
-  const approveSettlement = async (settlementId: string, adminNotes?: string) => {
-    const allowed = await authorizeServerMutation('admin', 'approve-settlement');
-    if (!allowed) return;
-
+  const approveSettlement = (settlementId: string, adminNotes?: string) => {
     const target = settlements.find((s) => s.id === settlementId);
     if (!target) return;
 
+    // 1. Update settlement
     setSettlements((prev) =>
       prev.map((s) =>
         s.id === settlementId
@@ -1461,6 +778,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       )
     );
 
+    // 2. Reduce entity debt & unfreeze if below limit & clear pending flags
     if (target.entityType === 'vendor') {
       setVendors((prev) =>
         prev.map((v) => {
@@ -1506,10 +824,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Super Admin: Reject Settlement with Reason
-  const rejectSettlement = async (settlementId: string, reason: string) => {
-    const allowed = await authorizeServerMutation('admin', 'reject-settlement');
-    if (!allowed) return;
-
+  const rejectSettlement = (settlementId: string, reason: string) => {
     const target = settlements.find((s) => s.id === settlementId);
     setSettlements((prev) =>
       prev.map((s) =>
@@ -1524,13 +839,14 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       )
     );
 
+    // Clear pending flag, keep status as frozen
     if (target) {
       if (target.entityType === 'vendor') {
         setVendors((prev) =>
           prev.map((v) =>
             v.id === target.entityId
               ? {
-                   ...v,
+                  ...v,
                   status: 'frozen',
                   hasPendingSettlement: false,
                   pendingSettlementAmount: undefined,
@@ -1561,15 +877,12 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Super Admin: Manual Cash Office Settlement
-  const recordManualCashSettlement = async (
+  const recordManualCashSettlement = (
     entityType: 'vendor' | 'driver',
     entityId: string,
     amount: number,
     adminNotes?: string
   ) => {
-    const allowed = await authorizeServerMutation('admin', 'manual-cash-settlement');
-    if (!allowed) return;
-
     let entityName = '';
     if (entityType === 'vendor') {
       const v = vendors.find((vend) => vend.id === entityId);
@@ -1635,21 +948,17 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Pricing settings update
-  const updatePricingConfig = async (newConfig: Partial<PricingConfig>) => {
-    const allowed = await authorizeServerMutation('admin', 'update-pricing-config');
-    if (!allowed) return;
+  const updatePricingConfig = (newConfig: Partial<PricingConfig>) => {
     setPricingConfig((prev) => ({ ...prev, ...newConfig }));
     showToast('تم حفظ إعدادات التسعير والخزنة وتطبيقها لحظياً على المنصة', 'success');
   };
 
   // Vendor administration
-  const updateVendorCommissionAndLimit = async (
+  const updateVendorCommissionAndLimit = (
     vendorId: string,
     commissionRate: number,
     debtLimit: number
   ) => {
-    const allowed = await authorizeServerMutation('admin', 'update-vendor-limit');
-    if (!allowed) return;
     setVendors((prev) =>
       prev.map((v) => {
         if (v.id === vendorId) {
@@ -1667,9 +976,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('تم تحديث نسبة العمولة والحد الائتماني للمحل بنجاح', 'success');
   };
 
-  const toggleVendorStatus = async (vendorId: string) => {
-    const allowed = await authorizeServerMutation('admin', 'toggle-vendor-status');
-    if (!allowed) return;
+  const toggleVendorStatus = (vendorId: string) => {
     setVendors((prev) =>
       prev.map((v) => {
         if (v.id === vendorId) {
@@ -1682,13 +989,11 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('تم تغيير حالة تشغيل المحل', 'info');
   };
 
-  const approvePendingVendor = async (
+  const approvePendingVendor = (
     vendorId: string,
     commissionRate: number,
     debtLimit: number
   ) => {
-    const allowed = await authorizeServerMutation('admin', 'approve-pending-vendor');
-    if (!allowed) return;
     setVendors((prev) =>
       prev.map((v) =>
         v.id === vendorId
@@ -1704,46 +1009,15 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('تمت الموافقة على انضمام البراند وتفعيله على التطبيق فوراً', 'success');
   };
 
-  const rejectPendingVendor = async (vendorId: string) => {
-    const allowed = await authorizeServerMutation('admin', 'reject-pending-vendor');
-    if (!allowed) return;
+  const rejectPendingVendor = (vendorId: string) => {
     setVendors((prev) => prev.filter((v) => v.id !== vendorId));
     showToast('تم رفض طلب انضمام المحل', 'info');
   };
 
-  const addVendorManual = async (
-    vendorData: Omit<Vendor, 'id' | 'currentDebt' | 'totalSales' | 'createdAt'> & {
-      password?: string;
-    }
-  ) => {
-    const allowed = await authorizeServerMutation('admin', 'add-vendor-manual');
-    if (!allowed) return;
-
-    const newId = `v-${Date.now().toString().slice(-4)}`;
-    const cleanEmail = (vendorData.email || `${vendorData.slug}@voguefast.eg`).trim().toLowerCase();
-    const initialPass = (vendorData.password || 'Brand#2026!').trim();
-
-    await fetch('/api/auth', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        action: 'register',
-        role: 'vendor',
-        entityId: newId,
-        name: vendorData.name,
-        email: cleanEmail,
-        phone: vendorData.phone,
-        password: initialPass,
-        status: 'active',
-      }),
-    }).catch(() => {});
-
-    const { password: _omitted, ...cleanVendorData } = vendorData;
+  const addVendorManual = (vendorData: Omit<Vendor, 'id' | 'currentDebt' | 'totalSales' | 'createdAt'>) => {
     const newV: Vendor = {
-      ...cleanVendorData,
-      email: cleanEmail,
-      id: newId,
+      ...vendorData,
+      id: `v-${Date.now().toString().slice(-4)}`,
       currentDebt: 0,
       totalSales: 0,
       createdAt: new Date().toISOString().slice(0, 10),
@@ -1753,18 +1027,14 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Driver administration
-  const updateDriverLimit = async (driverId: string, debtLimit: number) => {
-    const allowed = await authorizeServerMutation('admin', 'update-driver-limit');
-    if (!allowed) return;
+  const updateDriverLimit = (driverId: string, debtLimit: number) => {
     setDrivers((prev) =>
       prev.map((d) => (d.id === driverId ? { ...d, debtLimit } : d))
     );
     showToast('تم تحديث سقف مديونية الطيار', 'success');
   };
 
-  const toggleDriverStatus = async (driverId: string) => {
-    const allowed = await authorizeServerMutation('admin', 'toggle-driver-status');
-    if (!allowed) return;
+  const toggleDriverStatus = (driverId: string) => {
     setDrivers((prev) =>
       prev.map((d) => {
         if (d.id === driverId) {
@@ -1777,21 +1047,13 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('تم تعديل حالة تشغيل الطيار', 'info');
   };
 
-  const toggleDriverOnline = async (driverId: string) => {
-    if (driverId !== activeDriverId && !isAdminAuthenticated) {
-      showToast('غير مصرح: لا يمكنك تغيير حالة اتصال كابتن آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('driver', 'toggle-online', driverId);
-    if (!allowed) return;
+  const toggleDriverOnline = (driverId: string) => {
     setDrivers((prev) =>
       prev.map((d) => (d.id === driverId ? { ...d, isOnline: !d.isOnline } : d))
     );
   };
 
-  const approvePendingDriver = async (driverId: string, debtLimit: number) => {
-    const allowed = await authorizeServerMutation('admin', 'approve-pending-driver');
-    if (!allowed) return;
+  const approvePendingDriver = (driverId: string, debtLimit: number) => {
     setDrivers((prev) =>
       prev.map((d) =>
         d.id === driverId
@@ -1807,29 +1069,19 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast('تم اعتماد أوراق الطيار وإضافته إلى الأسطول النشط بنجاح', 'success');
   };
 
-  const rejectPendingDriver = async (driverId: string) => {
-    const allowed = await authorizeServerMutation('admin', 'reject-pending-driver');
-    if (!allowed) return;
+  const rejectPendingDriver = (driverId: string) => {
     setDrivers((prev) => prev.filter((d) => d.id !== driverId));
     showToast('تم رفض طلب تسجيل الطيار', 'info');
   };
 
   const updateDriverCoordinates = (driverId: string, coordinates: { lat: number; lng: number }) => {
-    if (driverId !== activeDriverId && !isAdminAuthenticated) return;
     setDrivers((prev) =>
       prev.map((d) => (d.id === driverId ? { ...d, coordinates } : d))
     );
   };
 
-  // Product management (Vendor ownership enforced)
-  const addProduct = async (pData: Omit<Product, 'id' | 'vendorName'>) => {
-    if (pData.vendorId !== activeVendorId && !isAdminAuthenticated) {
-      showToast('غير مصرح: لا يمكنك إضافة منتجات لمتجر آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('vendor', 'add-product', pData.vendorId);
-    if (!allowed) return;
-
+  // Product management
+  const addProduct = (pData: Omit<Product, 'id' | 'vendorName'>) => {
     const vendor = vendors.find((v) => v.id === pData.vendorId);
     const newProduct: Product = {
       ...pData,
@@ -1840,55 +1092,27 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     showToast(`تم نشر قطعة ${newProduct.name} في الكتالوج بنجاح`, 'success');
   };
 
-  const updateProduct = async (productId: string, updated: Partial<Product>) => {
-    const target = products.find((p) => p.id === productId);
-    if (!target) return;
-    if (target.vendorId !== activeVendorId && !isAdminAuthenticated) {
-      showToast('غير مصرح: لا يمكنك تعديل منتجات متجر آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('vendor', 'update-product', target.vendorId);
-    if (!allowed) return;
-
+  const updateProduct = (productId: string, updated: Partial<Product>) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === productId ? { ...p, ...updated } : p))
     );
     showToast('تم حفظ تعديلات المنتج وتحديث الكتالوج بنجاح', 'success');
   };
 
-  const deleteProduct = async (productId: string) => {
-    const target = products.find((p) => p.id === productId);
-    if (!target) return;
-    if (target.vendorId !== activeVendorId && !isAdminAuthenticated) {
-      showToast('غير مصرح: لا يمكنك حذف منتجات متجر آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('vendor', 'delete-product', target.vendorId);
-    if (!allowed) return;
-
+  const deleteProduct = (productId: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== productId));
     showToast('تم حذف القطعة من الكتالوج نهائياً', 'info');
   };
 
-  const toggleProductStock = async (productId: string) => {
-    const target = products.find((p) => p.id === productId);
-    if (!target) return;
-    if (target.vendorId !== activeVendorId && !isAdminAuthenticated) {
-      showToast('غير مصرح: لا يمكنك تعديل مخزون متجر آخر', 'error');
-      return;
-    }
-    const allowed = await authorizeServerMutation('vendor', 'toggle-stock', target.vendorId);
-    if (!allowed) return;
-
+  const toggleProductStock = (productId: string) => {
     setProducts((prev) =>
       prev.map((p) => (p.id === productId ? { ...p, inStock: !p.inStock } : p))
     );
   };
 
   // Onboarding submissions
-  const registerVendorApplication = async ({
+  const registerVendorApplication = ({
     name,
-    email,
     phone,
     password,
     area,
@@ -1898,76 +1122,43 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     instagram,
   }: {
     name: string;
-    email: string;
     phone: string;
-    password: string;
+    password?: string;
     area: string;
     address: string;
     category: string;
     logoUrl?: string;
     instagram?: string;
-  }): Promise<boolean> => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
-    const newId = `v-pending-${Date.now().toString().slice(-4)}`;
-
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'register',
-          role: 'vendor',
-          entityId: newId,
-          name,
-          email: cleanEmail,
-          phone,
-          password: cleanPass,
-          status: 'pending',
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok) {
-        showToast(data?.error || 'تعذر تسجيل طلب المتجر', 'error');
-        return false;
-      }
-
-      const newVendor: Vendor = {
-        id: newId,
-        name,
-        slug: name.toLowerCase().replace(/\s+/g, '-'),
-        email: cleanEmail,
-        phone,
-        area,
-        address,
-        category,
-        logo:
-          logoUrl ||
-          'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&auto=format&fit=crop&q=80',
-        commissionRate: pricingConfig.defaultVendorCommissionRate,
-        debtLimit: pricingConfig.defaultVendorLimit,
-        currentDebt: 0,
-        totalSales: 0,
-        status: 'pending',
-        createdAt: new Date().toISOString().slice(0, 10),
-        instagramHandle: instagram,
-      };
-      setVendors((prev) => [...prev, newVendor]);
-      showToast(
-        'تم إرسال طلب انضمام المتجر بنجاح! سيقوم فريق الإدارة بمراجعة الطلب وتحديد النسبة والحد الائتماني.',
-        'success'
-      );
-      return true;
-    } catch {
-      showToast('تعذر الاتصال بالخادم لتسجيل الطلب', 'error');
-      return false;
-    }
+  }) => {
+    const newVendor: Vendor = {
+      id: `v-pending-${Date.now().toString().slice(-4)}`,
+      name,
+      slug: name.toLowerCase().replace(/\s+/g, '-'),
+      phone,
+      password: password || 'vendor123',
+      area,
+      address,
+      category,
+      logo:
+        logoUrl ||
+        'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&auto=format&fit=crop&q=80',
+      commissionRate: pricingConfig.defaultVendorCommissionRate,
+      debtLimit: pricingConfig.defaultVendorLimit,
+      currentDebt: 0,
+      totalSales: 0,
+      status: 'pending',
+      createdAt: new Date().toISOString().slice(0, 10),
+      instagramHandle: instagram,
+    };
+    setVendors((prev) => [...prev, newVendor]);
+    showToast(
+      'تم إرسال طلب انضمام المتجر بنجاح! سيقوم فريق الإدارة بمراجعة الطلب وتحديد النسبة والحد الائتماني.',
+      'success'
+    );
   };
 
-  const registerDriverApplication = async ({
+  const registerDriverApplication = ({
     name,
-    email,
     phone,
     password,
     vehicle,
@@ -1980,9 +1171,8 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     licensePhoto,
   }: {
     name: string;
-    email: string;
     phone: string;
-    password: string;
+    password?: string;
     vehicle: string;
     vehicleNumber: string;
     area: string;
@@ -1991,92 +1181,46 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     vehiclePhoto?: string;
     nationalIdPhoto?: string;
     licensePhoto?: string;
-  }): Promise<boolean> => {
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPass = password.trim();
-    const newId = `d-pending-${Date.now().toString().slice(-4)}`;
-
-    try {
-      const res = await fetch('/api/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          action: 'register',
-          role: 'driver',
-          entityId: newId,
-          name,
-          email: cleanEmail,
-          phone,
-          password: cleanPass,
-          status: 'pending',
-        }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data?.ok) {
-        showToast(data?.error || 'تعذر تسجيل طلب الكابتن', 'error');
-        return false;
-      }
-
-      const newDriver: Driver = {
-        id: newId,
-        name,
-        email: cleanEmail,
-        phone,
-        vehicle,
-        vehicleNumber,
-        area,
-        avatarPhoto:
-          avatarPhoto ||
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
-        vehiclePhoto:
-          vehiclePhoto ||
-          'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=400&auto=format&fit=crop&q=80',
-        debtLimit: pricingConfig.defaultDriverLimit,
-        currentDebt: 0,
-        totalTrips: 0,
-        totalDeliveryEarnings: 0,
-        status: 'pending',
-        isOnline: false,
-        nationalId,
-        nationalIdPhoto: nationalIdPhoto || generateIdDocSvg('بطاقة رقم قومي', name, nationalId),
-        licensePhoto:
-          licensePhoto ||
-          generateIdDocSvg(
-            'رخصة قيادة دراجة نارية',
-            name,
-            `LIC-${Math.floor(100000 + Math.random() * 900000)}`
-          ),
-        createdAt: new Date().toISOString().slice(0, 10),
-      };
-      setDrivers((prev) => [...prev, newDriver]);
-      showToast(
-        'تم تسجيل طلبك ككابتن توصيل ورفع المستندات الرسمية بنجاح! سيتم فحص الأوراق والاعتماد خلال 24 ساعة.',
-        'success'
-      );
-      return true;
-    } catch {
-      showToast('تعذر الاتصال بالخادم لتسجيل الطلب', 'error');
-      return false;
-    }
+  }) => {
+    const newDriver: Driver = {
+      id: `d-pending-${Date.now().toString().slice(-4)}`,
+      name,
+      phone,
+      password: password || 'driver123',
+      vehicle,
+      vehicleNumber,
+      area,
+      avatarPhoto:
+        avatarPhoto ||
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&auto=format&fit=crop&q=80',
+      vehiclePhoto:
+        vehiclePhoto ||
+        'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?w=400&auto=format&fit=crop&q=80',
+      debtLimit: pricingConfig.defaultDriverLimit,
+      currentDebt: 0,
+      totalTrips: 0,
+      totalDeliveryEarnings: 0,
+      status: 'pending',
+      isOnline: false,
+      nationalId,
+      nationalIdPhoto: nationalIdPhoto || generateIdDocSvg('بطاقة رقم قومي', name, nationalId),
+      licensePhoto: licensePhoto || generateIdDocSvg('رخصة قيادة دراجة نارية', name, `LIC-${Math.floor(100000 + Math.random() * 900000)}`),
+      createdAt: new Date().toISOString().slice(0, 10),
+    };
+    setDrivers((prev) => [...prev, newDriver]);
+    showToast(
+      'تم تسجيل طلبك ككابتن توصيل ورفع المستندات الرسمية بنجاح! سيتم فحص الأوراق والاعتماد خلال 24 ساعة.',
+      'success'
+    );
   };
 
   return (
     <PlatformContext.Provider
       value={{
-        activePortal: activePortalState,
+        activePortal,
         setActivePortal,
-        onboardingType: onboardingTypeState,
+        onboardingType,
         setOnboardingType,
-        isAdminAuthenticated,
-        loginAdmin,
-        logoutAdmin,
-        isVendorAuthenticated,
-        loginVendor,
-        logoutVendor,
-        isDriverAuthenticated,
-        loginDriver,
-        logoutDriver,
         activeVendorId,
         setActiveVendorId,
         activeDriverId,
@@ -2110,8 +1254,8 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         driverConfirmStorePickup,
         driverCompleteDelivery,
         driverTriggerInstantReturn,
-        submitOrderRating,
         updateUserPassword,
+        quickImpersonate,
         submitSettlement,
         approveSettlement,
         rejectSettlement,
