@@ -125,7 +125,7 @@ export const OnboardingScreen: React.FC = () => {
         {/* Editorial Brand Header */}
         <div className="text-center space-y-2 mb-8">
           <div className="text-xs font-mono tracking-widest text-[#898A8B] uppercase">
-            JOIN DRIP FIT NETWORK // CAIRO
+            JOIN FAST DRIP NETWORK // CAIRO
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             انضم لمنظومة التوصيل السريع للملابس

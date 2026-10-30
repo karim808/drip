@@ -273,7 +273,7 @@ export const CustomerApp: React.FC = () => {
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex items-center gap-2.5 group/brand">
               <span className="font-display text-2xl sm:text-3xl leading-none text-[#D1FE17] -rotate-2 select-none">
-                DRIP FIT
+                FAST DRIP
               </span>
             </div>
             <span className="hidden lg:inline-block h-4 w-px bg-white/20" aria-hidden="true" />
@@ -500,7 +500,7 @@ export const CustomerApp: React.FC = () => {
           <div>
             <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]" dir="ltr">
               <span className="h-1.5 w-1.5 rounded-full bg-[#D1FE17]" />
-              DRIP FIT / DROP 01
+              FAST DRIP / DROP 01
             </div>
             <h2 className="font-display text-3xl sm:text-4xl text-white">اختار القطعة اللي شبهك</h2>
           </div>
@@ -576,10 +576,10 @@ export const CustomerApp: React.FC = () => {
 
       {/* Product Detail Modal */}
       {activeProduct && (
-        <div className="fixed inset-0 z-50 bg-[#131517]/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#1A1C1F] rounded-lg border border-white/10 max-w-2xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 grid grid-cols-1 sm:grid-cols-2">
+        <div className="fixed inset-0 z-50 bg-[#131517]/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto overscroll-contain">
+          <div className="bg-[#1A1C1F] rounded-2xl border border-white/10 max-w-2xl w-full max-h-[calc(100dvh-24px)] overflow-hidden shadow-2xl animate-in zoom-in-95 grid grid-cols-1 sm:grid-cols-2">
             {/* Image */}
-            <div className="aspect-[3/4] sm:aspect-auto bg-white/[0.06]">
+            <div className="h-[220px] max-[380px]:h-[150px] sm:h-auto sm:min-h-[460px] bg-white/[0.06] shrink-0">
               <img
                 src={activeProduct.image}
                 alt={activeProduct.name}
@@ -589,35 +589,36 @@ export const CustomerApp: React.FC = () => {
             </div>
 
             {/* Details */}
-            <div className="p-6 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs font-mono text-[#898A8B] uppercase">
+            <div className="min-h-0 overflow-y-auto p-4 sm:p-6 flex flex-col">
+              <div className="flex-1">
+                <div className="flex justify-between items-start mb-1.5">
+                  <span className="text-[10px] font-mono text-[#898A8B] uppercase">
                     {activeProduct.vendorName}
                   </span>
                   <button
                     onClick={() => setActiveProduct(null)}
-                    className="p-1 rounded-md text-[#898A8B] hover:text-white"
+                    aria-label="إغلاق تفاصيل المنتج"
+                    className="-mt-1 -mr-1 p-2 rounded-full text-[#898A8B] hover:text-white hover:bg-white/10 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <h2 className="text-lg font-bold text-white mb-2">
+                <h2 className="text-base sm:text-lg font-bold text-white mb-1 leading-snug">
                   {activeProduct.name}
                 </h2>
 
-                <div className="text-xl font-bold text-white tabular-nums mb-4">
+                <div className="text-lg sm:text-xl font-bold text-[#D1FE17] tabular-nums mb-2.5">
                   {activeProduct.price.toLocaleString('ar-EG')}{' '}
-                  <span className="text-xs font-normal text-[#898A8B]">ج.م</span>
+                  <span className="text-[10px] font-normal text-[#898A8B]">ج.م</span>
                 </div>
 
-                <p className="text-xs text-white/70 leading-relaxed mb-4">
+                <p className="text-[11px] sm:text-xs text-white/70 leading-relaxed mb-2.5">
                   {activeProduct.description}
                 </p>
 
                 {activeProduct.fabricDetails && (
-                  <div className="mb-4 p-2.5 bg-white/[0.03] rounded border border-white/10 text-xs text-white/70 space-y-1">
+                  <div className="mb-2.5 p-2 bg-white/[0.03] rounded-lg border border-white/10 text-[11px] text-white/70 space-y-0.5">
                     <div>
                       <strong>الخامة:</strong> {activeProduct.fabricDetails}
                     </div>
@@ -628,16 +629,16 @@ export const CustomerApp: React.FC = () => {
                 )}
 
                 {/* Sizing options */}
-                <div className="space-y-1.5 mb-6">
-                  <label className="block text-xs font-bold text-white">
+                <div className="space-y-1.5 mb-4">
+                  <label className="block text-[11px] font-bold text-white">
                     اختر المقاس:
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {activeProduct.sizes.map((s) => (
                       <button
                         key={s}
                         onClick={() => setSelectedSize(s)}
-                        className={`px-3 py-1.5 rounded border text-xs font-bold transition-all ${
+                        className={`px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${
                           selectedSize === s
                             ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17] shadow-xs'
                             : 'bg-[#1A1C1F] text-white/90 border-white/10 hover:border-white/25'
@@ -656,7 +657,7 @@ export const CustomerApp: React.FC = () => {
                   addToCart(activeProduct, selectedSize || activeProduct.sizes[0]);
                   setActiveProduct(null);
                 }}
-                className="w-full py-3 bg-[#D1FE17] text-[#131517] font-bold rounded-md hover:bg-white transition-colors shadow-xs text-xs flex items-center justify-center gap-2"
+                className="w-full shrink-0 py-3 bg-[#D1FE17] text-[#131517] font-bold rounded-lg hover:bg-white transition-colors shadow-xs text-xs flex items-center justify-center gap-2"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>إضافة إلى حقيبة التسوق والطلب</span>

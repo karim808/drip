@@ -25,7 +25,7 @@ export function generateReceiptSvg(title: string, amount: number, ref: string, m
     
     <g transform="translate(40, 250)">
       <text x="320" y="15" font-family="sans-serif" font-size="13" fill="#71717A" text-anchor="end">الجهة المستفيدة</text>
-      <text x="0" y="15" font-family="sans-serif" font-size="13" font-weight="bold" fill="#09090B" text-anchor="start">إدارة DRIP FIT للخزينة</text>
+      <text x="0" y="15" font-family="sans-serif" font-size="13" font-weight="bold" fill="#09090B" text-anchor="start">إدارة FAST DRIP للخزينة</text>
       
       <text x="320" y="55" font-family="sans-serif" font-size="13" fill="#71717A" text-anchor="end">المرسل</text>
       <text x="0" y="55" font-family="sans-serif" font-size="13" font-weight="bold" fill="#09090B" text-anchor="start">${title}</text>
