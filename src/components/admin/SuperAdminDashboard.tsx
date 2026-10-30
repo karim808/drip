@@ -262,7 +262,7 @@ export const SuperAdminDashboard: React.FC = () => {
             </div>
             <div>
               <div className="font-bold text-white/90">المدير العام المالي</div>
-              <div className="text-[10px] text-[#898A8B] font-mono">admin@voguefast.eg</div>
+              <div className="text-[10px] text-[#898A8B] font-mono">admin@dripfit.eg</div>
             </div>
           </div>
           <button

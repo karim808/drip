@@ -240,7 +240,7 @@ export const OnboardingScreen: React.FC = () => {
                     <input
                       type="email"
                       required
-                      placeholder="brand@voguefast.eg"
+                      placeholder="brand@dripfit.eg"
                       value={vendorEmail}
                       onChange={(e) => setVendorEmail(e.target.value)}
                       className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"
@@ -416,7 +416,7 @@ export const OnboardingScreen: React.FC = () => {
                     <input
                       type="email"
                       required
-                      placeholder="captain@voguefast.eg"
+                      placeholder="captain@dripfit.eg"
                       value={driverEmail}
                       onChange={(e) => setDriverEmail(e.target.value)}
                       className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"

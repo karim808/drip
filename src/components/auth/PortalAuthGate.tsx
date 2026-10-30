@@ -87,7 +87,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
                   autoComplete="email"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="name@voguefast.eg"
+                  placeholder="name@dripfit.eg"
                   className="w-full pr-9 pl-3 py-2.5 bg-[#131517] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
                 />
               </div>
@@ -164,7 +164,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
                   autoComplete="email"
                   value={vendorEmail}
                   onChange={(e) => setVendorEmail(e.target.value)}
-                  placeholder="store@voguefast.eg"
+                  placeholder="store@dripfit.eg"
                   className="w-full pr-9 pl-3 py-2.5 bg-[#1A1C1F] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
                 />
               </div>
@@ -253,7 +253,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
                 autoComplete="email"
                 value={driverEmail}
                 onChange={(e) => setDriverEmail(e.target.value)}
-                placeholder="captain@voguefast.eg"
+                placeholder="captain@dripfit.eg"
                 className="w-full pr-9 pl-3 py-2.5 bg-[#131517] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
               />
             </div>

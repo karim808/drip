@@ -85,7 +85,7 @@ export const initialPricingConfig: PricingConfig = {
   defaultVendorLimit: 5000, // 5,000 EGP default debt limit
   defaultDriverLimit: 1000, // 1,000 EGP default driver limit
   vodafoneCashNumber: '01099882244',
-  instapayHandle: 'voguefast.vault@instapay',
+  instapayHandle: 'dripfit.vault@instapay',
   bankIban: 'EG380002000100000000012345678',
 };
 
@@ -141,7 +141,7 @@ export const initialCustomers: CustomerUser[] = [
   {
     id: 'cust-1',
     name: 'كريم مجدي',
-    email: 'karim@voguefast.eg',
+    email: 'karim@dripfit.eg',
     phone: '01018301830',
     area: 'التجمع الخامس',
     address: 'فيلا 14، الحي الدبلوماسي، التجمع الخامس',
@@ -151,7 +151,7 @@ export const initialCustomers: CustomerUser[] = [
   {
     id: 'cust-2',
     name: 'سارة طارق',
-    email: 'sara@voguefast.eg',
+    email: 'sara@dripfit.eg',
     phone: '01155443322',
     area: 'مصر الجديدة',
     address: 'عمارة 8، شارع بيروت، مصر الجديدة',
@@ -166,7 +166,7 @@ export const initialVendors: Vendor[] = [
     id: 'v-1',
     name: 'UNTITLED CAIRO',
     slug: 'untitled-cairo',
-    email: 'untitled@voguefast.eg',
+    email: 'untitled@dripfit.eg',
     phone: '01011223344',
     area: 'المعادي - دجلة',
     address: 'شارع 206، متفرع من دجلة المعادي، القاهرة',
@@ -188,7 +188,7 @@ export const initialVendors: Vendor[] = [
     id: 'v-2',
     name: 'SHABAB CO.',
     slug: 'shabab-co',
-    email: 'shabab@voguefast.eg',
+    email: 'shabab@dripfit.eg',
     phone: '01122334455',
     area: 'الزمالك',
     address: 'شارع حسن مظهر، بجوار كلية التربية النوعية، الزمالك',
@@ -207,7 +207,7 @@ export const initialVendors: Vendor[] = [
     id: 'v-3',
     name: 'ZAG STORE',
     slug: 'zag-store',
-    email: 'zag@voguefast.eg',
+    email: 'zag@dripfit.eg',
     phone: '01233445566',
     area: 'التجمع الخامس',
     address: 'شارع التسعين الشمالي، داون تاون مول، التجمع الخامس',
@@ -229,7 +229,7 @@ export const initialVendors: Vendor[] = [
     id: 'v-4',
     name: 'OVERSIZED EG',
     slug: 'oversized-eg',
-    email: 'oversized@voguefast.eg',
+    email: 'oversized@dripfit.eg',
     phone: '01055667788',
     area: 'مصر الجديدة - الكوربة',
     address: 'شارع بغداد، الكوربة، مصر الجديدة',
@@ -248,7 +248,7 @@ export const initialVendors: Vendor[] = [
     id: 'v-5',
     name: 'NOIR ATELIER',
     slug: 'noir-atelier',
-    email: 'noir@voguefast.eg',
+    email: 'noir@dripfit.eg',
     phone: '01511223344',
     area: 'الشيخ زايد - أركان',
     address: 'أركان بلازا، المحور المركزي، الشيخ زايد',
@@ -267,7 +267,7 @@ export const initialVendors: Vendor[] = [
     id: 'v-6',
     name: 'STREET VIBE CAIRO',
     slug: 'street-vibe-cairo',
-    email: 'streetvibe@voguefast.eg',
+    email: 'streetvibe@dripfit.eg',
     phone: '01099887766',
     area: 'الدقي والمهندسين',
     address: 'ميدان المساحة، الدقي، الجيزة',
@@ -289,7 +289,7 @@ export const initialDrivers: Driver[] = [
   {
     id: 'd-1',
     name: 'كابتن أحمد يوسف',
-    email: 'ahmed.driver@voguefast.eg',
+    email: 'ahmed.driver@dripfit.eg',
     phone: '01012349876',
     vehicle: 'سكوتر هوندا فورزا 300',
     vehicleNumber: 'ق أ د ٧٤١٩',
@@ -314,7 +314,7 @@ export const initialDrivers: Driver[] = [
   {
     id: 'd-2',
     name: 'كابتن محمود شريف',
-    email: 'mahmoud.driver@voguefast.eg',
+    email: 'mahmoud.driver@dripfit.eg',
     phone: '01122998877',
     vehicle: 'موتوسيكل بينيلي TNT 150',
     vehicleNumber: 'ج ب ص ٣٦٨٢',
@@ -336,7 +336,7 @@ export const initialDrivers: Driver[] = [
   {
     id: 'd-3',
     name: 'كابتن حسام عبد الرحمن',
-    email: 'hossam.driver@voguefast.eg',
+    email: 'hossam.driver@dripfit.eg',
     phone: '01288776655',
     vehicle: 'سكوتر ياماها إن ماكس 155',
     vehicleNumber: 'ع ن ر ٥٢٠١',
@@ -361,7 +361,7 @@ export const initialDrivers: Driver[] = [
   {
     id: 'd-4',
     name: 'كابتن طارق السعيد',
-    email: 'tarek.driver@voguefast.eg',
+    email: 'tarek.driver@dripfit.eg',
     phone: '01599887711',
     vehicle: 'سكوتر سيم سيمفوني إس آر',
     vehicleNumber: 'ط س و ٦١٩٤',

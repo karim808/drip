@@ -600,7 +600,7 @@ export const AdminVendors: React.FC = () => {
                   <input
                     type="email"
                     required
-                    placeholder="brand@voguefast.eg"
+                    placeholder="brand@dripfit.eg"
                     value={newVendorEmail}
                     onChange={(e) => setNewVendorEmail(e.target.value)}
                     className="w-full text-xs p-2 border border-white/15 rounded-md font-mono focus:outline-none focus:border-[#D1FE17]"

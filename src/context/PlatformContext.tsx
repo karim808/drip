@@ -1720,7 +1720,7 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     if (!allowed) return;
 
     const newId = `v-${Date.now().toString().slice(-4)}`;
-    const cleanEmail = (vendorData.email || `${vendorData.slug}@voguefast.eg`).trim().toLowerCase();
+    const cleanEmail = (vendorData.email || `${vendorData.slug}@dripfit.eg`).trim().toLowerCase();
     const initialPass = (vendorData.password || 'Brand#2026!').trim();
 
     await fetch('/api/auth', {

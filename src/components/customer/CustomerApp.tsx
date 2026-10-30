@@ -390,10 +390,10 @@ export const CustomerApp: React.FC = () => {
           dir="ltr"
           aria-hidden="true"
         >
-          FAST
+          DRIP
         </div>
 
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-10 lg:gap-14 items-center">
+        <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-10 lg:gap-14 items-center">
           <div className="space-y-6 animate-rise">
             <div className="inline-flex items-center gap-2 text-[11px] font-mono tracking-widest text-[#D1FE17] uppercase border border-[#D1FE17]/40 bg-[#D1FE17]/10 rounded-full px-3 py-1" dir="ltr">
               <span className="relative flex h-2 w-2">
@@ -494,8 +494,21 @@ export const CustomerApp: React.FC = () => {
         </div>
       </div>
 
-      {/* Products Grid */}
+          {/* Products Grid */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-5">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]" dir="ltr">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#D1FE17]" />
+              DRIP FIT / DROP 01
+            </div>
+            <h2 className="font-display text-3xl sm:text-4xl text-white">اختار القطعة اللي شبهك</h2>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-[#898A8B]">
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">{filteredProducts.length} قطعة متاحة</span>
+            <span className="hidden sm:inline text-[#D1FE17]">تحديثات يومية</span>
+          </div>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-10">
           {filteredProducts.map((product, index) => (
             <div
@@ -509,7 +522,7 @@ export const CustomerApp: React.FC = () => {
             >
               <div>
                 {/* 3:4 Aspect Image */}
-                <div className="relative aspect-[3/4] bg-[#1A1C1F] rounded-2xl overflow-hidden border border-white/10 mb-3.5 transition-all duration-300 group-hover:border-[#D1FE17] group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0_0_#D1FE17]">
+                <div className="relative aspect-[3/4] bg-[#1A1C1F] rounded-2xl overflow-hidden border border-white/10 mb-3.5 transition-all duration-300 group-hover:border-[#D1FE17] group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0_0_#D1FE17] before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(135deg,transparent_0%,transparent_55%,rgba(209,254,23,0.18)_55%,rgba(209,254,23,0.18)_58%,transparent_58%)] before:pointer-events-none">
                   <img
                     src={product.image}
                     alt={product.name}
