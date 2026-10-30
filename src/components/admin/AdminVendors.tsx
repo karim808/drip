@@ -115,17 +115,17 @@ export const AdminVendors: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Bar */}
-      <div className="bg-white border border-zinc-200 rounded-lg p-5 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-5 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-base font-bold text-zinc-950">
+            <h2 className="text-base font-bold text-white">
               إدارة البراندات ومحلات الأزياء (Vendors Management)
             </h2>
-            <span className="text-[11px] bg-zinc-100 text-zinc-800 px-2 py-0.5 rounded font-mono">
+            <span className="text-[11px] bg-white/[0.06] text-white/90 px-2 py-0.5 rounded font-mono">
               {activeVendorsList.length} متجر مسجل
             </span>
           </div>
-          <p className="text-xs text-zinc-500 mt-1">
+          <p className="text-xs text-[#898A8B] mt-1">
             متابعة نسب العمولات، حدود المديونية الائتمانية، والإغلاق الفوري للمتجاوزين للحد
           </p>
         </div>
@@ -133,7 +133,7 @@ export const AdminVendors: React.FC = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 bg-zinc-950 text-white text-xs font-semibold rounded-md hover:bg-zinc-800 transition-colors shadow-xs"
+            className="flex items-center gap-1.5 px-4 py-2 bg-[#D1FE17] text-[#131517] text-xs font-semibold rounded-md hover:bg-white transition-colors shadow-xs"
           >
             <PlusCircle className="w-4 h-4" />
             <span>إضافة براند جديد يدوياً</span>
@@ -142,14 +142,14 @@ export const AdminVendors: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center justify-between border-b border-zinc-200">
+      <div className="flex items-center justify-between border-b border-white/10">
         <div className="flex items-center gap-2">
           <button
             onClick={() => setActiveTab('active')}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors ${
               activeTab === 'active'
-                ? 'border-zinc-950 text-zinc-950'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-[#D1FE17] text-white'
+                : 'border-transparent text-[#898A8B] hover:text-white/90'
             }`}
           >
             <Store className="w-3.5 h-3.5" />
@@ -160,14 +160,14 @@ export const AdminVendors: React.FC = () => {
             onClick={() => setActiveTab('pending')}
             className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold border-b-2 transition-colors ${
               activeTab === 'pending'
-                ? 'border-zinc-950 text-zinc-950'
-                : 'border-transparent text-zinc-500 hover:text-zinc-800'
+                ? 'border-[#D1FE17] text-white'
+                : 'border-transparent text-[#898A8B] hover:text-white/90'
             }`}
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-300" />
             <span>طلبات الانضمام الجديدة</span>
             {pendingVendors.length > 0 && (
-              <span className="bg-amber-600 text-white text-[10px] px-1.5 py-0.2 rounded-full tabular-nums">
+              <span className="bg-amber-400 text-[#131517] text-[10px] px-1.5 py-0.2 rounded-full tabular-nums">
                 {pendingVendors.length}
               </span>
             )}
@@ -181,19 +181,19 @@ export const AdminVendors: React.FC = () => {
               placeholder="ابحث بالاسم أو المنطقة..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="text-xs bg-white border border-zinc-200 rounded-md pr-8 pl-3 py-1.5 w-60 focus:outline-none focus:border-zinc-900"
+              className="text-xs bg-[#1A1C1F] border border-white/10 rounded-md pr-8 pl-3 py-1.5 w-60 focus:outline-none focus:border-[#D1FE17]"
             />
-            <Search className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-3" />
+            <Search className="w-3.5 h-3.5 text-[#898A8B] absolute right-2.5 top-3" />
           </div>
         )}
       </div>
 
       {/* Active Vendors List */}
       {activeTab === 'active' && (
-        <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-right text-xs">
-              <thead className="bg-zinc-50 text-zinc-500 border-b border-zinc-200">
+              <thead className="bg-white/[0.03] text-[#898A8B] border-b border-white/10">
                 <tr>
                   <th className="px-4 py-3 font-medium">البراند / المتجر</th>
                   <th className="px-4 py-3 font-medium">المنطقة والفرع</th>
@@ -205,7 +205,7 @@ export const AdminVendors: React.FC = () => {
                   <th className="px-4 py-3 font-medium text-center">إجراءات</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-200">
+              <tbody className="divide-y divide-white/10">
                 {filteredActiveVendors.map((vendor) => {
                   const usedPercent = Math.min(
                     100,
@@ -226,75 +226,75 @@ export const AdminVendors: React.FC = () => {
                       : '4.9';
 
                   return (
-                    <tr key={vendor.id} className="hover:bg-zinc-50/70 transition-colors">
+                    <tr key={vendor.id} className="hover:bg-white/5 transition-colors">
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <img
                             src={vendor.logo}
                             alt={vendor.name}
-                            className="w-9 h-9 rounded object-cover border border-zinc-200 bg-zinc-100 shrink-0"
+                            className="w-9 h-9 rounded object-cover border border-white/10 bg-white/[0.06] shrink-0"
                             referrerPolicy="no-referrer"
                           />
                           <div>
-                            <div className="font-bold text-zinc-950 text-xs flex items-center gap-1.5">
+                            <div className="font-bold text-white text-xs flex items-center gap-1.5">
                               <span>{vendor.name}</span>
-                              <span className="inline-flex items-center gap-0.5 text-[10px] font-mono bg-amber-50 text-amber-700 border border-amber-200 px-1.5 py-0.2 rounded">
-                                <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-500" />
+                              <span className="inline-flex items-center gap-0.5 text-[10px] font-mono bg-amber-400/10 text-amber-300 border border-amber-400/25 px-1.5 py-0.2 rounded">
+                                <Star className="w-2.5 h-2.5 fill-amber-300 text-amber-300" />
                                 {avgVendorRating}
                               </span>
                             </div>
-                            <div className="text-[11px] text-zinc-500">{vendor.category}</div>
+                            <div className="text-[11px] text-[#898A8B]">{vendor.category}</div>
                           </div>
                         </div>
                       </td>
 
-                      <td className="px-4 py-3.5 text-zinc-700">
+                      <td className="px-4 py-3.5 text-white/80">
                         <div>{vendor.area}</div>
-                        <div className="text-[11px] text-zinc-400 font-mono">{vendor.phone}</div>
+                        <div className="text-[11px] text-[#898A8B] font-mono">{vendor.phone}</div>
                       </td>
 
-                      <td className="px-4 py-3.5 font-bold text-zinc-900 tabular-nums">
+                      <td className="px-4 py-3.5 font-bold text-white tabular-nums">
                         {vendor.totalSales.toLocaleString('ar-EG')}{' '}
-                        <span className="text-[10px] font-normal text-zinc-500">ج.م</span>
+                        <span className="text-[10px] font-normal text-[#898A8B]">ج.م</span>
                       </td>
 
                       <td className="px-4 py-3.5 text-center">
-                        <span className="inline-block bg-zinc-100 font-bold px-2 py-0.5 rounded text-zinc-900 font-mono">
+                        <span className="inline-block bg-white/[0.06] font-bold px-2 py-0.5 rounded text-white font-mono">
                           {vendor.commissionRate}%
                         </span>
                       </td>
 
-                      <td className="px-4 py-3.5 font-bold tabular-nums text-zinc-800">
+                      <td className="px-4 py-3.5 font-bold tabular-nums text-white/90">
                         {vendor.debtLimit.toLocaleString('ar-EG')}{' '}
-                        <span className="text-[10px] font-normal text-zinc-500">ج.م</span>
+                        <span className="text-[10px] font-normal text-[#898A8B]">ج.م</span>
                       </td>
 
                       <td className="px-4 py-3.5 min-w-[200px]">
                         <div className="flex items-center justify-between text-[11px] mb-1">
-                          <span className="font-bold tabular-nums text-zinc-900">
+                          <span className="font-bold tabular-nums text-white">
                             {vendor.currentDebt.toLocaleString('ar-EG')} ج.م
                           </span>
                           <span
                             className={`font-mono font-bold ${
                               isOverLimit
-                                ? 'text-red-600'
+                                ? 'text-red-400'
                                 : isNearLimit
-                                ? 'text-amber-600'
-                                : 'text-zinc-600'
+                                ? 'text-amber-300'
+                                : 'text-white/70'
                             }`}
                           >
                             {usedPercent}%
                           </span>
                         </div>
                         {/* Progress Bar */}
-                        <div className="w-full h-2 bg-zinc-100 rounded-full overflow-hidden border border-zinc-200">
+                        <div className="w-full h-2 bg-white/[0.06] rounded-full overflow-hidden border border-white/10">
                           <div
                             className={`h-full transition-all duration-300 ${
                               isOverLimit
                                 ? 'bg-red-600'
                                 : isNearLimit
-                                ? 'bg-amber-500'
-                                : 'bg-zinc-900'
+                                ? 'bg-amber-400'
+                                : 'bg-[#131517]'
                             }`}
                             style={{ width: `${usedPercent}%` }}
                           />
@@ -303,17 +303,17 @@ export const AdminVendors: React.FC = () => {
 
                       <td className="px-4 py-3.5">
                         {vendor.status === 'active' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#D1FE17] bg-[#D1FE17]/10 border border-[#D1FE17]/25 px-2 py-0.5 rounded">
                             <CheckCircle2 className="w-3 h-3" /> نشط
                           </span>
                         )}
                         {vendor.status === 'frozen' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-700 bg-red-50 border border-red-200 px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-red-400 bg-red-500/10 border border-red-500/25 px-2 py-0.5 rounded">
                             <AlertTriangle className="w-3 h-3" /> مجمد (سقف المديونية)
                           </span>
                         )}
                         {vendor.status === 'suspended' && (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-600 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-white/70 bg-white/[0.06] border border-white/10 px-2 py-0.5 rounded">
                             موقوف إدارياً
                           </span>
                         )}
@@ -325,7 +325,7 @@ export const AdminVendors: React.FC = () => {
                           <button
                             onClick={() => handleOpenEdit(vendor)}
                             title="تعديل النسبة والليميت"
-                            className="p-1.5 text-zinc-600 hover:text-zinc-950 hover:bg-zinc-100 rounded transition-colors"
+                            className="p-1.5 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors"
                           >
                             <Sliders className="w-3.5 h-3.5" />
                           </button>
@@ -336,8 +336,8 @@ export const AdminVendors: React.FC = () => {
                             title={vendor.status === 'active' ? 'إيقاف المتجر' : 'تفعيل المتجر'}
                             className={`p-1.5 rounded transition-colors ${
                               vendor.status === 'active'
-                                ? 'text-zinc-400 hover:text-red-600 hover:bg-red-50'
-                                : 'text-emerald-600 hover:bg-emerald-50'
+                                ? 'text-[#898A8B] hover:text-red-400 hover:bg-red-500/10'
+                                : 'text-[#D1FE17] hover:bg-[#D1FE17]/10'
                             }`}
                           >
                             <Power className="w-3.5 h-3.5" />
@@ -355,12 +355,12 @@ export const AdminVendors: React.FC = () => {
 
       {/* Pending Onboarding Vendors */}
       {activeTab === 'pending' && (
-        <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg overflow-hidden">
           {pendingVendors.length === 0 ? (
             <div className="text-center py-16 px-4">
-              <CheckCircle2 className="w-10 h-10 text-zinc-300 mx-auto mb-3" />
-              <h4 className="text-sm font-bold text-zinc-900">لا توجد طلبات انضمام جديدة للمحلات</h4>
-              <p className="text-xs text-zinc-500 mt-1">
+              <CheckCircle2 className="w-10 h-10 text-white/80 mx-auto mb-3" />
+              <h4 className="text-sm font-bold text-white">لا توجد طلبات انضمام جديدة للمحلات</h4>
+              <p className="text-xs text-[#898A8B] mt-1">
                 تمت مراجعة جميع طلبات التسجيل المقدمة مسبقاً.
               </p>
             </div>
@@ -369,19 +369,19 @@ export const AdminVendors: React.FC = () => {
               {pendingVendors.map((vendor) => (
                 <div
                   key={vendor.id}
-                  className="border border-zinc-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4 hover:border-zinc-300 transition-colors bg-zinc-50/50"
+                  className="border border-white/10 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4 hover:border-white/15 transition-colors bg-white/[0.03]"
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={vendor.logo}
                       alt={vendor.name}
-                      className="w-12 h-12 rounded object-cover border border-zinc-200 bg-white"
+                      className="w-12 h-12 rounded object-cover border border-white/10 bg-[#1A1C1F]"
                       referrerPolicy="no-referrer"
                     />
                     <div>
-                      <h4 className="font-bold text-sm text-zinc-950">{vendor.name}</h4>
-                      <p className="text-xs text-zinc-600 mt-0.5">{vendor.category}</p>
-                      <div className="text-[11px] text-zinc-500 mt-1 flex items-center gap-2">
+                      <h4 className="font-bold text-sm text-white">{vendor.name}</h4>
+                      <p className="text-xs text-white/70 mt-0.5">{vendor.category}</p>
+                      <div className="text-[11px] text-[#898A8B] mt-1 flex items-center gap-2">
                         <span>المنطقة: {vendor.area}</span>
                         <span>·</span>
                         <span>الهاتف: {vendor.phone}</span>
@@ -398,13 +398,13 @@ export const AdminVendors: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleOpenApprove(vendor)}
-                      className="px-4 py-2 bg-emerald-600 text-white rounded-md text-xs font-bold hover:bg-emerald-700 transition-colors shadow-xs"
+                      className="px-4 py-2 bg-[#D1FE17] text-[#131517] rounded-md text-xs font-bold hover:bg-white transition-colors shadow-xs"
                     >
                       قبول وتحديد النسبة والليميت
                     </button>
                     <button
                       onClick={() => rejectPendingVendor(vendor.id)}
-                      className="px-3 py-2 bg-white border border-red-200 text-red-600 rounded-md text-xs font-medium hover:bg-red-50 transition-colors"
+                      className="px-3 py-2 bg-[#1A1C1F] border border-red-500/25 text-red-400 rounded-md text-xs font-medium hover:bg-red-500/10 transition-colors"
                     >
                       رفض الطلب
                     </button>
@@ -418,18 +418,18 @@ export const AdminVendors: React.FC = () => {
 
       {/* Edit Commission & Limit Modal */}
       {editModalVendor && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg border border-zinc-200 max-w-md w-full p-5 shadow-2xl animate-in zoom-in-95">
-            <h3 className="font-bold text-sm text-zinc-950">
+        <div className="fixed inset-0 z-50 bg-[#131517]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1A1C1F] rounded-lg border border-white/10 max-w-md w-full p-5 shadow-2xl animate-in zoom-in-95">
+            <h3 className="font-bold text-sm text-white">
               تعديل الشروط المالية: {editModalVendor.name}
             </h3>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-[#898A8B] mt-1">
               المديونية الحالية: {editModalVendor.currentDebt.toLocaleString('ar-EG')} ج.م
             </p>
 
             <form onSubmit={handleSaveEdit} className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="block text-xs font-semibold text-white/80 mb-1">
                   نسبة عمولة المنصة من مبيعات الملابس (%):
                 </label>
                 <div className="relative">
@@ -441,17 +441,17 @@ export const AdminVendors: React.FC = () => {
                     required
                     value={editCommission}
                     onChange={(e) => setEditCommission(parseFloat(e.target.value) || 0)}
-                    className="w-full text-xs p-2.5 border border-zinc-300 rounded-md pr-8 focus:outline-none focus:border-zinc-900 font-bold"
+                    className="w-full text-xs p-2.5 border border-white/15 rounded-md pr-8 focus:outline-none focus:border-[#D1FE17] font-bold"
                   />
-                  <Percent className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-3.5" />
+                  <Percent className="w-3.5 h-3.5 text-[#898A8B] absolute right-2.5 top-3.5" />
                 </div>
-                <p className="text-[11px] text-zinc-400 mt-1">
+                <p className="text-[11px] text-[#898A8B] mt-1">
                   تُخصم كمديونية على المحل لحظة استلام الطيار للملابس كاش
                 </p>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="block text-xs font-semibold text-white/80 mb-1">
                   سقف المديونية الائتمانية (Debt Limit ج.م):
                 </label>
                 <div className="relative">
@@ -462,26 +462,26 @@ export const AdminVendors: React.FC = () => {
                     required
                     value={editLimit}
                     onChange={(e) => setEditLimit(parseFloat(e.target.value) || 0)}
-                    className="w-full text-xs p-2.5 border border-zinc-300 rounded-md pr-8 focus:outline-none focus:border-zinc-900 font-bold"
+                    className="w-full text-xs p-2.5 border border-white/15 rounded-md pr-8 focus:outline-none focus:border-[#D1FE17] font-bold"
                   />
-                  <Coins className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-3.5" />
+                  <Coins className="w-3.5 h-3.5 text-[#898A8B] absolute right-2.5 top-3.5" />
                 </div>
-                <p className="text-[11px] text-zinc-400 mt-1">
+                <p className="text-[11px] text-[#898A8B] mt-1">
                   إذا بلغت مديونية المحل هذا السقف، يُغلق المتجر تلقائياً حتى السداد
                 </p>
               </div>
 
-              <div className="mt-6 flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+              <div className="mt-6 flex items-center justify-end gap-2 pt-2 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setEditModalVendor(null)}
-                  className="px-3 py-1.5 border border-zinc-200 text-zinc-700 rounded-md text-xs font-medium hover:bg-zinc-100"
+                  className="px-3 py-1.5 border border-white/10 text-white/80 rounded-md text-xs font-medium hover:bg-white/10"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-zinc-950 text-white rounded-md text-xs font-bold hover:bg-zinc-800 shadow-xs"
+                  className="px-4 py-1.5 bg-[#D1FE17] text-[#131517] rounded-md text-xs font-bold hover:bg-white shadow-xs"
                 >
                   حفظ التعديلات
                 </button>
@@ -493,18 +493,18 @@ export const AdminVendors: React.FC = () => {
 
       {/* Approve Pending Vendor Modal */}
       {approveModalVendor && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg border border-zinc-200 max-w-md w-full p-5 shadow-2xl animate-in zoom-in-95">
-            <h3 className="font-bold text-sm text-zinc-950">
+        <div className="fixed inset-0 z-50 bg-[#131517]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1A1C1F] rounded-lg border border-white/10 max-w-md w-full p-5 shadow-2xl animate-in zoom-in-95">
+            <h3 className="font-bold text-sm text-white">
               الموافقة وتفعيل متجر: {approveModalVendor.name}
             </h3>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-xs text-[#898A8B] mt-1">
               حدد النسبة المئوية المخصومة وسقف المديونية قبل إتاحة منتجاته للعملاء.
             </p>
 
             <div className="mt-4 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="block text-xs font-semibold text-white/80 mb-1">
                   نسبة العمولة من بيع الملابس (%):
                 </label>
                 <input
@@ -514,12 +514,12 @@ export const AdminVendors: React.FC = () => {
                   step="1"
                   value={approveCommission}
                   onChange={(e) => setApproveCommission(parseFloat(e.target.value) || 15)}
-                  className="w-full text-xs p-2.5 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900 font-bold"
+                  className="w-full text-xs p-2.5 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17] font-bold"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="block text-xs font-semibold text-white/80 mb-1">
                   سقف المديونية الأقصى (Limit ج.م):
                 </label>
                 <input
@@ -528,22 +528,22 @@ export const AdminVendors: React.FC = () => {
                   step="500"
                   value={approveLimit}
                   onChange={(e) => setApproveLimit(parseFloat(e.target.value) || 5000)}
-                  className="w-full text-xs p-2.5 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900 font-bold"
+                  className="w-full text-xs p-2.5 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17] font-bold"
                 />
               </div>
 
-              <div className="mt-6 flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+              <div className="mt-6 flex items-center justify-end gap-2 pt-2 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setApproveModalVendor(null)}
-                  className="px-3 py-1.5 border border-zinc-200 text-zinc-700 rounded-md text-xs font-medium hover:bg-zinc-100"
+                  className="px-3 py-1.5 border border-white/10 text-white/80 rounded-md text-xs font-medium hover:bg-white/10"
                 >
                   إلغاء
                 </button>
                 <button
                   type="button"
                   onClick={handleConfirmApprove}
-                  className="px-4 py-1.5 bg-emerald-600 text-white rounded-md text-xs font-bold hover:bg-emerald-700 shadow-xs"
+                  className="px-4 py-1.5 bg-[#D1FE17] text-[#131517] rounded-md text-xs font-bold hover:bg-white shadow-xs"
                 >
                   تأكيد الاعتماد ونشر المتجر
                 </button>
@@ -555,17 +555,17 @@ export const AdminVendors: React.FC = () => {
 
       {/* Manual Add Vendor Modal */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg border border-zinc-200 max-w-lg w-full p-5 shadow-2xl animate-in zoom-in-95">
-            <h3 className="font-bold text-sm text-zinc-950">إضافة براند أزياء جديد يدوياً</h3>
-            <p className="text-xs text-zinc-500 mt-1">
+        <div className="fixed inset-0 z-50 bg-[#131517]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1A1C1F] rounded-lg border border-white/10 max-w-lg w-full p-5 shadow-2xl animate-in zoom-in-95">
+            <h3 className="font-bold text-sm text-white">إضافة براند أزياء جديد يدوياً</h3>
+            <p className="text-xs text-[#898A8B] mt-1">
               تسجيل متجر محلي فوراً في قاعدة بيانات المنصة وتحديد حدوده المالية.
             </p>
 
             <form onSubmit={handleAddVendorSubmit} className="mt-4 space-y-3.5">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
                     اسم البراند / المتجر:
                   </label>
                   <input
@@ -574,11 +574,11 @@ export const AdminVendors: React.FC = () => {
                     placeholder="مثال: OVERSIZED CLUB"
                     value={newVendorName}
                     onChange={(e) => setNewVendorName(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
                     رقم الهاتف / الواتساب:
                   </label>
                   <input
@@ -587,14 +587,14 @@ export const AdminVendors: React.FC = () => {
                     placeholder="010XXXXXXXX"
                     value={newVendorPhone}
                     onChange={(e) => setNewVendorPhone(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
                     البريد الإلكتروني للدخول:
                   </label>
                   <input
@@ -603,11 +603,11 @@ export const AdminVendors: React.FC = () => {
                     placeholder="brand@voguefast.eg"
                     value={newVendorEmail}
                     onChange={(e) => setNewVendorEmail(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md font-mono focus:outline-none focus:border-zinc-900"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md font-mono focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
                     كلمة المرور الأولية:
                   </label>
                   <input
@@ -617,18 +617,18 @@ export const AdminVendors: React.FC = () => {
                     placeholder="••••••••"
                     value={newVendorPassword}
                     onChange={(e) => setNewVendorPassword(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md font-mono focus:outline-none focus:border-zinc-900"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md font-mono focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">المنطقة:</label>
+                  <label className="block text-xs font-semibold text-white/80 mb-1">المنطقة:</label>
                   <select
                     value={newVendorArea}
                     onChange={(e) => setNewVendorArea(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md bg-white focus:outline-none focus:border-zinc-900"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md bg-[#1A1C1F] focus:outline-none focus:border-[#D1FE17]"
                   >
                     <option value="المعادي">المعادي</option>
                     <option value="الزمالك">الزمالك</option>
@@ -640,20 +640,20 @@ export const AdminVendors: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
                     التصنيف الرئيسي:
                   </label>
                   <input
                     type="text"
                     value={newVendorCategory}
                     onChange={(e) => setNewVendorCategory(e.target.value)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                <label className="block text-xs font-semibold text-white/80 mb-1">
                   العنوان التفصيلي للفرع:
                 </label>
                 <input
@@ -661,13 +661,13 @@ export const AdminVendors: React.FC = () => {
                   placeholder="شارع 9، المعادي، القاهرة"
                   value={newVendorAddress}
                   onChange={(e) => setNewVendorAddress(e.target.value)}
-                  className="w-full text-xs p-2 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900"
+                  className="w-full text-xs p-2 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3 pt-2">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
                     عمولة المتجر (%):
                   </label>
                   <input
@@ -676,11 +676,11 @@ export const AdminVendors: React.FC = () => {
                     max="40"
                     value={newVendorCommission}
                     onChange={(e) => setNewVendorCommission(parseFloat(e.target.value) || 15)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900 font-bold"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17] font-bold"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1">
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
                     سقف المديونية (Limit ج.م):
                   </label>
                   <input
@@ -689,22 +689,22 @@ export const AdminVendors: React.FC = () => {
                     step="500"
                     value={newVendorLimit}
                     onChange={(e) => setNewVendorLimit(parseFloat(e.target.value) || 5000)}
-                    className="w-full text-xs p-2 border border-zinc-300 rounded-md focus:outline-none focus:border-zinc-900 font-bold"
+                    className="w-full text-xs p-2 border border-white/15 rounded-md focus:outline-none focus:border-[#D1FE17] font-bold"
                   />
                 </div>
               </div>
 
-              <div className="mt-5 flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+              <div className="mt-5 flex items-center justify-end gap-2 pt-2 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="px-3 py-1.5 border border-zinc-200 text-zinc-700 rounded-md text-xs font-medium hover:bg-zinc-100"
+                  className="px-3 py-1.5 border border-white/10 text-white/80 rounded-md text-xs font-medium hover:bg-white/10"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 bg-zinc-950 text-white rounded-md text-xs font-bold hover:bg-zinc-800 shadow-xs"
+                  className="px-4 py-1.5 bg-[#D1FE17] text-[#131517] rounded-md text-xs font-bold hover:bg-white shadow-xs"
                 >
                   إضافة وتفعيل
                 </button>

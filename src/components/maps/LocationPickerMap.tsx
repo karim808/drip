@@ -101,14 +101,14 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
   return (
     <div className="space-y-3">
       {/* Header bar with GPS button */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-zinc-50 p-3 rounded-lg border border-zinc-200">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-white/[0.03] p-3 rounded-lg border border-white/10">
         <div>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-zinc-500 block">
+          <span className="text-[10px] font-mono uppercase tracking-wider text-[#898A8B] block">
             نظام تحديد موقع التوصيل الحقيقي (GPS / Map)
           </span>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <MapPin className="w-4 h-4 text-zinc-950 shrink-0" />
-            <span className="text-xs font-bold text-zinc-950">{selectedArea}</span>
+            <MapPin className="w-4 h-4 text-white shrink-0" />
+            <span className="text-xs font-bold text-white">{selectedArea}</span>
           </div>
         </div>
 
@@ -116,7 +116,7 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
           type="button"
           onClick={handleUseGps}
           disabled={isLocating}
-          className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-zinc-950 text-white rounded text-xs font-medium hover:bg-zinc-800 transition active:scale-95 disabled:opacity-50 shrink-0"
+          className="flex items-center justify-center gap-1.5 px-3 py-1.5 bg-[#D1FE17] text-[#131517] rounded text-xs font-medium hover:bg-white transition active:scale-95 disabled:opacity-50 shrink-0"
         >
           <Navigation className={`w-3.5 h-3.5 ${isLocating ? 'animate-spin' : ''}`} />
           <span>{isLocating ? 'جاري تحديد GPS...' : 'موقعي الحالي عبر GPS'}</span>
@@ -124,14 +124,14 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
       </div>
 
       {gpsError && (
-        <div className="text-[11px] text-amber-700 bg-amber-50 px-2.5 py-1.5 rounded border border-amber-200">
+        <div className="text-[11px] text-amber-300 bg-amber-400/10 px-2.5 py-1.5 rounded border border-amber-400/25">
           {gpsError}
         </div>
       )}
 
       {/* Quick area shortcuts for Cairo */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-[11px]">
-        <span className="text-zinc-500 whitespace-nowrap text-[10px] uppercase font-mono pl-1">سريع:</span>
+        <span className="text-[#898A8B] whitespace-nowrap text-[10px] uppercase font-mono pl-1">سريع:</span>
         {CAIRO_PRESETS.map((preset) => (
           <button
             key={preset.name}
@@ -139,8 +139,8 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
             onClick={() => updateLocation({ lat: preset.lat, lng: preset.lng })}
             className={`px-2.5 py-1 rounded border whitespace-nowrap transition text-xs ${
               selectedArea.includes(preset.name.slice(0, 5))
-                ? 'bg-zinc-950 text-white border-zinc-950 font-bold'
-                : 'bg-white text-zinc-700 border-zinc-200 hover:border-zinc-400'
+                ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17] font-bold'
+                : 'bg-[#1A1C1F] text-white/80 border-white/10 hover:border-white/25'
             }`}
           >
             {preset.name}
@@ -149,7 +149,7 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
       </div>
 
       {/* Interactive Google Map Container */}
-      <div className="relative w-full h-[260px] rounded-lg overflow-hidden border border-zinc-300 shadow-inner bg-zinc-100">
+      <div className="relative w-full h-[260px] rounded-lg overflow-hidden border border-white/15 shadow-inner bg-white/[0.06]">
         <Map
           mapId={'DEMO_MAP_ID'}
           defaultZoom={13}
@@ -171,8 +171,8 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
 
           {/* Vendor Shop Marker */}
           <AdvancedMarker position={vendorCoords} title={`متجر ${vendor.name}`}>
-            <div className="flex items-center gap-1 bg-zinc-900 text-white text-[10px] font-bold px-2 py-1 rounded shadow-md border border-white">
-              <Store className="w-3 h-3 text-emerald-400" />
+            <div className="flex items-center gap-1 bg-[#D1FE17] text-[#131517] text-[10px] font-bold px-2 py-1 rounded shadow-md border border-white">
+              <Store className="w-3 h-3 text-[#D1FE17]" />
               <span>{vendor.name}</span>
             </div>
           </AdvancedMarker>
@@ -183,44 +183,44 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
             title="موقع التوصيل الخاص بك"
           >
             <div className="relative flex flex-col items-center">
-              <div className="bg-zinc-950 text-white text-[11px] font-bold px-2.5 py-1 rounded shadow-lg border border-zinc-400 flex items-center gap-1 animate-bounce">
-                <MapPin className="w-3.5 h-3.5 text-red-500 fill-red-500" />
+              <div className="bg-[#D1FE17] text-[#131517] text-[11px] font-bold px-2.5 py-1 rounded shadow-lg border border-white/25 flex items-center gap-1 animate-bounce">
+                <MapPin className="w-3.5 h-3.5 text-red-400 fill-red-400" />
                 <span>موقع التوصيل</span>
               </div>
-              <div className="w-2 h-2 bg-zinc-950 rotate-45 -mt-1" />
+              <div className="w-2 h-2 bg-[#131517] rotate-45 -mt-1" />
             </div>
           </AdvancedMarker>
         </Map>
 
         {/* Map Overlay helper badge */}
-        <div className="absolute bottom-2 right-2 bg-white/95 backdrop-blur-xs px-2.5 py-1.5 rounded border border-zinc-200 shadow-sm text-[10px] text-zinc-700 pointer-events-none flex items-center gap-1.5">
-          <Compass className="w-3.5 h-3.5 text-zinc-900" />
+        <div className="absolute bottom-2 right-2 bg-[#1A1C1F]/95 backdrop-blur-xs px-2.5 py-1.5 rounded border border-white/10 shadow-sm text-[10px] text-white/80 pointer-events-none flex items-center gap-1.5">
+          <Compass className="w-3.5 h-3.5 text-white" />
           <span>انقر في أي مكان على الخريطة لتغيير مكان الاستلام بدقة</span>
         </div>
       </div>
 
       {/* Live Distance & Calculations Card */}
       <div className="grid grid-cols-2 gap-2 text-xs">
-        <div className="bg-zinc-50 p-2.5 rounded border border-zinc-200">
-          <span className="text-[10px] text-zinc-500 block">المسافة الحقيقية من المتجر</span>
-          <span className="text-sm font-bold tracking-tight text-zinc-950 font-mono">
+        <div className="bg-white/[0.03] p-2.5 rounded border border-white/10">
+          <span className="text-[10px] text-[#898A8B] block">المسافة الحقيقية من المتجر</span>
+          <span className="text-sm font-bold tracking-tight text-white font-mono">
             {roadDistanceKm} كم
           </span>
-          <span className="text-[10px] text-zinc-500 block mt-0.5">من {vendor.area}</span>
+          <span className="text-[10px] text-[#898A8B] block mt-0.5">من {vendor.area}</span>
         </div>
 
-        <div className="bg-zinc-50 p-2.5 rounded border border-zinc-200">
-          <span className="text-[10px] text-zinc-500 block">تكلفة الشحن السريع المحسوبة</span>
-          <span className="text-sm font-bold tracking-tight text-emerald-600 font-mono">
+        <div className="bg-white/[0.03] p-2.5 rounded border border-white/10">
+          <span className="text-[10px] text-[#898A8B] block">تكلفة الشحن السريع المحسوبة</span>
+          <span className="text-sm font-bold tracking-tight text-[#D1FE17] font-mono">
             {calculatedFee.toLocaleString('ar-EG')} ج.م
           </span>
-          <span className="text-[10px] text-zinc-500 block mt-0.5">وصول سريع خلال 30-45 دقيقة</span>
+          <span className="text-[10px] text-[#898A8B] block mt-0.5">وصول سريع خلال 30-45 دقيقة</span>
         </div>
       </div>
 
       {/* Building, Street, and Apartment Details */}
       <div>
-        <label className="block text-[11px] font-bold text-zinc-900 mb-1">
+        <label className="block text-[11px] font-bold text-white mb-1">
           تفاصيل المبنى / الشارع / رقم الشقة والدور:
         </label>
         <input
@@ -228,11 +228,11 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
           value={currentAddressDetail}
           onChange={(e) => onAddressDetailChange(e.target.value)}
           placeholder="مثال: عمارة 12، شارع 9، الدور الثالث، شقة 5"
-          className="w-full bg-white border border-zinc-200 rounded px-3 py-2 text-xs focus:outline-hidden focus:border-zinc-950 text-zinc-900"
+          className="w-full bg-[#1A1C1F] border border-white/10 rounded px-3 py-2 text-xs focus:outline-hidden focus:border-[#D1FE17] text-white"
           required
         />
-        <div className="flex items-center gap-1 mt-1 text-[10px] text-zinc-500">
-          <Info className="w-3 h-3 text-zinc-400" />
+        <div className="flex items-center gap-1 mt-1 text-[10px] text-[#898A8B]">
+          <Info className="w-3 h-3 text-[#898A8B]" />
           <span>تم تحديد الإحداثيات: {selectedCoords.lat.toFixed(4)}, {selectedCoords.lng.toFixed(4)}</span>
         </div>
       </div>

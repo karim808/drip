@@ -482,37 +482,37 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
   }, [selectedZone?.id]);
 
   return (
-    <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden shadow-xs">
+    <div className="bg-[#1A1C1F] border border-white/10 rounded-lg overflow-hidden shadow-xs">
       {/* Header Banner */}
-      <div className="bg-zinc-950 text-white p-5 border-b border-zinc-800 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#131517] text-white p-5 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-md bg-red-500/20 border border-red-500/40 text-red-400">
+            <span className="p-1.5 rounded-md bg-red-600 border border-red-500 text-red-400">
               <Flame className="w-4 h-4" />
             </span>
             <h3 className="text-base font-bold text-white">
               خريطة الكثافة الحرارية للطلبات وتوجيه توظيف الطيارين (Order Density Heatmap)
             </h3>
-            <span className="text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded">
+            <span className="text-[10px] font-mono bg-[#D1FE17]/10 text-[#D1FE17] border border-[#D1FE17]/40 px-2 py-0.5 rounded">
               Google Maps + Gemini 3.8 Grounding
             </span>
           </div>
-          <p className="text-xs text-zinc-400">
+          <p className="text-xs text-[#898A8B]">
             تحليل مكاني فوري لمناطق تركز الطلبات مقارنة بتواجد الطيارين النشطين لتحديد الأحياء ذات الأولوية القصوى لتعيين كباتن جدد
           </p>
         </div>
 
         {/* Top KPI Badges */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-md text-right">
-            <span className="text-[10px] text-zinc-400 block">مناطق عجز حاد بالأسطول</span>
+          <div className="bg-[#131517] border border-white/10 px-3 py-1.5 rounded-md text-right">
+            <span className="text-[10px] text-[#898A8B] block">مناطق عجز حاد بالأسطول</span>
             <span className="text-sm font-bold text-red-400 tabular-nums">
               {criticalZonesCount} مناطق ساخنة
             </span>
           </div>
-          <div className="bg-zinc-900 border border-zinc-800 px-3 py-1.5 rounded-md text-right">
-            <span className="text-[10px] text-zinc-400 block">إجمالي التوظيف المقترح فوراً</span>
-            <span className="text-sm font-bold text-emerald-400 tabular-nums">
+          <div className="bg-[#131517] border border-white/10 px-3 py-1.5 rounded-md text-right">
+            <span className="text-[10px] text-[#898A8B] block">إجمالي التوظيف المقترح فوراً</span>
+            <span className="text-sm font-bold text-[#D1FE17] tabular-nums">
               +{totalRecommendedHires} طيار جديد
             </span>
           </div>
@@ -520,7 +520,7 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
       </div>
 
       {/* Interactive Toolbar */}
-      <div className="bg-zinc-50 border-b border-zinc-200 px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="bg-white/[0.03] border-b border-white/10 px-5 py-3 flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex flex-wrap items-center gap-2">
           {/* Toggle Heatmap Layer */}
           <button
@@ -528,8 +528,8 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
             onClick={() => setShowHeatmapLayer(!showHeatmapLayer)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-bold border transition-colors ${
               showHeatmapLayer
-                ? 'bg-red-600 text-white border-red-700 shadow-xs'
-                : 'bg-white text-zinc-700 border-zinc-300 hover:bg-zinc-100'
+                ? 'bg-red-600 text-white border-red-500 shadow-xs'
+                : 'bg-[#1A1C1F] text-white/80 border-white/15 hover:bg-white/10'
             }`}
           >
             <Flame className="w-3.5 h-3.5" />
@@ -537,14 +537,14 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
           </button>
 
           {/* Filter Mode: All vs High Recruitment Deficit */}
-          <div className="flex items-center bg-white border border-zinc-300 rounded-md p-0.5">
+          <div className="flex items-center bg-[#1A1C1F] border border-white/15 rounded-md p-0.5">
             <button
               type="button"
               onClick={() => setFilterMode('all')}
               className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
                 filterMode === 'all'
-                  ? 'bg-zinc-900 text-white font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#D1FE17] text-[#131517] font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               جميع المناطق ({hotspotZones.length})
@@ -555,7 +555,7 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
               className={`px-2.5 py-1 rounded text-[11px] font-medium transition-colors ${
                 filterMode === 'deficit_only'
                   ? 'bg-red-600 text-white font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               مناطق عجز الطيارين فقط
@@ -568,11 +568,11 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
             onClick={() => setShowDriversMarkers(!showDriversMarkers)}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border font-medium transition-colors ${
               showDriversMarkers
-                ? 'bg-zinc-900 text-white border-zinc-900'
-                : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-100'
+                ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17]'
+                : 'bg-[#1A1C1F] text-white/70 border-white/15 hover:bg-white/10'
             }`}
           >
-            <Bike className="w-3.5 h-3.5 text-emerald-400" />
+            <Bike className="w-3.5 h-3.5 text-[#D1FE17]" />
             <span>الطيارون النشطون ({drivers.filter((d) => d.status === 'active').length})</span>
           </button>
 
@@ -582,19 +582,19 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
             onClick={() => setShowVendorsMarkers(!showVendorsMarkers)}
             className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-md border font-medium transition-colors ${
               showVendorsMarkers
-                ? 'bg-zinc-900 text-white border-zinc-900'
-                : 'bg-white text-zinc-600 border-zinc-300 hover:bg-zinc-100'
+                ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17]'
+                : 'bg-[#1A1C1F] text-white/70 border-white/15 hover:bg-white/10'
             }`}
           >
-            <Store className="w-3.5 h-3.5 text-amber-400" />
+            <Store className="w-3.5 h-3.5 text-amber-300" />
             <span>البراندات ({vendors.length})</span>
           </button>
         </div>
 
         {/* Heatmap Radius Slider */}
         <div className="flex items-center gap-2">
-          <Sliders className="w-3.5 h-3.5 text-zinc-500" />
-          <label htmlFor="heatmap-radius-range" className="text-[11px] text-zinc-600 font-medium">
+          <Sliders className="w-3.5 h-3.5 text-[#898A8B]" />
+          <label htmlFor="heatmap-radius-range" className="text-[11px] text-white/70 font-medium">
             نطاق التوهج الحراري:
           </label>
           <input
@@ -605,12 +605,12 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
             step="0.15"
             value={radiusScale}
             onChange={(e) => setRadiusScale(parseFloat(e.target.value))}
-            className="w-24 accent-red-600 cursor-pointer"
+            className="w-24 accent-red-400 cursor-pointer"
           />
           <button
             type="button"
             onClick={() => setMapFocusTarget({ lat: 30.0444, lng: 31.2857, zoom: 11 })}
-            className="text-[11px] bg-white hover:bg-zinc-100 text-zinc-700 border border-zinc-300 px-2.5 py-1 rounded font-medium flex items-center gap-1"
+            className="text-[11px] bg-[#1A1C1F] hover:bg-white/10 text-white/80 border border-white/15 px-2.5 py-1 rounded font-medium flex items-center gap-1"
           >
             <Compass className="w-3 h-3" />
             <span>عرض القاهرة بالكامل</span>
@@ -621,7 +621,7 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
       {/* Main Split Grid: Map Canvas (Left/Center) + Recruitment Priority & Grounding Panel (Right) */}
       <div className="grid grid-cols-1 lg:grid-cols-12">
         {/* Interactive Google Map with Thermal Heatmap Overlay */}
-        <div className="lg:col-span-7 relative h-[460px] lg:h-[560px] bg-zinc-100 border-b lg:border-b-0 lg:border-l border-zinc-200">
+        <div className="lg:col-span-7 relative h-[460px] lg:h-[560px] bg-white/[0.06] border-b lg:border-b-0 lg:border-l border-white/10">
           <Map
             mapId={'DEMO_MAP_ID'}
             defaultZoom={11}
@@ -646,10 +646,10 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                 const isSelected = zone.id === selectedZone?.id;
                 const badgeBg =
                   zone.priorityLevel === 'critical'
-                    ? 'bg-red-600 border-red-300 text-white'
+                    ? 'bg-red-600 border-red-500/50 text-white'
                     : zone.priorityLevel === 'moderate'
-                    ? 'bg-amber-500 border-amber-200 text-zinc-950'
-                    : 'bg-emerald-600 border-emerald-300 text-white';
+                    ? 'bg-amber-400 border-amber-400/25 text-white'
+                    : 'bg-[#D1FE17] border-[#D1FE17]/25 text-[#131517]';
 
                 return (
                   <AdvancedMarker
@@ -666,7 +666,7 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                     >
                       <div
                         className={`px-2.5 py-1 rounded-full border-2 shadow-lg flex items-center gap-1.5 text-[11px] font-bold ${badgeBg} ${
-                          isSelected ? 'ring-4 ring-zinc-950/30' : ''
+                          isSelected ? 'ring-4 ring-[#D1FE17]' : ''
                         }`}
                       >
                         <Flame className="w-3.5 h-3.5 shrink-0" />
@@ -675,7 +675,7 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                           {zone.totalOrderDensity} طلب
                         </span>
                         {zone.recommendedNewDrivers > 0 && (
-                          <span className="bg-white text-red-700 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold">
+                          <span className="bg-[#1A1C1F] text-red-400 px-1.5 py-0.2 rounded-full text-[10px] font-extrabold">
                             وظّف +{zone.recommendedNewDrivers}
                           </span>
                         )}
@@ -695,8 +695,8 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                     position={drv.coordinates!}
                     title={`الطيار: ${drv.name} (${drv.vehicle})`}
                   >
-                    <div className="flex items-center gap-1 bg-zinc-950 text-white px-2 py-0.5 rounded-full border border-emerald-400 shadow-md text-[10px] font-bold">
-                      <Bike className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <div className="flex items-center gap-1 bg-[#D1FE17] text-[#131517] px-2 py-0.5 rounded-full border border-[#D1FE17] shadow-md text-[10px] font-bold">
+                      <Bike className="w-3 h-3 text-[#D1FE17] shrink-0" />
                       <span>{drv.name.split(' ')[0]}</span>
                     </div>
                   </AdvancedMarker>
@@ -712,8 +712,8 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                     position={vendor.coordinates!}
                     title={`متجر: ${vendor.name} (${vendor.area})`}
                   >
-                    <div className="flex items-center gap-1 bg-white text-zinc-900 px-2 py-0.5 rounded border border-zinc-400 shadow-sm text-[10px] font-bold">
-                      <Store className="w-3 h-3 text-zinc-700 shrink-0" />
+                    <div className="flex items-center gap-1 bg-[#1A1C1F] text-white px-2 py-0.5 rounded border border-white/25 shadow-sm text-[10px] font-bold">
+                      <Store className="w-3 h-3 text-white/80 shrink-0" />
                       <span>{vendor.name}</span>
                     </div>
                   </AdvancedMarker>
@@ -721,13 +721,13 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
           </Map>
 
           {/* Thermal Gradient Legend Overlay */}
-          <div className="absolute bottom-3 right-3 z-10 bg-white/95 backdrop-blur-xs border border-zinc-200 rounded-lg p-2.5 shadow-md text-[11px] space-y-1.5">
-            <div className="font-bold text-zinc-900 flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5 text-red-600" />
+          <div className="absolute bottom-3 right-3 z-10 bg-[#1A1C1F]/95 backdrop-blur-xs border border-white/10 rounded-lg p-2.5 shadow-md text-[11px] space-y-1.5">
+            <div className="font-bold text-white flex items-center gap-1.5">
+              <Layers className="w-3.5 h-3.5 text-red-400" />
               <span>مؤشر الكثافة الحرارية واحتياج التوظيف</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] text-zinc-500">منخفض</span>
+              <span className="text-[10px] text-[#898A8B]">منخفض</span>
               <div
                 className="h-2.5 w-36 rounded-full"
                 style={{
@@ -735,21 +735,21 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                     'linear-gradient(to left, #991b1b, #ef4444, #f97316, #facc15, #10b981)',
                 }}
               />
-              <span className="text-[10px] font-bold text-red-700">ذروة حرجة (عجز طيارين)</span>
+              <span className="text-[10px] font-bold text-red-400">ذروة حرجة (عجز طيارين)</span>
             </div>
           </div>
         </div>
 
         {/* Right Side: Recruitment Priority Ranking + Gemini Maps Grounding */}
-        <div className="lg:col-span-5 flex flex-col justify-between bg-white">
+        <div className="lg:col-span-5 flex flex-col justify-between bg-[#1A1C1F]">
           {/* Zone Priority List */}
-          <div className="p-4 border-b border-zinc-200 space-y-3">
+          <div className="p-4 border-b border-white/10 space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-bold text-xs text-zinc-950 flex items-center gap-1.5">
-                <UserPlus className="w-4 h-4 text-red-600" />
+              <h4 className="font-bold text-xs text-white flex items-center gap-1.5">
+                <UserPlus className="w-4 h-4 text-red-400" />
                 <span>ترتيب المناطق حسب أولوية توظيف الطيارين</span>
               </h4>
-              <span className="text-[11px] text-zinc-500">انقر على أي منطقة لتحليلها</span>
+              <span className="text-[11px] text-[#898A8B]">انقر على أي منطقة لتحليلها</span>
             </div>
 
             <div className="space-y-2 max-h-[240px] overflow-y-auto pr-0.5">
@@ -764,8 +764,8 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                     }}
                     className={`p-2.5 rounded-lg border transition-all cursor-pointer flex items-center justify-between gap-2 text-xs ${
                       isSelected
-                        ? 'bg-zinc-950 text-white border-zinc-950 shadow-xs'
-                        : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-900 border-zinc-200'
+                        ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17] shadow-xs'
+                        : 'bg-white/[0.03] hover:bg-white/10 text-white border-white/10'
                     }`}
                   >
                     <div className="space-y-0.5">
@@ -777,14 +777,14 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                           </span>
                         )}
                         {zone.priorityLevel === 'moderate' && (
-                          <span className="bg-amber-500 text-zinc-950 text-[10px] px-1.5 py-0.2 rounded font-bold">
+                          <span className="bg-amber-400 text-white text-[10px] px-1.5 py-0.2 rounded font-bold">
                             أولوية متوسطة
                           </span>
                         )}
                       </div>
                       <div
                         className={`text-[11px] flex items-center gap-2 ${
-                          isSelected ? 'text-zinc-300' : 'text-zinc-500'
+                          isSelected ? 'text-white/80' : 'text-[#898A8B]'
                         }`}
                       >
                         <span>الكثافة: {zone.totalOrderDensity} طلب</span>
@@ -802,7 +802,7 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                           <span>وظّف +{zone.recommendedNewDrivers} طيار</span>
                         </div>
                       ) : (
-                        <div className="inline-flex items-center gap-1 bg-emerald-600 text-white font-bold text-[11px] px-2.5 py-1 rounded-md">
+                        <div className="inline-flex items-center gap-1 bg-[#D1FE17] text-[#131517] font-bold text-[11px] px-2.5 py-1 rounded-md">
                           <CheckCircle2 className="w-3 h-3" />
                           <span>تغطية مكتملة</span>
                         </div>
@@ -815,12 +815,12 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
           </div>
 
           {/* Gemini 3.8 Flash + Google Maps Grounding Recruitment Advisor */}
-          <div className="p-4 bg-zinc-50/70 flex-1 flex flex-col justify-between space-y-3">
+          <div className="p-4 bg-white/[0.03] flex-1 flex flex-col justify-between space-y-3">
             <div className="space-y-2.5">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-emerald-600" />
-                  <h4 className="font-bold text-xs text-zinc-950">
+                  <Sparkles className="w-4 h-4 text-[#D1FE17]" />
+                  <h4 className="font-bold text-xs text-white">
                     مستشار التمركز والتوظيف الميداني (Google Maps Grounding)
                   </h4>
                 </div>
@@ -828,7 +828,7 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                   type="button"
                   disabled={groundingLoading || !selectedZone}
                   onClick={() => selectedZone && fetchMapsGroundingForZone(selectedZone, customGroundingQuery)}
-                  className="text-[11px] bg-zinc-900 hover:bg-zinc-800 disabled:opacity-50 text-white px-2.5 py-1 rounded font-bold flex items-center gap-1 cursor-pointer"
+                  className="text-[11px] bg-[#D1FE17] hover:bg-white disabled:opacity-50 text-[#131517] px-2.5 py-1 rounded font-bold flex items-center gap-1 cursor-pointer"
                 >
                   <RefreshCw className={`w-3 h-3 ${groundingLoading ? 'animate-spin' : ''}`} />
                   <span>تحديث من خرائط جوجل</span>
@@ -842,45 +842,45 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                   value={customGroundingQuery}
                   onChange={(e) => setCustomGroundingQuery(e.target.value)}
                   placeholder={`اسأل خرائط جوجل عن ${selectedZone?.shortName || 'المنطقة'} (مثال: أفضل شوارع تمركز الطيارين)...`}
-                  className="flex-1 bg-white border border-zinc-300 rounded-md px-2.5 py-1.5 text-xs text-zinc-900 focus:outline-none focus:border-zinc-900"
+                  className="flex-1 bg-[#1A1C1F] border border-white/15 rounded-md px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-[#D1FE17]"
                 />
                 <button
                   type="button"
                   disabled={groundingLoading || !selectedZone}
                   onClick={() => selectedZone && fetchMapsGroundingForZone(selectedZone, customGroundingQuery)}
-                  className="bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold px-3 py-1.5 rounded-md text-xs shrink-0 cursor-pointer"
+                  className="bg-[#D1FE17] hover:bg-white disabled:opacity-50 text-[#131517] font-bold px-3 py-1.5 rounded-md text-xs shrink-0 cursor-pointer"
                 >
                   بحث مكاني
                 </button>
               </div>
 
               {/* Grounding Output Box */}
-              <div className="bg-white border border-zinc-200 rounded-lg p-3 text-xs space-y-2.5 max-h-[210px] overflow-y-auto">
+              <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-3 text-xs space-y-2.5 max-h-[210px] overflow-y-auto">
                 {groundingLoading ? (
-                  <div className="py-6 text-center text-zinc-500 space-y-2">
-                    <RefreshCw className="w-5 h-5 animate-spin mx-auto text-emerald-600" />
+                  <div className="py-6 text-center text-[#898A8B] space-y-2">
+                    <RefreshCw className="w-5 h-5 animate-spin mx-auto text-[#D1FE17]" />
                     <div>جاري استعلام Google Maps Grounding عبر gemini-3.8-flash لمنطقة {selectedZone?.name}...</div>
                   </div>
                 ) : groundingData ? (
                   <>
-                    <div className="flex items-center justify-between text-[11px] text-zinc-500 border-b border-zinc-100 pb-1.5">
-                      <span className="font-bold text-zinc-900 flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-red-600" />
+                    <div className="flex items-center justify-between text-[11px] text-[#898A8B] border-b border-white/10 pb-1.5">
+                      <span className="font-bold text-white flex items-center gap-1">
+                        <MapPin className="w-3.5 h-3.5 text-red-400" />
                         {groundingData.zoneName}
                       </span>
-                      <span className="font-mono text-[10px] text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                      <span className="font-mono text-[10px] text-[#D1FE17] bg-[#D1FE17]/10 px-1.5 py-0.5 rounded">
                         {groundingData.model}
                       </span>
                     </div>
 
-                    <div className="text-zinc-700 leading-relaxed whitespace-pre-line text-[11px]">
+                    <div className="text-white/80 leading-relaxed whitespace-pre-line text-[11px]">
                       {groundingData.analysis}
                     </div>
 
                     {/* Grounded Google Maps Place Links */}
                     {groundingData.places && groundingData.places.length > 0 && (
-                      <div className="pt-2 border-t border-zinc-100 space-y-1.5">
-                        <div className="text-[10px] font-bold text-zinc-500">
+                      <div className="pt-2 border-t border-white/10 space-y-1.5">
+                        <div className="text-[10px] font-bold text-[#898A8B]">
                           روابط ومواقع مرجعية من خرائط جوجل (Google Maps Sources):
                         </div>
                         <div className="flex flex-wrap gap-1.5">
@@ -890,9 +890,9 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
                               href={place.uri}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 bg-zinc-100 hover:bg-zinc-900 hover:text-white text-zinc-800 border border-zinc-300 px-2 py-1 rounded text-[11px] font-medium transition-colors"
+                              className="inline-flex items-center gap-1 bg-white/[0.06] hover:bg-white/10 hover:text-white text-white/90 border border-white/15 px-2 py-1 rounded text-[11px] font-medium transition-colors"
                             >
-                              <Navigation className="w-3 h-3 text-emerald-600 shrink-0" />
+                              <Navigation className="w-3 h-3 text-[#D1FE17] shrink-0" />
                               <span>{place.title}</span>
                               <ExternalLink className="w-2.5 h-2.5 opacity-70 shrink-0" />
                             </a>
@@ -906,18 +906,18 @@ export const AdminOrderDensityHeatmap: React.FC<AdminOrderDensityHeatmapProps> =
             </div>
 
             {/* Action Footer */}
-            <div className="pt-2 border-t border-zinc-200 flex items-center justify-between gap-2 text-[11px]">
-              <div className="text-zinc-600 flex items-center gap-1">
-                <AlertTriangle className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <div className="pt-2 border-t border-white/10 flex items-center justify-between gap-2 text-[11px]">
+              <div className="text-white/70 flex items-center gap-1">
+                <AlertTriangle className="w-3.5 h-3.5 text-amber-300 shrink-0" />
                 <span>
-                  المنطقة الأعلى عجزاً الآن: <strong className="text-zinc-950">{hotspotZones[0]?.name}</strong> (+{hotspotZones[0]?.recommendedNewDrivers} طيار)
+                  المنطقة الأعلى عجزاً الآن: <strong className="text-white">{hotspotZones[0]?.name}</strong> (+{hotspotZones[0]?.recommendedNewDrivers} طيار)
                 </span>
               </div>
               {onSwitchToDriversSection && (
                 <button
                   type="button"
                   onClick={onSwitchToDriversSection}
-                  className="text-emerald-700 hover:text-emerald-800 font-bold underline cursor-pointer shrink-0"
+                  className="text-[#D1FE17] hover:text-[#D1FE17] font-bold underline cursor-pointer shrink-0"
                 >
                   إدارة وتفعيل الطيارين ←
                 </button>

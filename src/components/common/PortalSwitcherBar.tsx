@@ -22,8 +22,8 @@ export const PortalSwitcherBar: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="font-bold tracking-[0.2em] text-[#d1fe17] uppercase text-xs">VOGUE FAST</span>
-          <span className="text-zinc-500">|</span>
-          <span className="text-zinc-400 hidden md:inline">نظام التوصيل السريع للأزياء والذمم المالية</span>
+          <span className="text-[#898A8B]">|</span>
+          <span className="text-[#898A8B] hidden md:inline">نظام التوصيل السريع للأزياء والذمم المالية</span>
         </div>
 
         <div className="flex items-center gap-1 bg-[#1c1e21] p-1 rounded-lg border border-[#303338]">
@@ -32,7 +32,7 @@ export const PortalSwitcherBar: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'customer'
                 ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
-                : 'text-zinc-400 hover:text-white'
+                : 'text-[#898A8B] hover:text-white'
             }`}
           >
             <ShoppingBag className="w-3.5 h-3.5" />
@@ -44,7 +44,7 @@ export const PortalSwitcherBar: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'vendor'
                 ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
-                : 'text-zinc-400 hover:text-white'
+                : 'text-[#898A8B] hover:text-white'
             }`}
           >
             <Store className="w-3.5 h-3.5" />
@@ -56,7 +56,7 @@ export const PortalSwitcherBar: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'driver'
                 ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
-                : 'text-zinc-400 hover:text-white'
+                : 'text-[#898A8B] hover:text-white'
             }`}
           >
             <Bike className="w-3.5 h-3.5" />
@@ -68,7 +68,7 @@ export const PortalSwitcherBar: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'admin'
                 ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
-                : 'text-zinc-400 hover:text-white'
+                : 'text-[#898A8B] hover:text-white'
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
@@ -80,7 +80,7 @@ export const PortalSwitcherBar: React.FC = () => {
             className={`flex items-center gap-1.5 px-3 py-1 rounded text-xs font-medium transition-all ${
               activePortal === 'onboarding'
                 ? 'bg-[#d1fe17] text-[#131517] font-bold shadow-sm'
-                : 'text-zinc-400 hover:text-white'
+                : 'text-[#898A8B] hover:text-white'
             }`}
           >
             <UserPlus className="w-3.5 h-3.5" />
