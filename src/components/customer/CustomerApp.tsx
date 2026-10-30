@@ -3,6 +3,7 @@ import { usePlatform } from '../../context/PlatformContext';
 import { CustomerPaymentMethod, Product, Order } from '../../types';
 import {
   ShoppingBag,
+  Menu,
   Search,
   Filter,
   X,
@@ -61,6 +62,7 @@ export const CustomerApp: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedVendor, setSelectedVendor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Selected product modal
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
@@ -266,101 +268,90 @@ export const CustomerApp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#131517] text-white font-['Readex_Pro',sans-serif] overflow-x-clip">
-      {/* Top Bar */}
-      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#131517]/85 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 md:h-[68px] md:flex-nowrap">
-          {/* Brand Wordmark */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="flex items-center gap-2.5 group/brand">
-              <span className="font-display text-2xl sm:text-3xl leading-none text-[#D1FE17] -rotate-2 select-none">
-                FAST DRIP
-              </span>
+      {/* Editorial header */}
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#080808]/90 backdrop-blur-xl">
+        <div dir="ltr" className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-8">
+          <button type="button" aria-label="فتح القائمة" aria-expanded={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(true)} className="flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17] lg:hidden">
+            <Menu className="h-4 w-4" />
+          </button>
+          <span className="font-display text-2xl tracking-tight text-white sm:text-3xl">FAST <span className="text-[#D1FE17]">DRIP</span></span>
+          <div className="flex items-center gap-2">
+            <div className="relative hidden md:block">
+              <input type="text" placeholder="SEARCH" aria-label="بحث" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="h-9 w-32 border-0 border-b border-white/20 bg-transparent px-1 text-[10px] tracking-[0.2em] text-white placeholder:text-[#898A8B] focus:border-[#D1FE17] focus:outline-none" />
+              <Search className="pointer-events-none absolute right-0 top-2.5 h-3.5 w-3.5 text-[#898A8B]" />
             </div>
-            <span className="hidden lg:inline-block h-4 w-px bg-white/20" aria-hidden="true" />
-            <span className="text-xs text-[#898A8B] hidden lg:inline max-w-[220px] leading-snug">
-              تسوق براندات الشارع الحصرية مع توصيل سريع في القاهرة
-            </span>
-          </div>
-
-          {/* Search bar */}
-          <div className="relative order-last md:order-none w-full md:max-w-sm md:flex-1">
-            <input
-              type="text"
-              placeholder="ابحث عن هودي، كارجو، أو براند..."
-              aria-label="بحث"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs bg-white/[0.06] border border-white/10 rounded-full pr-10 pl-4 py-2.5 placeholder:text-[#898A8B] focus:outline-none focus:border-[#D1FE17]"
-            />
-            <Search className="w-4 h-4 text-[#898A8B] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
-
-          {/* Right Action Icons: Customer Account, My Orders, Shopping Bag */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Customer Account Button */}
-            {currentCustomer ? (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsOrdersDrawerOpen(true)}
-                  className="flex items-center gap-1.5 px-3.5 py-2 bg-white/[0.06] border border-white/10 hover:border-[#D1FE17] hover:text-[#D1FE17] rounded-full text-xs font-semibold text-white transition-colors"
-                >
-                  <ListOrdered className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">سجل طلباتي</span>
-                  {customerOrders.length > 0 && (
-                    <span className="bg-[#D1FE17] text-[#131517] text-[10px] font-bold min-w-5 h-5 inline-flex items-center justify-center px-1.5 rounded-full tabular-nums">
-                      {customerOrders.length}
-                    </span>
-                  )}
-                </button>
-
-                <div className="flex items-center gap-1.5 pr-2 border-r border-white/10">
-                  <div className="text-right hidden sm:block">
-                    <div className="font-bold text-xs text-white leading-none">
-                      {currentCustomer.name}
-                    </div>
-                    <div className="text-[10px] text-[#898A8B] font-mono mt-0.5">
-                      {currentCustomer.phone}
-                    </div>
-                  </div>
-                  <button
-                    onClick={logoutCustomer}
-                    title="تسجيل الخروج"
-                    aria-label="تسجيل الخروج"
-                    className="p-2 text-[#898A8B] hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors"
-                  >
-                    <LogOut className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <button
-                onClick={() => {
-                  setAuthMode('login');
-                  setIsAuthModalOpen(true);
-                }}
-                className="flex items-center gap-1.5 px-3.5 py-2 border border-white/25 rounded-full text-xs font-semibold hover:border-[#D1FE17] hover:text-[#D1FE17] transition-colors"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span>دخول / حساب جديد</span>
-              </button>
-            )}
-
-            {/* Shopping Bag Trigger */}
-            <button
-              onClick={() => setIsCartOpen(true)}
-              className="group/bag flex items-center gap-2 px-4 py-2 bg-[#D1FE17] text-[#131517] rounded-full text-xs font-bold hover:bg-white hover:-translate-y-0.5 active:translate-y-0 transition-all"
-            >
-              <ShoppingBag className="w-4 h-4 group-hover/bag:-rotate-12 transition-transform" />
-              <span className="hidden sm:inline">حقيبة التسوق</span>
-              {cart.length > 0 && (
-                <span className="bg-[#131517] text-[#D1FE17] text-[11px] font-bold min-w-5 h-5 inline-flex items-center justify-center px-1.5 rounded-full tabular-nums">
-                  {cart.reduce((s, i) => s + i.quantity, 0)}
-                </span>
-              )}
+            <button onClick={() => setIsCartOpen(true)} aria-label="فتح حقيبة التسوق" className="relative flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17]">
+              <ShoppingBag className="h-4 w-4" />
+              {cart.length > 0 && <span className="absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#D1FE17] px-1 text-[9px] font-bold text-[#080808]">{cart.reduce((s, i) => s + i.quantity, 0)}</span>}
             </button>
+            <button onClick={() => { setAuthMode('login'); setIsAuthModalOpen(true); }} aria-label="دخول أو حساب جديد" className="hidden h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17] sm:flex"><User className="h-4 w-4" /></button>
           </div>
         </div>
       </header>
+
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="قائمة FAST DRIP">
+          <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <aside className="relative flex h-full w-[min(88vw,380px)] flex-col overflow-y-auto bg-[#080808] px-5 pb-5 pt-5 shadow-2xl animate-[drawer-in_220ms_ease-out]">
+            <div className="flex items-center justify-between border-b border-white/10 pb-5" dir="ltr">
+              <span className="font-display text-2xl tracking-tight text-white">FAST <span className="text-[#D1FE17]">DRIP</span></span>
+              <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17]"><X className="h-4 w-4" /></button>
+            </div>
+
+            <nav className="flex-1 py-7" aria-label="التنقل الرئيسي">
+              <div className="mb-7">
+                <p className="mb-4 text-[10px] font-mono uppercase tracking-[0.28em] text-[#D1FE17]">SHOP</p>
+                <div className="space-y-1">
+                  {[
+                    ['All Products', 'all'],
+                    ['New Arrivals', 'all'],
+                    ['Hoodies', 'هوديز وسويت شيرت'],
+                    ['T-Shirts', 'تي شيرتات وبولوهات'],
+                    ['Shirts', 'قمصان'],
+                    ['Jeans', 'جينز'],
+                    ['Pants', 'بناطيل كارجو وجينز'],
+                    ['Jackets', 'جواكت ومعاطف'],
+                    ['Shoes', 'أحذية'],
+                    ['Accessories', 'إكسسوارات'],
+                  ].map(([label, category]) => {
+                    const isSelected = category === selectedCategory && label !== 'New Arrivals';
+                    return (
+                      <button key={label} type="button" onClick={() => { setSelectedCategory(category); setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className={`group flex w-full items-center justify-between border-b border-white/[0.06] py-2.5 text-left text-sm transition-colors ${isSelected ? 'text-[#D1FE17]' : 'text-white/80 hover:text-[#D1FE17]'}`} dir="ltr">
+                        <span className="flex items-center gap-3"><span className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-[#D1FE17]' : 'bg-white/20 group-hover:bg-[#D1FE17]'}`} />{label}</span>
+                        <ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-[#D1FE17]" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-7">
+                <p className="mb-4 text-[10px] font-mono uppercase tracking-[0.28em] text-[#D1FE17]">DISCOVER</p>
+                <div className="space-y-1">
+                  {['All Stores', 'Nearby Stores', 'Featured Stores'].map((label) => (
+                    <button key={label} type="button" onClick={() => { setSelectedVendor('all'); setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className="group flex w-full items-center justify-between border-b border-white/[0.06] py-2.5 text-left text-sm text-white/80 transition-colors hover:text-[#D1FE17]" dir="ltr"><span>{label}</span><ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-[#D1FE17]" /></button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-4 text-[10px] font-mono uppercase tracking-[0.28em] text-[#D1FE17]">MORE</p>
+                <div className="space-y-1">
+                  {['Offers & Deals', 'About Us', 'Contact Us'].map((label) => (
+                    <button key={label} type="button" onClick={() => setIsMobileMenuOpen(false)} className="group flex w-full items-center justify-between border-b border-white/[0.06] py-2.5 text-left text-sm text-white/80 transition-colors hover:text-[#D1FE17]" dir="ltr"><span>{label}</span><ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-[#D1FE17]" /></button>
+                  ))}
+                </div>
+              </div>
+            </nav>
+
+            <div className="border-t border-white/10 pt-5">
+              <div className="mb-4 flex items-start gap-3 text-left" dir="ltr"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#D1FE17]" /><div><p className="text-[10px] uppercase tracking-[0.18em] text-[#898A8B]">DELIVERING TO</p><p className="mt-1 text-sm text-white">{currentCustomer?.area || 'التجمع الخامس'}</p><p className="mt-0.5 truncate text-[11px] text-white/45">{currentCustomer?.address || 'حدد موقع التوصيل عند الدفع'}</p></div></div>
+              <button type="button" onClick={() => { setIsMobileMenuOpen(false); setIsCartOpen(true); }} className="flex w-full items-center justify-between border border-[#D1FE17] px-4 py-3 text-[10px] font-bold tracking-[0.18em] text-[#D1FE17] transition-colors hover:bg-[#D1FE17] hover:text-[#080808]" dir="ltr"><span>CHANGE LOCATION</span><MapPin className="h-3.5 w-3.5" /></button>
+              <p className="mt-4 text-center text-[9px] font-mono tracking-[0.18em] text-white/35" dir="ltr">LOCAL STORES. AT YOUR DOOR IN 45 MINUTES.</p>
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* Ticker strip */}
       <div className="bg-[#D1FE17] text-[#131517] border-b border-[#131517] overflow-hidden" aria-hidden="true">
@@ -382,37 +373,38 @@ export const CustomerApp: React.FC = () => {
         </div>
       </div>
 
-      {/* Hero */}
-      <section className="relative isolate overflow-hidden bg-[#131517] border-b border-white/10 px-4 sm:px-6 py-14 sm:py-20 grain">
-        <div className="absolute inset-0 grid-lines opacity-60 -z-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" aria-hidden="true" />
-        <div
-          className="font-display absolute -bottom-10 sm:-bottom-16 left-1/2 -translate-x-1/2 text-[34vw] sm:text-[22vw] leading-none text-outline-white opacity-[0.07] select-none pointer-events-none whitespace-nowrap -z-10"
-          dir="ltr"
-          aria-hidden="true"
-        >
-          DRIP
-        </div>
-
-        <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-10 lg:gap-14 items-center">
-          <div className="space-y-6 animate-rise">
-            <div className="inline-flex items-center gap-2 text-[11px] font-mono tracking-widest text-[#D1FE17] uppercase border border-[#D1FE17]/40 bg-[#D1FE17]/10 rounded-full px-3 py-1" dir="ltr">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-[#D1FE17] animate-ping-slow" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#D1FE17]" />
-              </span>
-              QUICK COMMERCE STREETWEAR // CAIRO
-            </div>
-            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.15] text-white text-balance">
-              قطع الشارع الأصلية تصل باب بيتك خلال{' '}
-              <span className="relative inline-block text-[#131517] bg-[#D1FE17] px-3 -rotate-2 rounded-lg whitespace-nowrap">
-                45 دقيقة.
-              </span>
-            </h1>
-            <p className="text-sm sm:text-base text-[#898A8B] leading-relaxed max-w-xl">
-              اختر قطعتك من أفضل براندات الشارع المصرية، والطيار يدفع ثمنها كاش للمحل ويوصلها لك فوراً، مع إمكانية الدفع كاش عند الاستلام أو بمحفظة فودافون كاش أو إنستاباي.
-            </p>
+      {/* Editorial hero */}
+      <section className="relative isolate min-h-[520px] overflow-hidden border-b border-white/10 bg-[#080808] px-5 py-12 sm:min-h-[650px] sm:px-8 sm:py-20">
+        <img src="/fashion/fast-drip-hero.png" alt="عارض يرتدي أزياء FAST DRIP streetwear" className="absolute inset-y-0 right-0 -z-10 h-full w-[74%] object-cover object-center opacity-85 sm:w-[58%]" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#080808] via-[#080808]/90 to-transparent" aria-hidden="true" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-t from-[#080808] via-transparent to-[#080808]/30" aria-hidden="true" />
+        <div className="mx-auto flex min-h-[450px] max-w-[1440px] flex-col justify-between">
+          <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.24em] text-[#898A8B]" dir="ltr">
+            <span>FAST DRIP / 001</span><span className="text-[#D1FE17]">CAIRO — EGYPT</span>
           </div>
+          <div className="max-w-[510px] animate-rise">
+            <p className="mb-4 text-[10px] font-mono uppercase tracking-[0.28em] text-[#D1FE17]">FAST DRIP</p>
+            <h1 className="font-display text-[4.4rem] leading-[0.82] tracking-tight text-white sm:text-8xl" dir="ltr">DRIP<br /><span className="text-[#D1FE17]">DIFFERENT</span></h1>
+            <p className="mt-6 max-w-xs text-xs font-medium uppercase tracking-[0.16em] text-white/65 sm:text-sm" dir="ltr">PREMIUM STREETWEAR FOR REAL ONES.</p>
+            <button onClick={() => document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' })} className="mt-7 inline-flex items-center gap-3 bg-[#D1FE17] px-5 py-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[#080808] transition-transform hover:-translate-y-1" dir="ltr">SHOP NOW <ArrowLeft className="h-4 w-4" /></button>
+          </div>
+          <div className="flex items-center gap-2" aria-label="شرائح العرض"><span className="h-1 w-10 bg-[#D1FE17]" /><span className="h-1 w-3 bg-white/35" /><span className="h-1 w-3 bg-white/35" /></div>
+        </div>
+      </section>
 
+      {/* Editorial categories */}
+      <section className="border-b border-white/10 bg-[#080808] px-4 py-7 sm:px-8 sm:py-10">
+        <div className="mx-auto max-w-[1440px]">
+          <div className="mb-5 flex items-end justify-between"><p className="text-[10px] font-mono uppercase tracking-[0.24em] text-[#898A8B]">SHOP BY CATEGORY</p><span className="text-[10px] text-[#D1FE17]">04 / 04</span></div>
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4 sm:gap-4">
+            {[['HOODIES', '/fashion/category-hoodies.png', 'هوديز وسويت شيرت'], ['JACKETS', '/fashion/category-jackets.png', 'جواكت ومعاطف'], ['T-SHIRTS', '/fashion/category-tees.png', 'تي شيرتات وبولوهات'], ['PANTS', '/fashion/category-pants.png', 'بناطيل كارجو وجينز']].map(([label, image, category]) => (
+              <button key={label} onClick={() => setSelectedCategory(category)} className="group relative aspect-[0.78] overflow-hidden rounded-sm bg-[#151515] text-left">
+                <img src={image} alt={label} className="h-full w-full object-cover opacity-80 transition duration-500 group-hover:scale-105 group-hover:opacity-100" />
+                <span className="absolute inset-0 bg-gradient-to-t from-[#080808]/90 via-transparent to-transparent" />
+                <span className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-xs font-bold tracking-[0.08em] text-white" dir="ltr"><span>{label}</span><ArrowLeft className="h-4 w-4 text-[#D1FE17] transition-transform group-hover:-translate-x-1" /></span>
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -457,18 +449,18 @@ export const CustomerApp: React.FC = () => {
       </div>
 
           {/* Products Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <main id="new-arrivals" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-5">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]" dir="ltr">
               <span className="h-1.5 w-1.5 rounded-full bg-[#D1FE17]" />
               FAST DRIP / DROP 01
             </div>
-            <h2 className="font-display text-3xl sm:text-4xl text-white">اختار القطعة اللي شبهك</h2>
+            <h2 className="font-display text-3xl uppercase sm:text-4xl text-white" dir="ltr">NEW ARRIVALS</h2>
           </div>
           <div className="flex items-center gap-3 text-xs text-[#898A8B]">
             <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">{filteredProducts.length} قطعة متاحة</span>
-            <span className="hidden sm:inline text-[#D1FE17]">تحديثات يومية</span>
+            <button type="button" onClick={() => { setSelectedCategory('all'); setSelectedVendor('all'); setSearchQuery(''); }} className="hidden border-b border-[#D1FE17] pb-1 text-[#D1FE17] sm:inline" dir="ltr">VIEW ALL</button>
           </div>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-10">
