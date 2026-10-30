@@ -61,6 +61,7 @@ export const CustomerApp: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedVendor, setSelectedVendor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Selected product modal
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
@@ -269,6 +270,12 @@ export const CustomerApp: React.FC = () => {
       {/* Top Bar */}
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#131517]/85 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 md:h-[68px] md:flex-nowrap">
+          <button type="button" aria-label="فتح القائمة" aria-expanded={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(true)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17] sm:hidden">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+              <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
+            </svg>
+          </button>
+
           {/* Brand Wordmark */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex items-center gap-2.5 group/brand">
@@ -361,6 +368,23 @@ export const CustomerApp: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 sm:hidden" role="dialog" aria-modal="true" aria-label="قائمة FAST DRIP">
+          <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="absolute inset-0 bg-black/70" />
+          <aside className="relative h-full w-[84vw] max-w-sm bg-[#131517] p-5 shadow-2xl" dir="ltr">
+            <div className="flex items-center justify-between border-b border-white/10 pb-5">
+              <span className="font-display text-2xl text-[#D1FE17]">FAST DRIP</span>
+              <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="rounded-full p-2 text-white hover:text-[#D1FE17]"><X className="h-5 w-5" /></button>
+            </div>
+            <nav className="pt-6" aria-label="التنقل الرئيسي">
+              {['ALL PRODUCTS', 'NEW ARRIVALS', 'HOODIES', 'T-SHIRTS', 'JACKETS', 'PANTS', 'SHOES'].map((item) => (
+                <button key={item} type="button" onClick={() => { setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex w-full items-center justify-between border-b border-white/[0.08] py-4 text-left text-sm font-bold tracking-[0.12em] text-white transition-colors hover:text-[#D1FE17]"><span>{item}</span><ChevronRight className="h-4 w-4 text-[#D1FE17]" /></button>
+              ))}
+            </nav>
+          </aside>
+        </div>
+      )}
 
       {/* Ticker strip */}
       <div className="bg-[#D1FE17] text-[#131517] border-b border-[#131517] overflow-hidden" aria-hidden="true">
@@ -457,7 +481,7 @@ export const CustomerApp: React.FC = () => {
       </div>
 
           {/* Products Grid */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+      <main id="new-arrivals" className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-5">
           <div>
             <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]" dir="ltr">
