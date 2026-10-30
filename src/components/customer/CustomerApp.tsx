@@ -416,49 +416,6 @@ export const CustomerApp: React.FC = () => {
         </div>
       </section>
 
-      <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 px-4 sm:px-6 py-4 text-xs bg-[#131517]">
-        <div className="max-w-7xl mx-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
-          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
-            <Truck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> توصيل فوري مباشر بالكيلومتر
-          </span>
-          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
-            <CreditCard className="w-4 h-4 shrink-0 text-[#D1FE17]" /> كاش · فودافون كاش · إنستاباي
-          </span>
-          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
-            <ShieldCheck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> معاينة القطعة واستلام فوري
-          </span>
-        </div>
-      </div>
-
-      {/* Partner stores */}
-      <section className="border-b border-white/10 bg-[#1A1C1F] px-4 sm:px-6 py-5 sm:py-6">
-        <div className="max-w-7xl mx-auto flex flex-col gap-3 sm:gap-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#D1FE17] shadow-[0_0_14px_rgba(209,254,23,0.8)]" aria-hidden="true" />
-              <h2 className="text-sm sm:text-base font-bold text-white">البراندات الشريكة في التوصيل اللحظي</h2>
-            </div>
-            <span className="hidden sm:inline text-[10px] font-mono tracking-[0.18em] text-[#898A8B]" dir="ltr">LOCAL DROPS / 05</span>
-          </div>
-          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 snap-x">
-            {vendors.slice(0, 5).map((v) => (
-              <button
-                key={v.id}
-                onClick={() => setSelectedVendor(v.id)}
-                className={`group shrink-0 snap-start min-w-[176px] sm:min-w-0 sm:flex-1 rounded-xl border px-3 py-2.5 text-right transition-all hover:-translate-y-0.5 ${
-                  selectedVendor === v.id
-                    ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17]'
-                    : 'bg-white/[0.04] border-white/10 text-white hover:border-[#D1FE17]'
-                }`}
-              >
-                <span className="block text-xs font-bold leading-tight">{v.name}</span>
-                <span className={`mt-1 block text-[10px] ${selectedVendor === v.id ? 'text-[#131517]/70' : 'text-[#898A8B] group-hover:text-[#D1FE17]'}`}>{v.area}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Filter Tabs Bar */}
       <div className="border-b border-white/10 bg-[#131517]/90 backdrop-blur-md px-4 sm:px-6 md:sticky md:top-[68px] z-20">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 py-3">
@@ -578,6 +535,49 @@ export const CustomerApp: React.FC = () => {
           ))}
         </div>
       </main>
+
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 px-4 sm:px-6 py-4 text-xs bg-[#131517]">
+        <div className="max-w-7xl mx-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <Truck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> توصيل فوري مباشر بالكيلومتر
+          </span>
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <CreditCard className="w-4 h-4 shrink-0 text-[#D1FE17]" /> كاش · فودافون كاش · إنستاباي
+          </span>
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <ShieldCheck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> معاينة القطعة واستلام فوري
+          </span>
+        </div>
+      </div>
+
+      {/* Partner stores */}
+      <section className="border-b border-white/10 bg-[#1A1C1F] px-4 sm:px-6 py-5 sm:py-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-3 sm:gap-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#D1FE17] shadow-[0_0_14px_rgba(209,254,23,0.8)]" aria-hidden="true" />
+              <h2 className="text-sm sm:text-base font-bold text-white">البراندات الشريكة في التوصيل اللحظي</h2>
+            </div>
+            <span className="hidden sm:inline text-[10px] font-mono tracking-[0.18em] text-[#898A8B]" dir="ltr">LOCAL DROPS / 05</span>
+          </div>
+          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 snap-x">
+            {vendors.slice(0, 5).map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setSelectedVendor(v.id)}
+                className={`group shrink-0 snap-start min-w-[176px] sm:min-w-0 sm:flex-1 rounded-xl border px-3 py-2.5 text-right transition-all hover:-translate-y-0.5 ${
+                  selectedVendor === v.id
+                    ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17]'
+                    : 'bg-white/[0.04] border-white/10 text-white hover:border-[#D1FE17]'
+                }`}
+              >
+                <span className="block text-xs font-bold leading-tight">{v.name}</span>
+                <span className={`mt-1 block text-[10px] ${selectedVendor === v.id ? 'text-[#131517]/70' : 'text-[#898A8B] group-hover:text-[#D1FE17]'}`}>{v.area}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* Product Detail Modal */}
       {activeProduct && (
