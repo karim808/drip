@@ -12,7 +12,8 @@ export default defineConfig(() => {
       },
     },
     server: {
-      allowedHosts: ['.vercel.run'],
+      host: '0.0.0.0',
+      allowedHosts: true,
       hmr: false,
       watch: {},
     },
