@@ -271,9 +271,12 @@ export const CustomerApp: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 md:h-[68px] md:flex-nowrap">
           {/* Brand Wordmark */}
           <div className="flex items-center gap-3 shrink-0">
-            <span className="font-display text-2xl sm:text-3xl leading-none text-[#D1FE17] -rotate-2 select-none">
-              VOGUE FAST
-            </span>
+            <div className="flex items-center gap-2.5 group/brand">
+              <img src="/brand/drip-fit-mark.png" alt="DRIP FIT" className="h-10 w-10 rounded-xl object-cover transition-transform duration-300 group-hover/brand:rotate-6 group-hover/brand:scale-105" />
+              <span className="font-display text-2xl sm:text-3xl leading-none text-[#D1FE17] -rotate-2 select-none">
+                DRIP FIT
+              </span>
+            </div>
             <span className="hidden lg:inline-block h-4 w-px bg-white/20" aria-hidden="true" />
             <span className="text-xs text-[#898A8B] hidden lg:inline max-w-[220px] leading-snug">
               تسوق براندات الشارع الحصرية مع توصيل سريع في القاهرة

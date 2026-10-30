@@ -64,7 +64,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
               </div>
               <div>
                 <h1 className="text-lg font-extrabold tracking-tight text-white">
-                  VOGUE FAST // ADMIN
+                  DRIP FIT // ADMIN
                 </h1>
                 <p className="text-xs text-[#898A8B]">بوابة الإدارة العليا والخزنة المالية</p>
               </div>
@@ -233,7 +233,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
               <Bike className="w-6 h-6 text-[#D1FE17]" />
             </div>
             <div>
-              <h1 className="text-lg font-extrabold text-white">تطبيق كباتن VOGUE FAST</h1>
+              <h1 className="text-lg font-extrabold text-white">تطبيق كباتن DRIP FIT</h1>
               <p className="text-xs text-[#898A8B]">رادار التوصيل السريع والمحفظة النقدية</p>
             </div>
           </div>
