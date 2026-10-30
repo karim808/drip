@@ -22,8 +22,7 @@ export const PortalSwitcherBar: React.FC = () => {
       <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-            <img src="/brand/drip-fit-mark.png" alt="DRIP FIT" className="h-7 w-7 rounded-lg object-cover" />
-            <span className="font-bold tracking-[0.2em] text-[#d1fe17] uppercase text-xs">DRIP FIT</span>
+              <span className="font-bold tracking-[0.2em] text-[#d1fe17] uppercase text-xs">DRIP FIT</span>
           </div>
           <span className="text-[#898A8B]">|</span>
           <span className="text-[#898A8B] hidden md:inline">نظام التوصيل السريع للأزياء والذمم المالية</span>

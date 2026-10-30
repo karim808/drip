@@ -56,8 +56,7 @@ export const SuperAdminDashboard: React.FC = () => {
           {/* Admin Wordmark / Logo */}
           <div className="p-5 border-b border-white/10">
             <div className="flex items-center gap-2 text-white font-bold tracking-tight text-base">
-              <img src="/brand/drip-fit-mark.png" alt="DRIP FIT" className="h-8 w-8 rounded-lg object-cover" />
-              <span className="font-display text-xl text-[#D1FE17]">DRIP FIT</span>
+                <span className="font-display text-xl text-[#D1FE17]">DRIP FIT</span>
             </div>
             <div className="text-[11px] text-[#898A8B] mt-1 font-mono">
               FINANCIAL VAULT & OS

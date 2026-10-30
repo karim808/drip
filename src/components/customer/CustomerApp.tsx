@@ -272,7 +272,6 @@ export const CustomerApp: React.FC = () => {
           {/* Brand Wordmark */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="flex items-center gap-2.5 group/brand">
-              <img src="/brand/drip-fit-mark.png" alt="DRIP FIT" className="h-10 w-10 rounded-xl object-cover transition-transform duration-300 group-hover/brand:rotate-6 group-hover/brand:scale-105" />
               <span className="font-display text-2xl sm:text-3xl leading-none text-[#D1FE17] -rotate-2 select-none">
                 DRIP FIT
               </span>
