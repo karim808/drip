@@ -1,9 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { usePlatform } from '../../context/PlatformContext';
 import { CustomerPaymentMethod, Product, Order } from '../../types';
 import {
   ShoppingBag,
-  Menu,
   Search,
   Filter,
   X,
@@ -63,6 +62,20 @@ export const CustomerApp: React.FC = () => {
   const [selectedVendor, setSelectedVendor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMobileMenuOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isMobileMenuOpen]);
 
   // Selected product modal
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
@@ -272,7 +285,11 @@ export const CustomerApp: React.FC = () => {
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#080808]/90 backdrop-blur-xl">
         <div dir="ltr" className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-8">
           <button type="button" aria-label="فتح القائمة" aria-expanded={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(true)} className="flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17] lg:hidden">
-            <Menu className="h-4 w-4" />
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
+              <path d="M4 7h16" className="origin-center transition-transform duration-200" />
+              <path d="M4 12h16" className="transition-opacity duration-200" />
+              <path d="M4 17h16" className="origin-center transition-transform duration-200" />
+            </svg>
           </button>
           <span className="font-display text-2xl tracking-tight text-white sm:text-3xl">FAST <span className="text-[#D1FE17]">DRIP</span></span>
           <div className="flex items-center gap-2">
