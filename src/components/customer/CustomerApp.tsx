@@ -265,19 +265,16 @@ export const CustomerApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#131517] text-[#f5f6f2] font-['Readex_Pro',sans-serif]">
-      {/* Top Bar (Zara / Farfetch Clean Contract) */}
-      <header className="border-b border-[#303338] sticky top-0 bg-[#131517]/95 backdrop-blur-xs z-30 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
+    <div className="min-h-screen bg-[#131517] text-[#f5f6f2] font-['Readex_Pro',sans-serif]" dir="rtl">
+      {/* Top Bar */}
+      <header className="border-b border-[#303338] sticky top-0 bg-[#131517]/95 backdrop-blur-xs z-30 px-4 sm:px-6 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
           {/* Brand Wordmark */}
           <div className="flex items-center gap-3 shrink-0">
             <span className="font-bold tracking-[0.18em] text-lg uppercase text-[#d1fe17]">
               VOGUE FAST
             </span>
-            <span className="text-zinc-300">·</span>
-            <span className="text-xs text-zinc-500 hidden sm:inline">
-              تسوق براندات الشارع الحصرية مع توصيل سريع في القاهرة
-            </span>
+            <span className="hidden sm:inline text-[10px] text-[#898a8b] tracking-[0.14em] uppercase">Cairo / 45 MIN</span>
           </div>
 
           {/* Search bar */}
@@ -287,9 +284,9 @@ export const CustomerApp: React.FC = () => {
               placeholder="ابحث عن هودي، كارجو، أو براند..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs bg-zinc-50 border border-zinc-200 rounded-md pr-8 pl-3 py-2 focus:outline-none focus:border-zinc-900"
+              className="w-full text-xs bg-[#1a1c1f] text-white border border-[#303338] rounded-full pr-9 pl-3 py-2.5 focus:outline-none focus:border-[#d1fe17] placeholder:text-[#898a8b]"
             />
-            <Search className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-[#d1fe17] absolute right-3 top-3" />
           </div>
 
           {/* Right Action Icons: Customer Account, My Orders, Shopping Bag */}
@@ -299,7 +296,7 @@ export const CustomerApp: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsOrdersDrawerOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 rounded-md text-xs font-semibold text-zinc-900 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#d1fe17] hover:bg-white rounded-md text-xs font-semibold text-[#131517] transition-colors"
                 >
                   <ListOrdered className="w-3.5 h-3.5" />
                   <span>سجل طلباتي</span>
@@ -312,7 +309,7 @@ export const CustomerApp: React.FC = () => {
 
                 <div className="flex items-center gap-1.5 pl-2 border-r border-zinc-200">
                   <div className="text-right hidden sm:block">
-                    <div className="font-bold text-xs text-zinc-900 leading-none">
+                    <div                       className="font-bold text-xs text-white leading-none">
                       {currentCustomer.name}
                     </div>
                     <div className="text-[10px] text-zinc-400 font-mono mt-0.5">
@@ -359,7 +356,7 @@ export const CustomerApp: React.FC = () => {
       </header>
 
       {/* Hero Editorial Banner (Zara Lookbook Style) */}
-      <section className="bg-zinc-950 text-white border-b border-zinc-800 px-6 py-12">
+      <section className="bg-[#1a1c1f] text-white border-b border-[#303338] px-4 sm:px-6 py-12">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div className="space-y-4">
             <div className="text-xs font-mono tracking-widest text-zinc-400 uppercase">
@@ -409,7 +406,7 @@ export const CustomerApp: React.FC = () => {
       </section>
 
       {/* Filter Tabs Bar */}
-      <div className="border-b border-zinc-200 bg-zinc-50 px-6 sticky top-[65px] z-20">
+      <div className="border-b border-[#303338] bg-[#131517] px-4 sm:px-6 sticky top-[61px] z-20">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 py-3">
           {/* Categories Segmented */}
           <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
@@ -419,8 +416,8 @@ export const CustomerApp: React.FC = () => {
                 onClick={() => setSelectedCategory(cat)}
                 className={`px-3 py-1.5 rounded-md text-xs whitespace-nowrap transition-colors ${
                   selectedCategory === cat
-                    ? 'bg-zinc-950 text-white font-bold'
-                    : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60'
+                    ? 'bg-[#d1fe17] text-[#131517] font-bold'
+                    : 'text-[#898a8b] hover:text-white hover:bg-[#1a1c1f]'
                 }`}
               >
                 {cat === 'all' ? 'جميع التصنيفات' : cat}
@@ -449,8 +446,15 @@ export const CustomerApp: React.FC = () => {
       </div>
 
       {/* Products Grid (Zara / ASOS 3/4 aspect ratio) */}
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+        <div className="flex items-end justify-between mb-6">
+          <div>
+            <p className="text-[10px] tracking-[0.2em] text-[#d1fe17] uppercase font-mono">Selected for you</p>
+            <h2 className="text-2xl font-bold text-white mt-1">اكتشف القطع الجديدة</h2>
+          </div>
+          <span className="text-xs text-[#898a8b]">{filteredProducts.length} قطعة</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8">
           {filteredProducts.map((product) => (
             <div
               key={product.id}
@@ -462,14 +466,14 @@ export const CustomerApp: React.FC = () => {
             >
               <div>
                 {/* 3:4 Aspect Image */}
-                <div className="relative aspect-[3/4] bg-zinc-100 rounded-md overflow-hidden border border-zinc-200 mb-3">
+                <div className="relative aspect-[3/4] bg-[#1a1c1f] rounded-md overflow-hidden border border-[#303338] mb-3">
                   <img
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-2.5 right-2.5 bg-zinc-950/80 backdrop-blur-2xs text-white text-[10px] px-2 py-0.5 rounded font-mono">
+                  <div className="absolute top-2.5 right-2.5 bg-[#d1fe17] text-[#131517] text-[10px] px-2 py-0.5 rounded font-bold font-mono">
                     توصيل 45 دقيقة
                   </div>
                   {product.originalPrice && (
@@ -481,14 +485,14 @@ export const CustomerApp: React.FC = () => {
 
                 {/* Metadata */}
                 <div className="space-y-1">
-                  <div className="text-[11px] font-semibold text-zinc-400 tracking-wider uppercase">
+                    <div className="text-[11px] font-semibold text-[#898a8b] tracking-wider uppercase">
                     {product.vendorName}
                   </div>
-                  <h3 className="font-bold text-sm text-zinc-900 leading-snug line-clamp-1 group-hover:text-zinc-600 transition-colors">
+                  <h3 className="font-bold text-sm text-white leading-snug line-clamp-1 group-hover:text-[#d1fe17] transition-colors">
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2 pt-1">
-                    <span className="font-bold text-sm text-zinc-950 tabular-nums">
+                    <span className="font-bold text-sm text-[#d1fe17] tabular-nums">
                       {product.price.toLocaleString('ar-EG')} ج.م
                     </span>
                     {product.originalPrice && (
