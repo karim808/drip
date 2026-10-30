@@ -424,32 +424,34 @@ export const CustomerApp: React.FC = () => {
             </div>
           </div>
 
-          {/* Brand selector */}
-          <div className="relative animate-rise [animation-delay:120ms]">
-            <div className="absolute -top-6 -left-2 sm:-left-6 z-10 hidden sm:flex h-24 w-24 items-center justify-center rounded-full bg-[#D1FE17] text-[#131517] animate-float shadow-[0_10px_40px_-8px_rgba(209,254,23,0.5)]" aria-hidden="true">
-              <div className="text-center leading-none">
-                <div className="font-display text-4xl">45</div>
-                <div className="font-mono text-[10px] font-bold tracking-widest" dir="ltr">MIN</div>
-              </div>
+        </div>
+      </section>
+
+      {/* Partner stores */}
+      <section className="border-b border-white/10 bg-[#1A1C1F] px-4 sm:px-6 py-5 sm:py-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-3 sm:gap-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#D1FE17] shadow-[0_0_14px_rgba(209,254,23,0.8)]" aria-hidden="true" />
+              <h2 className="text-sm sm:text-base font-bold text-white">البراندات الشريكة في التوصيل اللحظي</h2>
             </div>
-            <div className="bg-[#1A1C1F] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-4 hard-shadow">
-              <div className="text-sm font-bold text-white">البراندات الشريكة في التوصيل اللحظي:</div>
-              <div className="flex flex-wrap gap-2">
-                {vendors.slice(0, 5).map((v) => (
-                  <button
-                    key={v.id}
-                    onClick={() => setSelectedVendor(v.id)}
-                    className={`text-xs px-3.5 py-2 rounded-full border transition-all hover:-translate-y-0.5 ${
-                      selectedVendor === v.id
-                        ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17] font-bold'
-                        : 'bg-white/[0.04] border-white/15 text-white/80 hover:border-[#D1FE17] hover:text-[#D1FE17]'
-                    }`}
-                  >
-                    {v.name} ({v.area})
-                  </button>
-                ))}
-              </div>
-            </div>
+            <span className="hidden sm:inline text-[10px] font-mono tracking-[0.18em] text-[#898A8B]" dir="ltr">LOCAL DROPS / 05</span>
+          </div>
+          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 snap-x">
+            {vendors.slice(0, 5).map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setSelectedVendor(v.id)}
+                className={`group shrink-0 snap-start min-w-[176px] sm:min-w-0 sm:flex-1 rounded-xl border px-3 py-2.5 text-right transition-all hover:-translate-y-0.5 ${
+                  selectedVendor === v.id
+                    ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17]'
+                    : 'bg-white/[0.04] border-white/10 text-white hover:border-[#D1FE17]'
+                }`}
+              >
+                <span className="block text-xs font-bold leading-tight">{v.name}</span>
+                <span className={`mt-1 block text-[10px] ${selectedVendor === v.id ? 'text-[#131517]/70' : 'text-[#898A8B] group-hover:text-[#D1FE17]'}`}>{v.area}</span>
+              </button>
+            ))}
           </div>
         </div>
       </section>
