@@ -3,6 +3,7 @@ import { usePlatform } from '../../context/PlatformContext';
 import { CustomerPaymentMethod, Product, Order } from '../../types';
 import {
   ShoppingBag,
+  Menu,
   Search,
   Filter,
   X,
@@ -61,6 +62,7 @@ export const CustomerApp: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedVendor, setSelectedVendor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Selected product modal
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
@@ -269,8 +271,8 @@ export const CustomerApp: React.FC = () => {
       {/* Editorial header */}
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#080808]/90 backdrop-blur-xl">
         <div dir="ltr" className="mx-auto flex h-16 max-w-[1440px] items-center justify-between px-4 sm:px-8">
-          <button type="button" aria-label="فتح القائمة" className="flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17]">
-            <span className="flex w-4 flex-col gap-1.5" aria-hidden="true"><span className="h-px w-full bg-current" /><span className="h-px w-3/4 bg-current" /></span>
+          <button type="button" aria-label="فتح القائمة" aria-expanded={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(true)} className="flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17] lg:hidden">
+            <Menu className="h-4 w-4" />
           </button>
           <span className="font-display text-2xl tracking-tight text-white sm:text-3xl">FAST <span className="text-[#D1FE17]">DRIP</span></span>
           <div className="flex items-center gap-2">
@@ -286,6 +288,70 @@ export const CustomerApp: React.FC = () => {
           </div>
         </div>
       </header>
+
+      {isMobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true" aria-label="قائمة FAST DRIP">
+          <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
+          <aside className="relative flex h-full w-[min(88vw,380px)] flex-col overflow-y-auto bg-[#080808] px-5 pb-5 pt-5 shadow-2xl animate-[drawer-in_220ms_ease-out]">
+            <div className="flex items-center justify-between border-b border-white/10 pb-5" dir="ltr">
+              <span className="font-display text-2xl tracking-tight text-white">FAST <span className="text-[#D1FE17]">DRIP</span></span>
+              <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="flex h-10 w-10 items-center justify-center border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17]"><X className="h-4 w-4" /></button>
+            </div>
+
+            <nav className="flex-1 py-7" aria-label="التنقل الرئيسي">
+              <div className="mb-7">
+                <p className="mb-4 text-[10px] font-mono uppercase tracking-[0.28em] text-[#D1FE17]">SHOP</p>
+                <div className="space-y-1">
+                  {[
+                    ['All Products', 'all'],
+                    ['New Arrivals', 'all'],
+                    ['Hoodies', 'هوديز وسويت شيرت'],
+                    ['T-Shirts', 'تي شيرتات وبولوهات'],
+                    ['Shirts', 'قمصان'],
+                    ['Jeans', 'جينز'],
+                    ['Pants', 'بناطيل كارجو وجينز'],
+                    ['Jackets', 'جواكت ومعاطف'],
+                    ['Shoes', 'أحذية'],
+                    ['Accessories', 'إكسسوارات'],
+                  ].map(([label, category]) => {
+                    const isSelected = category === selectedCategory && label !== 'New Arrivals';
+                    return (
+                      <button key={label} type="button" onClick={() => { setSelectedCategory(category); setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className={`group flex w-full items-center justify-between border-b border-white/[0.06] py-2.5 text-left text-sm transition-colors ${isSelected ? 'text-[#D1FE17]' : 'text-white/80 hover:text-[#D1FE17]'}`} dir="ltr">
+                        <span className="flex items-center gap-3"><span className={`h-1.5 w-1.5 rounded-full ${isSelected ? 'bg-[#D1FE17]' : 'bg-white/20 group-hover:bg-[#D1FE17]'}`} />{label}</span>
+                        <ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-[#D1FE17]" />
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-7">
+                <p className="mb-4 text-[10px] font-mono uppercase tracking-[0.28em] text-[#D1FE17]">DISCOVER</p>
+                <div className="space-y-1">
+                  {['All Stores', 'Nearby Stores', 'Featured Stores'].map((label) => (
+                    <button key={label} type="button" onClick={() => { setSelectedVendor('all'); setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className="group flex w-full items-center justify-between border-b border-white/[0.06] py-2.5 text-left text-sm text-white/80 transition-colors hover:text-[#D1FE17]" dir="ltr"><span>{label}</span><ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-[#D1FE17]" /></button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-4 text-[10px] font-mono uppercase tracking-[0.28em] text-[#D1FE17]">MORE</p>
+                <div className="space-y-1">
+                  {['Offers & Deals', 'About Us', 'Contact Us'].map((label) => (
+                    <button key={label} type="button" onClick={() => setIsMobileMenuOpen(false)} className="group flex w-full items-center justify-between border-b border-white/[0.06] py-2.5 text-left text-sm text-white/80 transition-colors hover:text-[#D1FE17]" dir="ltr"><span>{label}</span><ChevronRight className="h-3.5 w-3.5 text-white/30 transition-transform group-hover:translate-x-1 group-hover:text-[#D1FE17]" /></button>
+                  ))}
+                </div>
+              </div>
+            </nav>
+
+            <div className="border-t border-white/10 pt-5">
+              <div className="mb-4 flex items-start gap-3 text-left" dir="ltr"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#D1FE17]" /><div><p className="text-[10px] uppercase tracking-[0.18em] text-[#898A8B]">DELIVERING TO</p><p className="mt-1 text-sm text-white">{currentCustomer?.area || 'التجمع الخامس'}</p><p className="mt-0.5 truncate text-[11px] text-white/45">{currentCustomer?.address || 'حدد موقع التوصيل عند الدفع'}</p></div></div>
+              <button type="button" onClick={() => { setIsMobileMenuOpen(false); setIsCartOpen(true); }} className="flex w-full items-center justify-between border border-[#D1FE17] px-4 py-3 text-[10px] font-bold tracking-[0.18em] text-[#D1FE17] transition-colors hover:bg-[#D1FE17] hover:text-[#080808]" dir="ltr"><span>CHANGE LOCATION</span><MapPin className="h-3.5 w-3.5" /></button>
+              <p className="mt-4 text-center text-[9px] font-mono tracking-[0.18em] text-white/35" dir="ltr">LOCAL STORES. AT YOUR DOOR IN 45 MINUTES.</p>
+            </div>
+          </aside>
+        </div>
+      )}
 
       {/* Ticker strip */}
       <div className="bg-[#D1FE17] text-[#131517] border-b border-[#131517] overflow-hidden" aria-hidden="true">
