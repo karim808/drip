@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { usePlatform } from '../../context/PlatformContext';
 import { CustomerPaymentMethod, Product, Order } from '../../types';
 import {
@@ -62,6 +62,21 @@ export const CustomerApp: React.FC = () => {
   const [selectedVendor, setSelectedVendor] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isStoresExpanded, setIsStoresExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMobileMenuOpen(false);
+    };
+    document.body.style.overflow = 'hidden';
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isMobileMenuOpen]);
 
   // Selected product modal
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
@@ -372,16 +387,41 @@ export const CustomerApp: React.FC = () => {
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 sm:hidden" role="dialog" aria-modal="true" aria-label="قائمة FAST DRIP">
           <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="absolute inset-0 bg-black/70" />
-          <aside className="relative h-full w-[84vw] max-w-sm bg-[#131517] p-5 shadow-2xl" dir="ltr">
-            <div className="flex items-center justify-between border-b border-white/10 pb-5">
+          <aside className="relative flex h-full w-[84vw] max-w-sm flex-col overflow-y-auto bg-[#080808] p-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl" dir="ltr">
+            <div className="flex shrink-0 items-center justify-between border-b border-[#292929] pb-5">
               <span className="font-display text-2xl text-[#D1FE17]">FAST DRIP</span>
-              <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="rounded-full p-2 text-white hover:text-[#D1FE17]"><X className="h-5 w-5" /></button>
+              <button type="button" aria-label="إغلاق القائمة" onClick={() => setIsMobileMenuOpen(false)} className="flex h-11 w-11 items-center justify-center rounded-full text-white transition-colors hover:bg-white/10 hover:text-[#D1FE17]"><X className="h-5 w-5" /></button>
             </div>
-            <nav className="pt-6" aria-label="التنقل الرئيسي">
-              {['ALL PRODUCTS', 'NEW ARRIVALS', 'HOODIES', 'T-SHIRTS', 'JACKETS', 'PANTS', 'SHOES'].map((item) => (
-                <button key={item} type="button" onClick={() => { setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex w-full items-center justify-between border-b border-white/[0.08] py-4 text-left text-sm font-bold tracking-[0.12em] text-white transition-colors hover:text-[#D1FE17]"><span>{item}</span><ChevronRight className="h-4 w-4 text-[#D1FE17]" /></button>
-              ))}
+            <nav className="flex-1 pt-5" aria-label="التنقل الرئيسي">
+              <p className="mb-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]">SHOP</p>
+              {[
+                ['ALL PRODUCTS', 'all'],
+                ['NEW ARRIVALS', 'all'],
+                ...categories.filter((category) => category !== 'all').map((category) => [category.toUpperCase(), category]),
+              ].map(([label, category]) => {
+                const active = selectedCategory === category && label !== 'NEW ARRIVALS';
+                return <button key={label} type="button" onClick={() => { setSelectedCategory(category); setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className={`group flex min-h-11 w-full items-center justify-between border-b border-[#292929] py-3 text-left text-sm font-bold tracking-[0.08em] transition-colors ${active ? 'text-[#D1FE17]' : 'text-white hover:text-[#D1FE17]'}`}><span className="flex items-center gap-3"><span className={`h-1.5 w-1.5 rounded-full ${active ? 'bg-[#D1FE17]' : 'bg-white/20 group-hover:bg-[#D1FE17]'}`} />{label}</span><ChevronRight className="h-4 w-4 text-[#D1FE17]" /></button>;
+              })}
+
+              <div className="mt-7">
+                <button type="button" aria-expanded={isStoresExpanded} onClick={() => setIsStoresExpanded((open) => !open)} className="flex min-h-11 w-full items-center justify-between border-b border-[#292929] py-3 text-left text-sm font-bold tracking-[0.08em] text-white transition-colors hover:text-[#D1FE17]"><span className="flex items-center gap-3"><Store className="h-4 w-4 text-[#D1FE17]" />STORES <span className="text-[10px] font-normal text-[#898A8B]">({vendors.length})</span></span><ChevronRight className={`h-4 w-4 text-[#D1FE17] transition-transform ${isStoresExpanded ? 'rotate-90' : ''}`} /></button>
+                {isStoresExpanded && <div className="border-b border-[#292929] py-2">
+                  <button type="button" onClick={() => { setSelectedVendor('all'); setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className="flex min-h-11 w-full items-center justify-between py-2 text-left text-xs font-bold text-[#D1FE17]"><span>VIEW ALL STORES</span><ChevronRight className="h-4 w-4" /></button>
+                  {vendors.filter((vendor) => vendor.status === 'active').map((vendor) => <button key={vendor.id} type="button" onClick={() => { setSelectedVendor(vendor.id); setIsMobileMenuOpen(false); document.getElementById('new-arrivals')?.scrollIntoView({ behavior: 'smooth' }); }} className={`flex min-h-12 w-full items-center gap-3 border-t border-white/[0.06] py-2 text-left text-xs transition-colors hover:text-[#D1FE17] ${selectedVendor === vendor.id ? 'text-[#D1FE17]' : 'text-white/80'}`}><span className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/15 bg-[#151515]"><img src={vendor.logo} alt="" className="h-full w-full object-cover" /></span><span className="min-w-0 flex-1 truncate">{vendor.name}</span><ChevronRight className="h-3.5 w-3.5 text-[#D1FE17]" /></button>)}
+                </div>}
+              </div>
+
+              <div className="mt-7">
+                <p className="mb-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]">CUSTOMER SERVICE</p>
+                {['CONTACT US', 'FAQ', 'DELIVERY INFORMATION', 'RETURNS & EXCHANGES'].map((label) => <button key={label} type="button" onClick={() => { setIsMobileMenuOpen(false); showToast('هذه الصفحة ستكون متاحة قريباً'); }} className="flex min-h-11 w-full items-center justify-between border-b border-[#292929] py-3 text-left text-xs text-white/80 transition-colors hover:text-[#D1FE17]"><span>{label}</span><ChevronRight className="h-4 w-4 text-[#D1FE17]" /></button>)}
+              </div>
+
+              <div className="mt-7">
+                <p className="mb-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]">ABOUT FAST DRIP</p>
+                {['ABOUT US', 'PARTNER WITH US', 'BECOME A STORE PARTNER'].map((label) => <button key={label} type="button" onClick={() => { setIsMobileMenuOpen(false); showToast('هذه الصفحة ستكون متاحة قريباً'); }} className="flex min-h-11 w-full items-center justify-between border-b border-[#292929] py-3 text-left text-xs text-white/80 transition-colors hover:text-[#D1FE17]"><span>{label}</span><ChevronRight className="h-4 w-4 text-[#D1FE17]" /></button>)}
+              </div>
             </nav>
+            <div className="mt-5 shrink-0 border-t border-[#292929] pt-5" dir="ltr"><div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#D1FE17]" /><div className="min-w-0"><p className="text-[9px] uppercase tracking-[0.2em] text-[#898A8B]">DELIVERING TO</p><p className="mt-1 truncate text-sm text-white">{currentCustomer?.area || 'التجمع الخامس'}</p><p className="truncate text-[10px] text-white/45">{currentCustomer?.address || 'حدد موقع التوصيل عند الدفع'}</p></div></div><button type="button" onClick={() => { setIsMobileMenuOpen(false); setIsCartOpen(true); }} className="mt-4 flex min-h-11 w-full items-center justify-between border border-[#D1FE17] px-4 text-[10px] font-bold tracking-[0.18em] text-[#D1FE17] transition-colors hover:bg-[#D1FE17] hover:text-[#080808]"><span>CHANGE LOCATION</span><MapPin className="h-3.5 w-3.5" /></button><p className="mt-4 text-center text-[9px] tracking-[0.16em] text-white/35">LOCAL STORES. YOUR NEXT DRIP. DELIVERED FAST.</p></div>
           </aside>
         </div>
       )}
