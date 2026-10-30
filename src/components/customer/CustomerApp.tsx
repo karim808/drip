@@ -29,6 +29,7 @@ import {
   Store,
   Bike,
   MessageSquare,
+  Mail,
 } from 'lucide-react';
 import { LocationPickerMap } from '../maps/LocationPickerMap';
 import { LiveOrderTrackingMap } from '../maps/LiveOrderTrackingMap';
@@ -63,6 +64,7 @@ export const CustomerApp: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isStoresExpanded, setIsStoresExpanded] = useState(false);
+  const [activeInfoPage, setActiveInfoPage] = useState<'contact' | null>(null);
 
   useEffect(() => {
     if (!isMobileMenuOpen) return;
@@ -413,7 +415,7 @@ export const CustomerApp: React.FC = () => {
 
               <div className="mt-7">
                 <p className="mb-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]">CUSTOMER SERVICE</p>
-                {['CONTACT US', 'FAQ', 'DELIVERY INFORMATION', 'RETURNS & EXCHANGES'].map((label) => <button key={label} type="button" onClick={() => { setIsMobileMenuOpen(false); showToast('هذه الصفحة ستكون متاحة قريباً'); }} className="flex min-h-11 w-full items-center justify-between border-b border-[#292929] py-3 text-left text-xs text-white/80 transition-colors hover:text-[#D1FE17]"><span>{label}</span><ChevronRight className="h-4 w-4 text-[#D1FE17]" /></button>)}
+                {['CONTACT US', 'FAQ', 'DELIVERY INFORMATION', 'RETURNS & EXCHANGES'].map((label) => <button key={label} type="button" onClick={() => { setIsMobileMenuOpen(false); if (label === 'CONTACT US') setActiveInfoPage('contact'); else showToast('هذه الصفحة ستكون متاحة قريباً'); }} className="flex min-h-11 w-full items-center justify-between border-b border-[#292929] py-3 text-left text-xs text-white/80 transition-colors hover:text-[#D1FE17]"><span>{label}</span><ChevronRight className="h-4 w-4 text-[#D1FE17]" /></button>)}
               </div>
 
               <div className="mt-7">
@@ -424,6 +426,22 @@ export const CustomerApp: React.FC = () => {
             <div className="mt-5 shrink-0 border-t border-[#292929] pt-5" dir="ltr"><div className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#D1FE17]" /><div className="min-w-0"><p className="text-[9px] uppercase tracking-[0.2em] text-[#898A8B]">DELIVERING TO</p><p className="mt-1 truncate text-sm text-white">{currentCustomer?.area || 'التجمع الخامس'}</p><p className="truncate text-[10px] text-white/45">{currentCustomer?.address || 'حدد موقع التوصيل عند الدفع'}</p></div></div><button type="button" onClick={() => { setIsMobileMenuOpen(false); setIsCartOpen(true); }} className="mt-4 flex min-h-11 w-full items-center justify-between border border-[#D1FE17] px-4 text-[10px] font-bold tracking-[0.18em] text-[#D1FE17] transition-colors hover:bg-[#D1FE17] hover:text-[#080808]"><span>CHANGE LOCATION</span><MapPin className="h-3.5 w-3.5" /></button><p className="mt-4 text-center text-[9px] tracking-[0.16em] text-white/35">LOCAL STORES. YOUR NEXT DRIP. DELIVERED FAST.</p></div>
           </aside>
         </div>
+      )}
+
+      {activeInfoPage === 'contact' && (
+        <section className="fixed inset-0 z-40 overflow-y-auto bg-[#131517] px-4 py-5 sm:px-6" aria-labelledby="contact-page-title">
+          <div className="mx-auto max-w-3xl pb-10 pt-20">
+            <button type="button" onClick={() => setActiveInfoPage(null)} className="mb-8 inline-flex min-h-11 items-center gap-2 text-xs font-bold tracking-[0.16em] text-white/70 transition-colors hover:text-[#D1FE17]"><ArrowLeft className="h-4 w-4" />BACK TO SHOP</button>
+            <div className="border-b border-white/10 pb-8"><p className="mb-3 text-[10px] font-mono uppercase tracking-[0.25em] text-[#D1FE17]">FAST DRIP / CUSTOMER SERVICE</p><h1 id="contact-page-title" className="font-display text-4xl leading-tight text-white sm:text-6xl">CONTACT <span className="text-[#D1FE17]">US.</span></h1><p className="mt-4 max-w-xl text-sm leading-7 text-[#898A8B]">فريق DripFit جاهز يساعدك في الطلبات، التوصيل، المقاسات، والشراكات.</p></div>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
+              <a href="tel:+201000000000" className="group border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-[#D1FE17]"><Phone className="h-5 w-5 text-[#D1FE17]" /><p className="mt-6 text-[10px] font-mono uppercase tracking-[0.2em] text-[#898A8B]">CALL / WHATSAPP</p><p className="mt-2 text-lg font-bold text-white group-hover:text-[#D1FE17]">01000000000</p><p className="mt-2 text-xs text-amber-300">رقم مؤقت — يُستبدل بالرقم الرسمي</p></a>
+              <a href="mailto:admin@dripfit.eg" className="group border border-white/10 bg-white/[0.03] p-5 transition-colors hover:border-[#D1FE17]"><Mail className="h-5 w-5 text-[#D1FE17]" /><p className="mt-6 text-[10px] font-mono uppercase tracking-[0.2em] text-[#898A8B]">EMAIL</p><p className="mt-2 break-all text-lg font-bold text-white group-hover:text-[#D1FE17]">admin@dripfit.eg</p><p className="mt-2 text-xs text-[#898A8B]">للأسئلة والدعم والشراكات</p></a>
+              <div className="border border-white/10 bg-white/[0.03] p-5"><MapPin className="h-5 w-5 text-[#D1FE17]" /><p className="mt-6 text-[10px] font-mono uppercase tracking-[0.2em] text-[#898A8B]">LOCATION</p><p className="mt-2 text-lg font-bold text-white">القاهرة، مصر</p><p className="mt-2 text-xs text-[#898A8B]">توصيل سريع داخل المناطق المتاحة</p></div>
+              <div className="border border-white/10 bg-white/[0.03] p-5"><Clock className="h-5 w-5 text-[#D1FE17]" /><p className="mt-6 text-[10px] font-mono uppercase tracking-[0.2em] text-[#898A8B]">WORKING HOURS</p><p className="mt-2 text-lg font-bold text-white">يوميًا · 10:00 ص — 10:00 م</p><p className="mt-2 text-xs text-amber-300">مواعيد مؤقتة — قابلة للتعديل</p></div>
+            </div>
+            <div className="mt-6 border border-[#D1FE17]/30 bg-[#D1FE17]/[0.06] p-5"><p className="text-sm font-bold text-[#D1FE17]">قبل التواصل</p><p className="mt-2 text-xs leading-6 text-white/70">للاستفسار عن طلب قائم، جهّز رقم الطلب أو البريد المستخدم في تسجيل الدخول حتى نساعدك بشكل أسرع.</p></div>
+          </div>
+        </section>
       )}
 
       {/* Ticker strip */}
