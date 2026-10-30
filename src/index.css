@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #131517;
+  --color-background: #080808;
   --color-foreground: #ffffff;
   --color-card: #1a1c1f;
   --color-card-foreground: #ffffff;
@@ -93,7 +93,7 @@
   body {
     font-family: 'Readex Pro', system-ui, -apple-system, sans-serif;
     color: #ffffff;
-    background-color: #131517;
+    background-color: #080808;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
   }

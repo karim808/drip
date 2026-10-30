@@ -13,7 +13,7 @@ export default defineConfig(() => {
     },
     server: {
       host: '0.0.0.0',
-      allowedHosts: true,
+      allowedHosts: ['localhost', '.v0.build'],
       hmr: false,
       watch: {},
     },
