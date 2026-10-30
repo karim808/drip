@@ -265,31 +265,34 @@ export const CustomerApp: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#131517] text-[#f5f6f2] font-['Readex_Pro',sans-serif]">
-      {/* Top Bar (Zara / Farfetch Clean Contract) */}
-      <header className="border-b border-[#303338] sticky top-0 bg-[#131517]/95 backdrop-blur-xs z-30 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-8">
+    <div className="min-h-screen bg-[#131517] text-white font-['Readex_Pro',sans-serif] overflow-x-clip">
+      {/* Top Bar */}
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#131517]/85 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 md:h-[68px] md:flex-nowrap">
           {/* Brand Wordmark */}
           <div className="flex items-center gap-3 shrink-0">
-            <span className="font-bold tracking-[0.18em] text-lg uppercase text-[#d1fe17]">
-              VOGUE FAST
-            </span>
-            <span className="text-zinc-300">·</span>
-            <span className="text-xs text-zinc-500 hidden sm:inline">
+            <div className="flex items-center gap-2.5 group/brand">
+              <span className="font-display text-2xl sm:text-3xl leading-none text-[#D1FE17] -rotate-2 select-none">
+                FAST DRIP
+              </span>
+            </div>
+            <span className="hidden lg:inline-block h-4 w-px bg-white/20" aria-hidden="true" />
+            <span className="text-xs text-[#898A8B] hidden lg:inline max-w-[220px] leading-snug">
               تسوق براندات الشارع الحصرية مع توصيل سريع في القاهرة
             </span>
           </div>
 
           {/* Search bar */}
-          <div className="relative max-w-xs w-full hidden md:block">
+          <div className="relative order-last md:order-none w-full md:max-w-sm md:flex-1">
             <input
               type="text"
               placeholder="ابحث عن هودي، كارجو، أو براند..."
+              aria-label="بحث"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full text-xs bg-zinc-50 border border-zinc-200 rounded-md pr-8 pl-3 py-2 focus:outline-none focus:border-zinc-900"
+              className="w-full text-xs bg-white/[0.06] border border-white/10 rounded-full pr-10 pl-4 py-2.5 placeholder:text-[#898A8B] focus:outline-none focus:border-[#D1FE17]"
             />
-            <Search className="w-3.5 h-3.5 text-zinc-400 absolute right-2.5 top-2.5" />
+            <Search className="w-4 h-4 text-[#898A8B] absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
 
           {/* Right Action Icons: Customer Account, My Orders, Shopping Bag */}
@@ -299,32 +302,33 @@ export const CustomerApp: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsOrdersDrawerOpen(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 rounded-md text-xs font-semibold text-zinc-900 transition-colors"
+                  className="flex items-center gap-1.5 px-3.5 py-2 bg-white/[0.06] border border-white/10 hover:border-[#D1FE17] hover:text-[#D1FE17] rounded-full text-xs font-semibold text-white transition-colors"
                 >
                   <ListOrdered className="w-3.5 h-3.5" />
-                  <span>سجل طلباتي</span>
+                  <span className="hidden sm:inline">سجل طلباتي</span>
                   {customerOrders.length > 0 && (
-                    <span className="bg-zinc-900 text-white text-[10px] px-1.5 py-0.2 rounded-full tabular-nums">
+                    <span className="bg-[#D1FE17] text-[#131517] text-[10px] font-bold min-w-5 h-5 inline-flex items-center justify-center px-1.5 rounded-full tabular-nums">
                       {customerOrders.length}
                     </span>
                   )}
                 </button>
 
-                <div className="flex items-center gap-1.5 pl-2 border-r border-zinc-200">
+                <div className="flex items-center gap-1.5 pr-2 border-r border-white/10">
                   <div className="text-right hidden sm:block">
-                    <div className="font-bold text-xs text-zinc-900 leading-none">
+                    <div className="font-bold text-xs text-white leading-none">
                       {currentCustomer.name}
                     </div>
-                    <div className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                    <div className="text-[10px] text-[#898A8B] font-mono mt-0.5">
                       {currentCustomer.phone}
                     </div>
                   </div>
                   <button
                     onClick={logoutCustomer}
                     title="تسجيل الخروج"
-                    className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                    aria-label="تسجيل الخروج"
+                    className="p-2 text-[#898A8B] hover:text-red-400 hover:bg-red-500/10 rounded-full transition-colors"
                   >
-                    <LogOut className="w-3.5 h-3.5" />
+                    <LogOut className="w-4 h-4" />
                   </button>
                 </div>
               </div>
@@ -334,7 +338,7 @@ export const CustomerApp: React.FC = () => {
                   setAuthMode('login');
                   setIsAuthModalOpen(true);
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 border border-zinc-300 rounded-md text-xs font-semibold hover:border-zinc-900 transition-colors"
+                className="flex items-center gap-1.5 px-3.5 py-2 border border-white/25 rounded-full text-xs font-semibold hover:border-[#D1FE17] hover:text-[#D1FE17] transition-colors"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>دخول / حساب جديد</span>
@@ -344,12 +348,12 @@ export const CustomerApp: React.FC = () => {
             {/* Shopping Bag Trigger */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-2 bg-zinc-950 text-white rounded-md text-xs font-semibold hover:bg-zinc-800 transition-colors shadow-xs"
+              className="group/bag flex items-center gap-2 px-4 py-2 bg-[#D1FE17] text-[#131517] rounded-full text-xs font-bold hover:bg-white hover:-translate-y-0.5 active:translate-y-0 transition-all"
             >
-              <ShoppingBag className="w-4 h-4" />
+              <ShoppingBag className="w-4 h-4 group-hover/bag:-rotate-12 transition-transform" />
               <span className="hidden sm:inline">حقيبة التسوق</span>
               {cart.length > 0 && (
-                <span className="bg-white text-zinc-950 text-[11px] font-bold px-1.5 py-0.2 rounded-full tabular-nums">
+                <span className="bg-[#131517] text-[#D1FE17] text-[11px] font-bold min-w-5 h-5 inline-flex items-center justify-center px-1.5 rounded-full tabular-nums">
                   {cart.reduce((s, i) => s + i.quantity, 0)}
                 </span>
               )}
@@ -358,69 +362,73 @@ export const CustomerApp: React.FC = () => {
         </div>
       </header>
 
-      {/* Hero Editorial Banner (Zara Lookbook Style) */}
-      <section className="bg-zinc-950 text-white border-b border-zinc-800 px-6 py-12">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          <div className="space-y-4">
-            <div className="text-xs font-mono tracking-widest text-zinc-400 uppercase">
-              QUICK COMMERCE STREETWEAR // CAIRO
-            </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-tight text-balance">
-              قطع الشارع الأصلية تصل باب بيتك خلال 45 دقيقة.
-            </h1>
-            <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-lg">
-              اختر قطعتك من أفضل براندات الشارع المصرية، والطيار يدفع ثمنها كاش للمحل ويوصلها لك فوراً، مع إمكانية الدفع كاش عند الاستلام أو بمحفظة فودافون كاش أو إنستاباي.
-            </p>
-            <div className="flex flex-wrap items-center gap-4 pt-2 text-xs text-zinc-300">
-              <span className="flex items-center gap-1.5">
-                <Truck className="w-4 h-4 text-emerald-400" /> توصيل فوري مباشر بالكيلومتر
-              </span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5">
-                <CreditCard className="w-4 h-4 text-emerald-400" /> كاش · فودافون كاش · إنستاباي
-              </span>
-              <span>·</span>
-              <span className="flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" /> معاينة القطعة واستلام فوري
-              </span>
-            </div>
-          </div>
-
-          {/* Quick stats / brand selector strip */}
-          <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-5 space-y-3">
-            <div className="text-xs font-bold text-zinc-200">البراندات الشريكة في التوصيل اللحظي:</div>
-            <div className="flex flex-wrap gap-2">
-              {vendors.slice(0, 5).map((v) => (
-                <button
-                  key={v.id}
-                  onClick={() => setSelectedVendor(v.id)}
-                  className={`text-xs px-2.5 py-1 rounded border transition-colors ${
-                    selectedVendor === v.id
-                      ? 'bg-white text-zinc-950 border-white font-bold'
-                      : 'bg-zinc-950 border-zinc-800 text-zinc-300 hover:border-zinc-600'
-                  }`}
-                >
-                  {v.name} ({v.area})
-                </button>
+      {/* Ticker strip */}
+      <div className="bg-[#D1FE17] text-[#131517] border-b border-[#131517] overflow-hidden" aria-hidden="true">
+        <div className="flex w-max animate-marquee py-2">
+          {[0, 1].map((dup) => (
+            <div key={dup} className="flex shrink-0 items-center">
+              {[0, 1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center text-xs font-bold whitespace-nowrap">
+                  <span className="px-6">توصيل فوري مباشر بالكيلومتر</span>
+                  <span className="w-2 h-2 rotate-45 bg-[#131517]" />
+                  <span className="px-6">كاش · فودافون كاش · إنستاباي</span>
+                  <span className="w-2 h-2 rotate-45 bg-[#131517]" />
+                  <span className="px-6">معاينة القطعة واستلام فوري</span>
+                  <span className="w-2 h-2 rotate-45 bg-[#131517]" />
+                </div>
               ))}
             </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Hero */}
+      <section className="relative isolate overflow-hidden bg-[#131517] border-b border-white/10 px-4 sm:px-6 py-14 sm:py-20 grain">
+        <div className="absolute inset-0 grid-lines opacity-60 -z-10 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_75%)]" aria-hidden="true" />
+        <div
+          className="font-display absolute -bottom-10 sm:-bottom-16 left-1/2 -translate-x-1/2 text-[34vw] sm:text-[22vw] leading-none text-outline-white opacity-[0.07] select-none pointer-events-none whitespace-nowrap -z-10"
+          dir="ltr"
+          aria-hidden="true"
+        >
+          DRIP
+        </div>
+
+        <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-10 lg:gap-14 items-center">
+          <div className="space-y-6 animate-rise">
+            <div className="inline-flex items-center gap-2 text-[11px] font-mono tracking-widest text-[#D1FE17] uppercase border border-[#D1FE17]/40 bg-[#D1FE17]/10 rounded-full px-3 py-1" dir="ltr">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-[#D1FE17] animate-ping-slow" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-[#D1FE17]" />
+              </span>
+              QUICK COMMERCE STREETWEAR // CAIRO
+            </div>
+            <h1 className="font-display text-5xl sm:text-6xl lg:text-7xl leading-[1.15] text-white text-balance">
+              قطع الشارع الأصلية تصل باب بيتك خلال{' '}
+              <span className="relative inline-block text-[#131517] bg-[#D1FE17] px-3 -rotate-2 rounded-lg whitespace-nowrap">
+                45 دقيقة.
+              </span>
+            </h1>
+            <p className="text-sm sm:text-base text-[#898A8B] leading-relaxed max-w-xl">
+              اختر قطعتك من أفضل براندات الشارع المصرية، والطيار يدفع ثمنها كاش للمحل ويوصلها لك فوراً، مع إمكانية الدفع كاش عند الاستلام أو بمحفظة فودافون كاش أو إنستاباي.
+            </p>
           </div>
+
         </div>
       </section>
 
       {/* Filter Tabs Bar */}
-      <div className="border-b border-zinc-200 bg-zinc-50 px-6 sticky top-[65px] z-20">
+      <div className="border-b border-white/10 bg-[#131517]/90 backdrop-blur-md px-4 sm:px-6 md:sticky md:top-[68px] z-20">
         <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4 py-3">
           {/* Categories Segmented */}
-          <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar max-w-full pb-1 sm:pb-0">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-md text-xs whitespace-nowrap transition-colors ${
+                className={`px-4 py-2 rounded-full text-xs whitespace-nowrap border transition-all ${
                   selectedCategory === cat
-                    ? 'bg-zinc-950 text-white font-bold'
-                    : 'text-zinc-600 hover:text-zinc-950 hover:bg-zinc-200/60'
+                    ? 'bg-[#D1FE17] border-[#D1FE17] text-[#131517] font-bold'
+                    : 'border-white/15 text-white/80 hover:border-[#D1FE17] hover:text-[#D1FE17]'
                 }`}
               >
                 {cat === 'all' ? 'جميع التصنيفات' : cat}
@@ -430,12 +438,12 @@ export const CustomerApp: React.FC = () => {
 
           {/* Brand Dropdown Filter */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-zinc-500">تصفح براند محدد:</span>
+            <span className="text-[#898A8B]">تصفح براند محدد:</span>
             <select
               aria-label="تصفح براند محدد"
               value={selectedVendor}
               onChange={(e) => setSelectedVendor(e.target.value)}
-              className="bg-white border border-zinc-200 text-zinc-900 rounded px-2.5 py-1 text-xs focus:outline-none focus:border-zinc-900 font-medium"
+              className="bg-[#1A1C1F] border border-white/15 text-white rounded-full px-3.5 py-2 text-xs focus:outline-none focus:border-[#D1FE17] font-medium"
             >
               <option value="all">كل البراندات والمتاجر</option>
               {vendors.map((v) => (
@@ -448,51 +456,69 @@ export const CustomerApp: React.FC = () => {
         </div>
       </div>
 
-      {/* Products Grid (Zara / ASOS 3/4 aspect ratio) */}
-      <main className="max-w-7xl mx-auto px-6 py-10">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
+          {/* Products Grid */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-5">
+          <div>
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-mono uppercase tracking-[0.24em] text-[#D1FE17]" dir="ltr">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#D1FE17]" />
+              FAST DRIP / DROP 01
+            </div>
+            <h2 className="font-display text-3xl sm:text-4xl text-white">اختار القطعة اللي شبهك</h2>
+          </div>
+          <div className="flex items-center gap-3 text-xs text-[#898A8B]">
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5">{filteredProducts.length} قطعة متاحة</span>
+            <span className="hidden sm:inline text-[#D1FE17]">تحديثات يومية</span>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-3 gap-y-8 sm:gap-x-6 sm:gap-y-10">
+          {filteredProducts.map((product, index) => (
             <div
               key={product.id}
               onClick={() => {
                 setActiveProduct(product);
                 setSelectedSize(product.sizes[0] || 'L');
               }}
-              className="group cursor-pointer flex flex-col justify-between"
+              style={{ animationDelay: `${Math.min(index, 11) * 45}ms` }}
+              className="group cursor-pointer flex flex-col justify-between animate-rise"
             >
               <div>
                 {/* 3:4 Aspect Image */}
-                <div className="relative aspect-[3/4] bg-zinc-100 rounded-md overflow-hidden border border-zinc-200 mb-3">
+                <div className="relative aspect-[3/4] bg-[#1A1C1F] rounded-2xl overflow-hidden border border-white/10 mb-3.5 transition-all duration-300 group-hover:border-[#D1FE17] group-hover:-translate-y-1 group-hover:shadow-[6px_6px_0_0_#D1FE17] before:absolute before:inset-0 before:z-[1] before:bg-[linear-gradient(135deg,transparent_0%,transparent_55%,rgba(209,254,23,0.18)_55%,rgba(209,254,23,0.18)_58%,transparent_58%)] before:pointer-events-none">
                   <img
                     src={product.image}
                     alt={product.name}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                     referrerPolicy="no-referrer"
                   />
-                  <div className="absolute top-2.5 right-2.5 bg-zinc-950/80 backdrop-blur-2xs text-white text-[10px] px-2 py-0.5 rounded font-mono">
+                  <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#131517]/70 to-transparent pointer-events-none" />
+                  <div className="absolute top-2.5 right-2.5 bg-[#D1FE17] text-[#131517] text-[10px] font-bold px-2.5 py-1 rounded-full">
                     توصيل 45 دقيقة
                   </div>
                   {product.originalPrice && (
-                    <div className="absolute bottom-2.5 right-2.5 bg-red-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">
+                    <div className="absolute bottom-2.5 right-2.5 bg-white text-[#131517] text-[10px] font-bold px-2.5 py-1 rounded-md -rotate-3">
                       خصم خاص
                     </div>
                   )}
+                  <div className="absolute bottom-2.5 left-2.5 h-9 w-9 rounded-full bg-[#131517]/80 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 group-hover:bg-[#D1FE17] group-hover:text-[#131517] transition-all duration-300" aria-hidden="true">
+                    <ArrowLeft className="w-4 h-4" />
+                  </div>
                 </div>
 
                 {/* Metadata */}
                 <div className="space-y-1">
-                  <div className="text-[11px] font-semibold text-zinc-400 tracking-wider uppercase">
+                  <div className="text-[11px] font-semibold text-[#898A8B] tracking-wider uppercase">
                     {product.vendorName}
                   </div>
-                  <h3 className="font-bold text-sm text-zinc-900 leading-snug line-clamp-1 group-hover:text-zinc-600 transition-colors">
+                  <h3 className="font-bold text-sm sm:text-base text-white leading-snug line-clamp-1 group-hover:text-[#D1FE17] transition-colors">
                     {product.name}
                   </h3>
                   <div className="flex items-center gap-2 pt-1">
-                    <span className="font-bold text-sm text-zinc-950 tabular-nums">
+                    <span className="font-bold text-sm sm:text-base text-[#D1FE17] tabular-nums">
                       {product.price.toLocaleString('ar-EG')} ج.م
                     </span>
                     {product.originalPrice && (
-                      <span className="text-xs text-zinc-400 line-through tabular-nums">
+                      <span className="text-xs text-[#898A8B] line-through tabular-nums">
                         {product.originalPrice.toLocaleString('ar-EG')} ج.م
                       </span>
                     )}
@@ -501,21 +527,64 @@ export const CustomerApp: React.FC = () => {
               </div>
 
               {/* Sizes hint */}
-              <div className="pt-2 text-[11px] text-zinc-400 flex items-center gap-1">
+              <div className="pt-2.5 text-[11px] text-[#898A8B] flex items-center gap-1">
                 <span>المقاسات:</span>
-                <span>{product.sizes.join(' · ')}</span>
+                <span className="text-white/70">{product.sizes.join(' · ')}</span>
               </div>
             </div>
           ))}
         </div>
       </main>
 
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 px-4 sm:px-6 py-4 text-xs bg-[#131517]">
+        <div className="max-w-7xl mx-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <Truck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> توصيل فوري مباشر بالكيلومتر
+          </span>
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <CreditCard className="w-4 h-4 shrink-0 text-[#D1FE17]" /> كاش · فودافون كاش · إنستاباي
+          </span>
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <ShieldCheck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> معاينة القطعة واستلام فوري
+          </span>
+        </div>
+      </div>
+
+      {/* Partner stores */}
+      <section className="border-b border-white/10 bg-[#1A1C1F] px-4 sm:px-6 py-5 sm:py-6">
+        <div className="max-w-7xl mx-auto flex flex-col gap-3 sm:gap-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="h-2 w-2 rounded-full bg-[#D1FE17] shadow-[0_0_14px_rgba(209,254,23,0.8)]" aria-hidden="true" />
+              <h2 className="text-sm sm:text-base font-bold text-white">البراندات الشريكة في التوصيل اللحظي</h2>
+            </div>
+            <span className="hidden sm:inline text-[10px] font-mono tracking-[0.18em] text-[#898A8B]" dir="ltr">LOCAL DROPS / 05</span>
+          </div>
+          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1 snap-x">
+            {vendors.slice(0, 5).map((v) => (
+              <button
+                key={v.id}
+                onClick={() => setSelectedVendor(v.id)}
+                className={`group shrink-0 snap-start min-w-[176px] sm:min-w-0 sm:flex-1 rounded-xl border px-3 py-2.5 text-right transition-all hover:-translate-y-0.5 ${
+                  selectedVendor === v.id
+                    ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17]'
+                    : 'bg-white/[0.04] border-white/10 text-white hover:border-[#D1FE17]'
+                }`}
+              >
+                <span className="block text-xs font-bold leading-tight">{v.name}</span>
+                <span className={`mt-1 block text-[10px] ${selectedVendor === v.id ? 'text-[#131517]/70' : 'text-[#898A8B] group-hover:text-[#D1FE17]'}`}>{v.area}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Product Detail Modal */}
       {activeProduct && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg border border-zinc-200 max-w-2xl w-full overflow-hidden shadow-2xl animate-in zoom-in-95 grid grid-cols-1 sm:grid-cols-2">
-            {/* Image */}
-            <div className="aspect-[3/4] sm:aspect-auto bg-zinc-100">
+<div className="fixed inset-0 z-50 bg-[#131517]/80 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-hidden overscroll-contain">
+  <div className="bg-[#1A1C1F] rounded-2xl border border-white/10 max-w-2xl w-[92vw] max-h-[75dvh] overflow-hidden shadow-2xl animate-in zoom-in-95 grid grid-cols-1 sm:grid-cols-2">
+  {/* Image */}
+  <div className="h-[150px] max-[380px]:h-[135px] sm:h-auto sm:min-h-[460px] bg-white/[0.06] shrink-0">
               <img
                 src={activeProduct.image}
                 alt={activeProduct.name}
@@ -525,35 +594,36 @@ export const CustomerApp: React.FC = () => {
             </div>
 
             {/* Details */}
-            <div className="p-6 flex flex-col justify-between">
-              <div>
-                <div className="flex justify-between items-start mb-2">
-                  <span className="text-xs font-mono text-zinc-400 uppercase">
+            <div className="min-h-0 overflow-y-auto p-3 sm:p-6 flex flex-col">
+              <div className="flex-1">
+                <div className="flex justify-between items-start mb-0.5">
+                  <span className="text-[10px] font-mono text-[#898A8B] uppercase">
                     {activeProduct.vendorName}
                   </span>
                   <button
                     onClick={() => setActiveProduct(null)}
-                    className="p-1 rounded-md text-zinc-400 hover:text-zinc-900"
+                    aria-label="إغلاق تفاصيل المنتج"
+                    className="-mt-1 -mr-1 p-2 rounded-full text-[#898A8B] hover:text-white hover:bg-white/10 transition-colors"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
 
-                <h2 className="text-lg font-bold text-zinc-950 mb-2">
+                <h2 className="text-sm sm:text-lg font-bold text-white mb-0.5 leading-snug">
                   {activeProduct.name}
                 </h2>
 
-                <div className="text-xl font-bold text-zinc-950 tabular-nums mb-4">
+                <div className="text-base sm:text-xl font-bold text-[#D1FE17] tabular-nums mb-1.5">
                   {activeProduct.price.toLocaleString('ar-EG')}{' '}
-                  <span className="text-xs font-normal text-zinc-500">ج.م</span>
+                  <span className="text-[10px] font-normal text-[#898A8B]">ج.م</span>
                 </div>
 
-                <p className="text-xs text-zinc-600 leading-relaxed mb-4">
+                <p className="text-[10px] sm:text-xs text-white/70 leading-snug mb-1.5">
                   {activeProduct.description}
                 </p>
 
                 {activeProduct.fabricDetails && (
-                  <div className="mb-4 p-2.5 bg-zinc-50 rounded border border-zinc-200 text-xs text-zinc-600 space-y-1">
+                  <div className="mb-1.5 p-2 bg-white/[0.03] rounded-lg border border-white/10 text-[10px] text-white/70 space-y-0.5">
                     <div>
                       <strong>الخامة:</strong> {activeProduct.fabricDetails}
                     </div>
@@ -564,19 +634,19 @@ export const CustomerApp: React.FC = () => {
                 )}
 
                 {/* Sizing options */}
-                <div className="space-y-1.5 mb-6">
-                  <label className="block text-xs font-bold text-zinc-900">
+                <div className="space-y-1 mb-2.5">
+                  <label className="block text-[11px] font-bold text-white">
                     اختر المقاس:
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-1.5">
                     {activeProduct.sizes.map((s) => (
                       <button
                         key={s}
                         onClick={() => setSelectedSize(s)}
-                        className={`px-3 py-1.5 rounded border text-xs font-bold transition-all ${
+                        className={`px-3 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${
                           selectedSize === s
-                            ? 'bg-zinc-950 text-white border-zinc-950 shadow-xs'
-                            : 'bg-white text-zinc-800 border-zinc-200 hover:border-zinc-400'
+                            ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17] shadow-xs'
+                            : 'bg-[#1A1C1F] text-white/90 border-white/10 hover:border-white/25'
                         }`}
                       >
                         {s}
@@ -592,7 +662,7 @@ export const CustomerApp: React.FC = () => {
                   addToCart(activeProduct, selectedSize || activeProduct.sizes[0]);
                   setActiveProduct(null);
                 }}
-                className="w-full py-3 bg-zinc-950 text-white font-bold rounded-md hover:bg-zinc-800 transition-colors shadow-xs text-xs flex items-center justify-center gap-2"
+                className="w-full shrink-0 py-2.5 bg-[#D1FE17] text-[#131517] font-bold rounded-lg hover:bg-white transition-colors shadow-xs text-[11px] flex items-center justify-center gap-2"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>إضافة إلى حقيبة التسوق والطلب</span>
@@ -604,17 +674,17 @@ export const CustomerApp: React.FC = () => {
 
       {/* Cart & Immediate Multi-Payment Checkout Drawer */}
       {isCartOpen && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-xs flex justify-end">
-          <div className="bg-white w-full max-w-md h-full flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200">
+        <div className="fixed inset-0 z-50 bg-[#131517]/60 backdrop-blur-xs flex justify-end">
+          <div className="bg-[#1A1C1F] w-full max-w-md h-full flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200">
             {/* Header */}
-            <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
+            <div className="p-5 border-b border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShoppingBag className="w-5 h-5 text-zinc-950" />
-                <h3 className="font-bold text-sm text-zinc-950">حقيبة التسوق والتوصيل السريع</h3>
+                <ShoppingBag className="w-5 h-5 text-white" />
+                <h3 className="font-bold text-sm text-white">حقيبة التسوق والتوصيل السريع</h3>
               </div>
               <button
                 onClick={() => setIsCartOpen(false)}
-                className="p-1 rounded-md text-zinc-400 hover:text-zinc-900"
+                className="p-1 rounded-md text-[#898A8B] hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -624,51 +694,51 @@ export const CustomerApp: React.FC = () => {
             <div className="p-5 overflow-y-auto space-y-6 flex-1">
               {cart.length === 0 ? (
                 <div className="py-16 text-center">
-                  <ShoppingBag className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
-                  <h4 className="font-bold text-sm text-zinc-900">حقيبة التسوق فارغة</h4>
-                  <p className="text-xs text-zinc-500 mt-1">تصفح القطع وأضف ملابسك المفضلة.</p>
+                  <ShoppingBag className="w-12 h-12 text-white/80 mx-auto mb-3" />
+                  <h4 className="font-bold text-sm text-white">حقيبة التسوق فارغة</h4>
+                  <p className="text-xs text-[#898A8B] mt-1">تصفح القطع وأضف ملابسك المفضلة.</p>
                 </div>
               ) : (
                 <>
                   {/* Items list */}
                   <div className="space-y-3">
-                    <div className="text-xs font-bold text-zinc-900 flex justify-between">
+                    <div className="text-xs font-bold text-white flex justify-between">
                       <span>المتجر المصدر: {cartVendor?.name}</span>
-                      <span className="text-zinc-500 font-normal">{cartVendor?.area}</span>
+                      <span className="text-[#898A8B] font-normal">{cartVendor?.area}</span>
                     </div>
 
                     {cart.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between gap-3 p-3 bg-zinc-50 border border-zinc-200 rounded-md"
+                        className="flex items-center justify-between gap-3 p-3 bg-white/[0.03] border border-white/10 rounded-md"
                       >
                         <img
                           src={item.product.image}
                           alt={item.product.name}
-                          className="w-12 h-16 rounded object-cover border border-zinc-200"
+                          className="w-12 h-16 rounded object-cover border border-white/10"
                           referrerPolicy="no-referrer"
                         />
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-bold text-xs text-zinc-900 truncate">
+                          <h4 className="font-bold text-xs text-white truncate">
                             {item.product.name}
                           </h4>
-                          <div className="text-[11px] text-zinc-500">
-                            مقاس: <strong className="text-zinc-800">{item.size}</strong>
+                          <div className="text-[11px] text-[#898A8B]">
+                            مقاس: <strong className="text-white/90">{item.size}</strong>
                           </div>
-                          <div className="font-bold text-xs text-zinc-950 tabular-nums mt-1">
+                          <div className="font-bold text-xs text-white tabular-nums mt-1">
                             {item.product.price.toLocaleString('ar-EG')} ج.م
                           </div>
                         </div>
 
                         {/* Stepper */}
-                        <div className="flex items-center gap-1 bg-white border border-zinc-200 rounded p-1">
+                        <div className="flex items-center gap-1 bg-[#1A1C1F] border border-white/10 rounded p-1">
                           <button
                             onClick={() =>
                               updateCartQuantity(item.product.id, item.size, item.quantity - 1)
                             }
-                            className="p-1 hover:bg-zinc-100 rounded"
+                            className="p-1 hover:bg-white/10 rounded"
                           >
-                            <Minus className="w-3 h-3 text-zinc-600" />
+                            <Minus className="w-3 h-3 text-white/70" />
                           </button>
                           <span className="px-1.5 text-xs font-bold tabular-nums">
                             {item.quantity}
@@ -677,9 +747,9 @@ export const CustomerApp: React.FC = () => {
                             onClick={() =>
                               updateCartQuantity(item.product.id, item.size, item.quantity + 1)
                             }
-                            className="p-1 hover:bg-zinc-100 rounded"
+                            className="p-1 hover:bg-white/10 rounded"
                           >
-                            <Plus className="w-3 h-3 text-zinc-600" />
+                            <Plus className="w-3 h-3 text-white/70" />
                           </button>
                         </div>
                       </div>
@@ -687,28 +757,28 @@ export const CustomerApp: React.FC = () => {
                   </div>
 
                   {/* Customer Information & Delivery Address Form */}
-                  <div className="space-y-3 pt-3 border-t border-zinc-200 text-xs">
-                    <div className="font-bold text-zinc-900">بيانات التوصيل للعميل:</div>
+                  <div className="space-y-3 pt-3 border-t border-white/10 text-xs">
+                    <div className="font-bold text-white">بيانات التوصيل للعميل:</div>
 
                     <div>
-                      <label className="block text-zinc-600 mb-1">الاسم الكامل:</label>
+                      <label className="block text-white/70 mb-1">الاسم الكامل:</label>
                       <input
                         type="text"
                         required
                         value={custName}
                         onChange={(e) => setCustName(e.target.value)}
-                        className="w-full p-2 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs"
+                        className="w-full p-2 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-zinc-600 mb-1">رقم الهاتف:</label>
+                      <label className="block text-white/70 mb-1">رقم الهاتف:</label>
                       <input
                         type="tel"
                         required
                         value={custPhone}
                         onChange={(e) => setCustPhone(e.target.value)}
-                        className="w-full p-2 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs font-mono"
+                        className="w-full p-2 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs font-mono"
                       />
                     </div>
 
@@ -730,31 +800,31 @@ export const CustomerApp: React.FC = () => {
                       </div>
                     ) : (
                       <div>
-                        <label className="block text-zinc-600 mb-1">العنوان بالتفصيل:</label>
+                        <label className="block text-white/70 mb-1">العنوان بالتفصيل:</label>
                         <input
                           type="text"
                           required
                           value={custAddress}
                           onChange={(e) => setCustAddress(e.target.value)}
-                          className="w-full p-2 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs"
+                          className="w-full p-2 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs"
                         />
                       </div>
                     )}
 
                     <div>
-                      <label className="block text-zinc-600 mb-1">ملاحظات للطيار (اختياري):</label>
+                      <label className="block text-white/70 mb-1">ملاحظات للطيار (اختياري):</label>
                       <input
                         type="text"
                         value={custNotes}
                         onChange={(e) => setCustNotes(e.target.value)}
-                        className="w-full p-2 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs"
+                        className="w-full p-2 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs"
                       />
                     </div>
                   </div>
 
                   {/* Payment Methods Selection (Requirement 3) */}
-                  <div className="space-y-2 pt-3 border-t border-zinc-200 text-xs">
-                    <div className="font-bold text-zinc-900 mb-2">
+                  <div className="space-y-2 pt-3 border-t border-white/10 text-xs">
+                    <div className="font-bold text-white mb-2">
                       اختر طريقة الدفع (تظهر للطيار بوضوح):
                     </div>
 
@@ -763,8 +833,8 @@ export const CustomerApp: React.FC = () => {
                       onClick={() => setSelectedPaymentMethod('cash_on_delivery')}
                       className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                         selectedPaymentMethod === 'cash_on_delivery'
-                          ? 'bg-zinc-900 text-white border-zinc-950 shadow-sm'
-                          : 'bg-white border-zinc-200 text-zinc-800 hover:border-zinc-300'
+                          ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17] shadow-sm'
+                          : 'bg-[#1A1C1F] border-white/10 text-white/90 hover:border-white/15'
                       }`}
                     >
                       <input
@@ -772,16 +842,16 @@ export const CustomerApp: React.FC = () => {
                         name="payment_method"
                         checked={selectedPaymentMethod === 'cash_on_delivery'}
                         onChange={() => setSelectedPaymentMethod('cash_on_delivery')}
-                        className="mt-0.5 accent-zinc-950"
+                        className="mt-0.5 accent-white"
                       />
                       <div className="flex-1">
                         <div className="font-bold text-xs flex items-center justify-between">
                           <span>كاش عند الاستلام (COD)</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${selectedPaymentMethod === 'cash_on_delivery' ? 'bg-zinc-800 text-zinc-200' : 'bg-zinc-100 text-zinc-600'}`}>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${selectedPaymentMethod === 'cash_on_delivery' ? 'bg-[#1C1E21] text-white/90' : 'bg-white/[0.06] text-white/70'}`}>
                             نقداً
                           </span>
                         </div>
-                        <p className={`text-[11px] mt-0.5 leading-normal ${selectedPaymentMethod === 'cash_on_delivery' ? 'text-zinc-300' : 'text-zinc-500'}`}>
+                        <p className={`text-[11px] mt-0.5 leading-normal ${selectedPaymentMethod === 'cash_on_delivery' ? 'text-white/80' : 'text-[#898A8B]'}`}>
                           الدفع نقداً للكابتن عند باب البيت بعد معاينة القطعة واستلامها.
                         </p>
                       </div>
@@ -792,8 +862,8 @@ export const CustomerApp: React.FC = () => {
                       onClick={() => setSelectedPaymentMethod('vodafone_cash')}
                       className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                         selectedPaymentMethod === 'vodafone_cash'
-                          ? 'bg-red-950 text-white border-red-800 shadow-sm'
-                          : 'bg-white border-zinc-200 text-zinc-800 hover:border-zinc-300'
+                          ? 'bg-red-500/15 text-white border-red-500/30 shadow-sm'
+                          : 'bg-[#1A1C1F] border-white/10 text-white/90 hover:border-white/15'
                       }`}
                     >
                       <input
@@ -801,16 +871,16 @@ export const CustomerApp: React.FC = () => {
                         name="payment_method"
                         checked={selectedPaymentMethod === 'vodafone_cash'}
                         onChange={() => setSelectedPaymentMethod('vodafone_cash')}
-                        className="mt-0.5 accent-red-600"
+                        className="mt-0.5 accent-red-400"
                       />
                       <div className="flex-1">
                         <div className="font-bold text-xs flex items-center justify-between">
                           <span>محفظة إلكترونية / فودافون كاش</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${selectedPaymentMethod === 'vodafone_cash' ? 'bg-red-800 text-white' : 'bg-red-50 text-red-700'}`}>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${selectedPaymentMethod === 'vodafone_cash' ? 'bg-red-500/15 text-white' : 'bg-red-500/10 text-red-400'}`}>
                             محفظة
                           </span>
                         </div>
-                        <p className={`text-[11px] mt-0.5 leading-normal ${selectedPaymentMethod === 'vodafone_cash' ? 'text-red-200' : 'text-zinc-500'}`}>
+                        <p className={`text-[11px] mt-0.5 leading-normal ${selectedPaymentMethod === 'vodafone_cash' ? 'text-red-300' : 'text-[#898A8B]'}`}>
                           تحويل المبلغ لمحفظة الطيار الإلكترونية أو فودافون كاش عند الوصول.
                         </p>
                       </div>
@@ -821,8 +891,8 @@ export const CustomerApp: React.FC = () => {
                       onClick={() => setSelectedPaymentMethod('instapay')}
                       className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
                         selectedPaymentMethod === 'instapay'
-                          ? 'bg-purple-950 text-white border-purple-800 shadow-sm'
-                          : 'bg-white border-zinc-200 text-zinc-800 hover:border-zinc-300'
+                          ? 'bg-white/10 text-white border-white/15 shadow-sm'
+                          : 'bg-[#1A1C1F] border-white/10 text-white/90 hover:border-white/15'
                       }`}
                     >
                       <input
@@ -830,16 +900,16 @@ export const CustomerApp: React.FC = () => {
                         name="payment_method"
                         checked={selectedPaymentMethod === 'instapay'}
                         onChange={() => setSelectedPaymentMethod('instapay')}
-                        className="mt-0.5 accent-purple-600"
+                        className="mt-0.5 accent-white/80"
                       />
                       <div className="flex-1">
                         <div className="font-bold text-xs flex items-center justify-between">
                           <span>إنستاباي (InstaPay IPN)</span>
-                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${selectedPaymentMethod === 'instapay' ? 'bg-purple-800 text-white' : 'bg-purple-50 text-purple-700'}`}>
+                          <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${selectedPaymentMethod === 'instapay' ? 'bg-white/10 text-white' : 'bg-white/10 text-white/80'}`}>
                             لحظي
                           </span>
                         </div>
-                        <p className={`text-[11px] mt-0.5 leading-normal ${selectedPaymentMethod === 'instapay' ? 'text-purple-200' : 'text-zinc-500'}`}>
+                        <p className={`text-[11px] mt-0.5 leading-normal ${selectedPaymentMethod === 'instapay' ? 'text-white/80' : 'text-[#898A8B]'}`}>
                           تحويل بنكي لحظي عبر تطبيق إنستاباي أو تطبيق بنكك وإظهار الإشعار للطيار.
                         </p>
                       </div>
@@ -847,35 +917,35 @@ export const CustomerApp: React.FC = () => {
                   </div>
 
                   {/* Financial Breakdown */}
-                  <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 space-y-2 text-xs">
-                    <div className="flex justify-between text-zinc-600">
+                  <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4 space-y-2 text-xs">
+                    <div className="flex justify-between text-white/70">
                       <span>ثمن الملابس ({cart.reduce((s, i) => s + i.quantity, 0)} قطع):</span>
-                      <span className="font-bold tabular-nums text-zinc-900">
+                      <span className="font-bold tabular-nums text-white">
                         {clothesSubtotal.toLocaleString('ar-EG')} ج.م
                       </span>
                     </div>
 
-                    <div className="flex justify-between text-zinc-600">
+                    <div className="flex justify-between text-white/70">
                       <span>
                         رسوم التوصيل السريع ({estimatedDistance} كم من فرع {cartVendor?.area}):
                       </span>
-                      <span className="font-bold tabular-nums text-zinc-900">
+                      <span className="font-bold tabular-nums text-white">
                         {deliveryFee.toLocaleString('ar-EG')} ج.م
                       </span>
                     </div>
 
-                    <div className="pt-2 border-t border-zinc-200 flex justify-between items-center text-sm">
-                      <span className="font-extrabold text-zinc-950">
+                    <div className="pt-2 border-t border-white/10 flex justify-between items-center text-sm">
+                      <span className="font-extrabold text-white">
                         الإجمالي المطلوب دفعه:
                       </span>
-                      <span className="font-extrabold text-base text-zinc-950 tabular-nums">
+                      <span className="font-extrabold text-base text-white tabular-nums">
                         {totalCodAmount.toLocaleString('ar-EG')} ج.م
                       </span>
                     </div>
 
-                    <div className="text-[11px] text-zinc-500 pt-1 border-t border-zinc-200 flex items-center justify-between">
+                    <div className="text-[11px] text-[#898A8B] pt-1 border-t border-white/10 flex items-center justify-between">
                       <span>طريقة الدفع:</span>
-                      <strong className="text-zinc-900">
+                      <strong className="text-white">
                         {selectedPaymentMethod === 'vodafone_cash'
                           ? 'فودافون كاش'
                           : selectedPaymentMethod === 'instapay'
@@ -890,10 +960,10 @@ export const CustomerApp: React.FC = () => {
 
             {/* Checkout Action Button */}
             {cart.length > 0 && (
-              <div className="p-5 border-t border-zinc-200 bg-white">
+              <div className="p-5 border-t border-white/10 bg-[#1A1C1F]">
                 <button
                   onClick={handleCheckoutSubmit}
-                  className="w-full py-3.5 bg-zinc-950 text-white font-bold rounded-md hover:bg-zinc-800 transition-colors shadow-lg text-xs"
+                  className="w-full py-3.5 bg-[#D1FE17] text-[#131517] font-bold rounded-md hover:bg-white transition-colors shadow-lg text-xs"
                 >
                   تأكيد وإرسال طلب التوصيل السريع ({totalCodAmount.toLocaleString('ar-EG')} ج.م)
                 </button>
@@ -905,24 +975,24 @@ export const CustomerApp: React.FC = () => {
 
       {/* Customer Orders History Drawer (Requirement 2) */}
       {isOrdersDrawerOpen && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/60 backdrop-blur-xs flex justify-end">
-          <div className="bg-white w-full max-w-lg h-full flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200">
+        <div className="fixed inset-0 z-50 bg-[#131517]/60 backdrop-blur-xs flex justify-end">
+          <div className="bg-[#1A1C1F] w-full max-w-lg h-full flex flex-col justify-between shadow-2xl animate-in slide-in-from-left duration-200">
             {/* Header */}
-            <div className="p-5 border-b border-zinc-200 flex items-center justify-between">
+            <div className="p-5 border-b border-white/10 flex items-center justify-between">
               <div>
-                <h3 className="font-bold text-sm text-zinc-950 flex items-center gap-2">
+                <h3 className="font-bold text-sm text-white flex items-center gap-2">
                   <ListOrdered className="w-4 h-4" />
                   <span>سجل طلباتي وتتبع التوصيل</span>
                 </h3>
                 {currentCustomer && (
-                  <p className="text-xs text-zinc-500 mt-0.5">
+                  <p className="text-xs text-[#898A8B] mt-0.5">
                     العميل: {currentCustomer.name} ({currentCustomer.phone})
                   </p>
                 )}
               </div>
               <button
                 onClick={() => setIsOrdersDrawerOpen(false)}
-                className="p-1 rounded-md text-zinc-400 hover:text-zinc-900"
+                className="p-1 rounded-md text-[#898A8B] hover:text-white"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -932,9 +1002,9 @@ export const CustomerApp: React.FC = () => {
             <div className="p-5 overflow-y-auto space-y-4 flex-1">
               {customerOrders.length === 0 ? (
                 <div className="py-20 text-center">
-                  <ListOrdered className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
-                  <h4 className="font-bold text-sm text-zinc-900">لا توجد طلبات سابقة مسجلة</h4>
-                  <p className="text-xs text-zinc-500 mt-1">
+                  <ListOrdered className="w-12 h-12 text-white/80 mx-auto mb-3" />
+                  <h4 className="font-bold text-sm text-white">لا توجد طلبات سابقة مسجلة</h4>
+                  <p className="text-xs text-[#898A8B] mt-1">
                     طلبك القادم سيظهر هنا فور إرساله لتتبعه خطوة بخطوة.
                   </p>
                 </div>
@@ -952,52 +1022,52 @@ export const CustomerApp: React.FC = () => {
                   return (
                     <div
                       key={ord.id}
-                      className="border border-zinc-200 rounded-lg p-4 bg-zinc-50/50 space-y-3"
+                      className="border border-white/10 rounded-lg p-4 bg-white/[0.03] space-y-3"
                     >
                       {/* Top Order bar */}
-                      <div className="flex items-center justify-between pb-2 border-b border-zinc-200 text-xs">
+                      <div className="flex items-center justify-between pb-2 border-b border-white/10 text-xs">
                         <div>
-                          <span className="font-mono font-bold text-zinc-950">{ord.orderNumber}</span>
-                          <span className="text-zinc-400 mr-2">· {ord.createdAt}</span>
+                          <span className="font-mono font-bold text-white">{ord.orderNumber}</span>
+                          <span className="text-[#898A8B] mr-2">· {ord.createdAt}</span>
                         </div>
                         <div>
                           {isPending && (
-                            <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[11px] font-bold px-2 py-0.5 rounded">
+                            <span className="bg-amber-400/15 text-amber-300 border border-amber-400/50 text-[11px] font-bold px-2 py-0.5 rounded">
                               بانتظار فحص المخزن
                             </span>
                           )}
                           {isReady && (
-                            <span className="bg-zinc-200 text-zinc-800 text-[11px] font-bold px-2 py-0.5 rounded">
+                            <span className="bg-white/10 text-white/90 text-[11px] font-bold px-2 py-0.5 rounded">
                               تم التجهيز · يبحث عن طيار
                             </span>
                           )}
                           {isAssigned && (
-                            <span className="bg-blue-100 text-blue-800 text-[11px] font-bold px-2 py-0.5 rounded">
+                            <span className="bg-white/10 text-white/80 text-[11px] font-bold px-2 py-0.5 rounded">
                               الطيار في المتجر للاستلام
                             </span>
                           )}
                           {isPickedUp && (
-                            <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded animate-pulse">
+                            <span className="bg-[#D1FE17]/15 text-[#D1FE17] text-[11px] font-bold px-2 py-0.5 rounded animate-pulse">
                               الطيار في الطريق إليك 🛵
                             </span>
                           )}
                           {isDelivered && (
-                            <span className="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2 py-0.5 rounded">
+                            <span className="bg-[#D1FE17]/15 text-[#D1FE17] text-[11px] font-bold px-2 py-0.5 rounded">
                               تم التوصيل بنجاح ✓
                             </span>
                           )}
                           {isReturning && (
-                            <span className="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded">
+                            <span className="bg-red-500/15 text-red-400 text-[11px] font-bold px-2 py-0.5 rounded">
                               مرتجع في الطريق للمحل ↩
                             </span>
                           )}
                           {isReturned && (
-                            <span className="bg-zinc-200 text-zinc-700 text-[11px] font-bold px-2 py-0.5 rounded">
+                            <span className="bg-white/10 text-white/80 text-[11px] font-bold px-2 py-0.5 rounded">
                               تم إرجاع الطلب للمحل
                             </span>
                           )}
                           {isCancelled && (
-                            <span className="bg-red-100 text-red-700 text-[11px] font-bold px-2 py-0.5 rounded">
+                            <span className="bg-red-500/15 text-red-400 text-[11px] font-bold px-2 py-0.5 rounded">
                               المقاس غير متوفر (ملغي)
                             </span>
                           )}
@@ -1005,7 +1075,7 @@ export const CustomerApp: React.FC = () => {
                       </div>
 
                       {/* Store & Route */}
-                      <div className="text-xs text-zinc-600 flex justify-between">
+                      <div className="text-xs text-white/70 flex justify-between">
                         <div>
                           <strong>المتجر:</strong> {ord.vendorName} ({ord.vendorArea})
                         </div>
@@ -1018,10 +1088,10 @@ export const CustomerApp: React.FC = () => {
                       <div className="space-y-1.5 py-1">
                         {ord.items.map((item, idx) => (
                           <div key={idx} className="flex items-center justify-between text-xs">
-                            <span className="text-zinc-800 font-medium">
+                            <span className="text-white/90 font-medium">
                               {item.product.name} (مقاس {item.size}) × {item.quantity}
                             </span>
-                            <span className="font-bold tabular-nums text-zinc-950">
+                            <span className="font-bold tabular-nums text-white">
                               {(item.product.price * item.quantity).toLocaleString('ar-EG')} ج.م
                             </span>
                           </div>
@@ -1030,22 +1100,22 @@ export const CustomerApp: React.FC = () => {
 
                       {/* Driver visual identity card (Uber Style) */}
                       {ord.driverName && (
-                        <div className="bg-zinc-950 text-white rounded-lg p-3 space-y-2 border border-zinc-800">
+                        <div className="bg-[#131517] text-white rounded-lg p-3 space-y-2 border border-white/10">
                           <div className="flex items-center justify-between">
                             <div className="flex items-center gap-2.5">
                               <img
                                 src={ord.driverAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=120&auto=format&fit=crop&q=80'}
                                 alt={ord.driverName}
-                                className="w-10 h-10 rounded-full object-cover border-2 border-zinc-700 shrink-0"
+                                className="w-10 h-10 rounded-full object-cover border-2 border-white/15 shrink-0"
                               />
                               <div>
                                 <div className="flex items-center gap-2">
                                   <span className="font-bold text-xs text-white">كابتن: {ord.driverName}</span>
-                                  <span className="text-[10px] bg-zinc-800 text-zinc-300 font-mono px-1.5 py-0.5 rounded border border-zinc-700">
+                                  <span className="text-[10px] bg-[#1C1E21] text-white/80 font-mono px-1.5 py-0.5 rounded border border-white/15">
                                     {ord.driverVehicleNumber || 'س ب د ٩٥١'}
                                   </span>
                                 </div>
-                                <div className="text-[11px] text-zinc-400 mt-0.5">
+                                <div className="text-[11px] text-[#898A8B] mt-0.5">
                                   {ord.status === 'picked_up_paid_store'
                                     ? 'استلم القطعة وفي طريقه لعنوانك'
                                     : ord.status === 'returning_to_vendor'
@@ -1060,14 +1130,14 @@ export const CustomerApp: React.FC = () => {
                                 <img
                                   src={ord.driverVehiclePhoto}
                                   alt="الدراجة"
-                                  className="w-10 h-10 rounded object-cover border border-zinc-700 hidden sm:block"
+                                  className="w-10 h-10 rounded object-cover border border-white/15 hidden sm:block"
                                   title="دراجة الكابتن"
                                 />
                               )}
                               {ord.driverPhone && (
                                 <a
                                   href={`tel:${ord.driverPhone}`}
-                                  className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-md font-bold text-xs shadow-xs"
+                                  className="flex items-center gap-1 px-3 py-1.5 bg-[#D1FE17] hover:bg-white text-[#131517] rounded-md font-bold text-xs shadow-xs"
                                 >
                                   <Phone className="w-3.5 h-3.5" />
                                   <span>اتصال</span>
@@ -1080,7 +1150,7 @@ export const CustomerApp: React.FC = () => {
 
                       {/* LIVE MAP TRACKING (FOR 'picked_up_paid_store' ORDERS) */}
                       {isPickedUp && (
-                        <div className="space-y-2 pt-1 border-t border-zinc-200">
+                        <div className="space-y-2 pt-1 border-t border-white/10">
                           <div className="flex items-center justify-between">
                             <button
                               type="button"
@@ -1091,13 +1161,13 @@ export const CustomerApp: React.FC = () => {
                                     : [...prev, ord.id]
                                 );
                               }}
-                              className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-zinc-950 transition-colors shadow-2xs"
+                              className="flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-bold bg-[#D1FE17]/10 hover:bg-[#D1FE17]/15 border border-[#D1FE17]/25 text-white transition-colors shadow-2xs"
                             >
                               <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D1FE17] opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D1FE17]"></span>
                               </span>
-                              <Navigation className="w-3.5 h-3.5 text-emerald-700" />
+                              <Navigation className="w-3.5 h-3.5 text-[#D1FE17]" />
                               <span>
                                 {openMapOrderIds.includes(ord.id)
                                   ? 'إخفاء الخريطة الحية'
@@ -1105,7 +1175,7 @@ export const CustomerApp: React.FC = () => {
                               </span>
                             </button>
 
-                            <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">
+                            <span className="text-[10px] font-mono font-bold text-[#D1FE17] bg-[#D1FE17]/15 px-2 py-0.5 rounded border border-[#D1FE17]/25">
                               LIVE GPS
                             </span>
                           </div>
@@ -1124,8 +1194,8 @@ export const CustomerApp: React.FC = () => {
                       )}
 
                       {/* Payment Method Badge */}
-                      <div className="bg-zinc-100/70 p-2.5 rounded text-xs flex items-center justify-between">
-                        <div className="flex items-center gap-1.5 text-zinc-700">
+                      <div className="bg-white/[0.06] p-2.5 rounded text-xs flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-white/80">
                           <span>طريقة الدفع:</span>
                           <span className="font-bold">
                             {ord.paymentMethod === 'vodafone_cash'
@@ -1135,60 +1205,60 @@ export const CustomerApp: React.FC = () => {
                               : 'كاش عند الاستلام (COD)'}
                           </span>
                         </div>
-                        <div className="font-extrabold text-zinc-950 tabular-nums">
+                        <div className="font-extrabold text-white tabular-nums">
                           الإجمالي: {ord.totalAmount.toLocaleString('ar-EG')} ج.م
                         </div>
                       </div>
 
                       {/* POST-DELIVERY STORE & DRIVER RATING SECTION */}
                       {(isDelivered || isPickedUp) && (
-                        <div className="pt-2 border-t border-zinc-200">
+                        <div className="pt-2 border-t border-white/10">
                           {ord.vendorRating || ord.driverRating ? (
-                            <div className="bg-amber-50/70 border border-amber-200 rounded-lg p-3 space-y-2 text-xs">
+                            <div className="bg-amber-400/10 border border-amber-400/25 rounded-lg p-3 space-y-2 text-xs">
                               <div className="flex items-center justify-between">
-                                <span className="font-bold text-amber-950 flex items-center gap-1.5">
-                                  <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                                <span className="font-bold text-amber-300 flex items-center gap-1.5">
+                                  <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
                                   <span>تقييمك المسجل للطلب</span>
                                 </span>
                                 <button
                                   type="button"
                                   onClick={() => handleOpenRatingModal(ord)}
-                                  className="text-[11px] font-bold text-zinc-700 hover:text-zinc-950 underline cursor-pointer"
+                                  className="text-[11px] font-bold text-white/80 hover:text-white underline cursor-pointer"
                                 >
                                   تعديل التقييم
                                 </button>
                               </div>
 
                               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
-                                <div className="bg-white p-2.5 rounded border border-amber-200/80 space-y-1">
+                                <div className="bg-[#1A1C1F] p-2.5 rounded border border-amber-400/25 space-y-1">
                                   <div className="flex items-center justify-between">
-                                    <span className="font-bold text-zinc-800 flex items-center gap-1">
-                                      <Store className="w-3.5 h-3.5 text-zinc-600" />
+                                    <span className="font-bold text-white/90 flex items-center gap-1">
+                                      <Store className="w-3.5 h-3.5 text-white/70" />
                                       <span>المحل: {ord.vendorName}</span>
                                     </span>
-                                    <span className="inline-flex items-center gap-0.5 font-mono font-bold text-amber-600">
+                                    <span className="inline-flex items-center gap-0.5 font-mono font-bold text-amber-300">
                                       {ord.vendorRating || 5}/5 ★
                                     </span>
                                   </div>
                                   {ord.vendorReview && (
-                                    <p className="text-[11px] text-zinc-600 leading-normal">
+                                    <p className="text-[11px] text-white/70 leading-normal">
                                       "{ord.vendorReview}"
                                     </p>
                                   )}
                                 </div>
 
-                                <div className="bg-white p-2.5 rounded border border-amber-200/80 space-y-1">
+                                <div className="bg-[#1A1C1F] p-2.5 rounded border border-amber-400/25 space-y-1">
                                   <div className="flex items-center justify-between">
-                                    <span className="font-bold text-zinc-800 flex items-center gap-1">
-                                      <Bike className="w-3.5 h-3.5 text-emerald-600" />
+                                    <span className="font-bold text-white/90 flex items-center gap-1">
+                                      <Bike className="w-3.5 h-3.5 text-[#D1FE17]" />
                                       <span>الكابتن: {ord.driverName || 'كابتن التوصيل'}</span>
                                     </span>
-                                    <span className="inline-flex items-center gap-0.5 font-mono font-bold text-amber-600">
+                                    <span className="inline-flex items-center gap-0.5 font-mono font-bold text-amber-300">
                                       {ord.driverRating || 5}/5 ★
                                     </span>
                                   </div>
                                   {ord.driverReview && (
-                                    <p className="text-[11px] text-zinc-600 leading-normal">
+                                    <p className="text-[11px] text-white/70 leading-normal">
                                       "{ord.driverReview}"
                                     </p>
                                   )}
@@ -1199,9 +1269,9 @@ export const CustomerApp: React.FC = () => {
                             <button
                               type="button"
                               onClick={() => handleOpenRatingModal(ord)}
-                              className="w-full py-2.5 px-3 bg-amber-500 hover:bg-amber-400 text-zinc-950 font-black rounded-lg text-xs flex items-center justify-center gap-2 transition-colors shadow-xs cursor-pointer"
+                              className="w-full py-2.5 px-3 bg-amber-400 hover:bg-amber-400 text-white font-black rounded-lg text-xs flex items-center justify-center gap-2 transition-colors shadow-xs cursor-pointer"
                             >
-                              <Star className="w-4 h-4 fill-zinc-950 text-zinc-950" />
+                              <Star className="w-4 h-4 fill-white text-white" />
                               <span>
                                 {isDelivered
                                   ? 'قيّم تجربتك مع المحل وكابتن التوصيل بعد الاستلام'
@@ -1218,10 +1288,10 @@ export const CustomerApp: React.FC = () => {
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-zinc-200 bg-white">
+            <div className="p-4 border-t border-white/10 bg-[#1A1C1F]">
               <button
                 onClick={() => setIsOrdersDrawerOpen(false)}
-                className="w-full py-2.5 bg-zinc-950 text-white font-bold rounded-md text-xs hover:bg-zinc-800 transition-colors"
+                className="w-full py-2.5 bg-[#D1FE17] text-[#131517] font-bold rounded-md text-xs hover:bg-white transition-colors"
               >
                 إغلاق سجل الطلبات
               </button>
@@ -1232,15 +1302,15 @@ export const CustomerApp: React.FC = () => {
 
       {/* Customer Login / Register Modal */}
       {isAuthModalOpen && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg border border-zinc-200 max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
-              <h3 className="font-bold text-sm text-zinc-950">
+        <div className="fixed inset-0 z-50 bg-[#131517]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1A1C1F] rounded-lg border border-white/10 max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
+              <h3 className="font-bold text-sm text-white">
                 {authMode === 'login' ? 'تسجيل دخول العميل' : 'إنشاء حساب عميل جديد'}
               </h3>
               <button
                 onClick={() => setIsAuthModalOpen(false)}
-                className="p-1 rounded text-zinc-400 hover:text-zinc-900"
+                className="p-1 rounded text-[#898A8B] hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1249,20 +1319,20 @@ export const CustomerApp: React.FC = () => {
             <form onSubmit={handleAuthSubmit} className="space-y-3.5 text-xs">
               {authMode === 'register' && (
                 <div>
-                  <label className="block text-zinc-700 font-semibold mb-1">الاسم الكامل:</label>
+                  <label className="block text-white/80 font-semibold mb-1">الاسم الكامل:</label>
                   <input
                     type="text"
                     required
                     placeholder="مثال: يوسف إبراهيم"
                     value={authName}
                     onChange={(e) => setAuthName(e.target.value)}
-                    className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs"
+                    className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs"
                   />
                 </div>
               )}
 
               <div>
-                <label className="block text-zinc-700 font-semibold mb-1">البريد الإلكتروني:</label>
+                <label className="block text-white/80 font-semibold mb-1">البريد الإلكتروني:</label>
                 <input
                   type="email"
                   required
@@ -1270,30 +1340,30 @@ export const CustomerApp: React.FC = () => {
                   placeholder="name@example.com"
                   value={authEmail}
                   onChange={(e) => setAuthEmail(e.target.value)}
-                  className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs font-mono"
+                  className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs font-mono"
                 />
               </div>
 
               {authMode === 'register' && (
                 <>
                   <div>
-                    <label className="block text-zinc-700 font-semibold mb-1">رقم الهاتف:</label>
+                    <label className="block text-white/80 font-semibold mb-1">رقم الهاتف:</label>
                     <input
                       type="tel"
                       required
                       placeholder="010XXXXXXXX"
                       value={authPhone}
                       onChange={(e) => setAuthPhone(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs font-mono"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-zinc-700 font-semibold mb-1">المنطقة:</label>
+                    <label className="block text-white/80 font-semibold mb-1">المنطقة:</label>
                     <select
                       value={authArea}
                       onChange={(e) => setAuthArea(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded bg-white focus:outline-none focus:border-zinc-900 text-xs font-medium"
+                      className="w-full p-2.5 border border-white/15 rounded bg-[#1A1C1F] focus:outline-none focus:border-[#D1FE17] text-xs font-medium"
                     >
                       <option value="التجمع الخامس">التجمع الخامس</option>
                       <option value="المعادي">المعادي</option>
@@ -1306,21 +1376,21 @@ export const CustomerApp: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-zinc-700 font-semibold mb-1">العنوان التفصيلي:</label>
+                    <label className="block text-white/80 font-semibold mb-1">العنوان التفصيلي:</label>
                     <input
                       type="text"
                       required
                       placeholder="شارع 9، المعادي، القاهرة"
                       value={authAddress}
                       onChange={(e) => setAuthAddress(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs"
                     />
                   </div>
                 </>
               )}
 
               <div>
-                <label className="block text-zinc-700 font-semibold mb-1">كلمة المرور:</label>
+                <label className="block text-white/80 font-semibold mb-1">كلمة المرور:</label>
                 <input
                   type="password"
                   required
@@ -1329,7 +1399,7 @@ export const CustomerApp: React.FC = () => {
                   placeholder="••••••••"
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 text-xs font-mono"
+                  className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] text-xs font-mono"
                 />
               </div>
 
@@ -1337,7 +1407,7 @@ export const CustomerApp: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
-                  className="text-zinc-600 underline hover:text-zinc-950 font-medium"
+                  className="text-white/70 underline hover:text-white font-medium"
                 >
                   {authMode === 'login'
                     ? 'ليس لديك حساب؟ أنشئ حساباً جديداً'
@@ -1345,18 +1415,18 @@ export const CustomerApp: React.FC = () => {
                 </button>
               </div>
 
-              <div className="pt-3 border-t border-zinc-100 flex items-center justify-end gap-2">
+              <div className="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsAuthModalOpen(false)}
-                  className="px-3 py-2 border border-zinc-300 rounded text-zinc-700 text-xs font-medium hover:bg-zinc-100"
+                  className="px-3 py-2 border border-white/15 rounded text-white/80 text-xs font-medium hover:bg-white/10"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
                   disabled={isAuthSubmitting}
-                  className="px-5 py-2 bg-zinc-950 text-white rounded text-xs font-bold hover:bg-zinc-800 disabled:opacity-50 transition-colors"
+                  className="px-5 py-2 bg-[#D1FE17] text-[#131517] rounded text-xs font-bold hover:bg-white disabled:opacity-50 transition-colors"
                 >
                   {isAuthSubmitting
                     ? 'جاري التحقق...'
@@ -1372,29 +1442,29 @@ export const CustomerApp: React.FC = () => {
 
       {/* Order Confirmed / Live Tracking Modal */}
       {latestPlacedOrder && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg border border-zinc-200 max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 space-y-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+        <div className="fixed inset-0 z-50 bg-[#131517]/70 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1A1C1F] rounded-lg border border-white/10 max-w-md w-full p-6 shadow-2xl animate-in zoom-in-95 space-y-4">
+            <div className="w-12 h-12 rounded-full bg-[#D1FE17]/15 text-[#D1FE17] flex items-center justify-center mx-auto">
               <Check className="w-6 h-6 stroke-[3]" />
             </div>
 
             <div className="text-center space-y-1">
-              <h3 className="font-bold text-base text-zinc-950">
+              <h3 className="font-bold text-base text-white">
                 تم إرسال طلبك للتوصيل السريع بنجاح!
               </h3>
-              <p className="text-xs text-zinc-500 font-mono">
+              <p className="text-xs text-[#898A8B] font-mono">
                 رقم الطلب: {latestPlacedOrder.orderNumber}
               </p>
             </div>
 
-            <div className="bg-zinc-50 border border-zinc-200 rounded p-3.5 space-y-2 text-xs">
-              <div className="flex justify-between text-zinc-700">
+            <div className="bg-white/[0.03] border border-white/10 rounded p-3.5 space-y-2 text-xs">
+              <div className="flex justify-between text-white/80">
                 <span>المتجر المصدر:</span>
                 <strong>{latestPlacedOrder.vendorName}</strong>
               </div>
-              <div className="flex justify-between text-zinc-700">
+              <div className="flex justify-between text-white/80">
                 <span>طريقة الدفع المختارة:</span>
-                <span className="font-bold text-zinc-950">
+                <span className="font-bold text-white">
                   {latestPlacedOrder.paymentMethod === 'vodafone_cash'
                     ? 'فودافون كاش'
                     : latestPlacedOrder.paymentMethod === 'instapay'
@@ -1402,19 +1472,19 @@ export const CustomerApp: React.FC = () => {
                     : 'كاش عند الاستلام'}
                 </span>
               </div>
-              <div className="flex justify-between text-zinc-700">
+              <div className="flex justify-between text-white/80">
                 <span>عنوان التوصيل:</span>
                 <span>{latestPlacedOrder.customerArea}</span>
               </div>
-              <div className="flex justify-between text-zinc-700 pt-1 border-t border-zinc-200">
+              <div className="flex justify-between text-white/80 pt-1 border-t border-white/10">
                 <span>المبلغ الإجمالي للدفع:</span>
-                <strong className="text-zinc-950 tabular-nums">
+                <strong className="text-white tabular-nums">
                   {latestPlacedOrder.totalAmount.toLocaleString('ar-EG')} ج.م
                 </strong>
               </div>
             </div>
 
-            <p className="text-[11px] text-zinc-500 text-center leading-normal">
+            <p className="text-[11px] text-[#898A8B] text-center leading-normal">
               يقوم المتجر الآن بتجهيز القطعة وسيتوجه أقرب طيار لدفع ثمنها كاش وإحضارها إليك فوراً.
             </p>
 
@@ -1424,13 +1494,13 @@ export const CustomerApp: React.FC = () => {
                   setLatestPlacedOrder(null);
                   setIsOrdersDrawerOpen(true);
                 }}
-                className="flex-1 py-2.5 bg-zinc-100 text-zinc-900 border border-zinc-200 rounded-md text-xs font-bold hover:bg-zinc-200 transition-colors"
+                className="flex-1 py-2.5 bg-white/[0.06] text-white border border-white/10 rounded-md text-xs font-bold hover:bg-white/15 transition-colors"
               >
                 تتبع الطلب في سجل طلباتي
               </button>
               <button
                 onClick={() => setLatestPlacedOrder(null)}
-                className="flex-1 py-2.5 bg-zinc-950 text-white rounded-md text-xs font-bold hover:bg-zinc-800 transition-colors"
+                className="flex-1 py-2.5 bg-[#D1FE17] text-[#131517] rounded-md text-xs font-bold hover:bg-white transition-colors"
               >
                 متابعة التسوق
               </button>
@@ -1441,22 +1511,22 @@ export const CustomerApp: React.FC = () => {
 
       {/* Post-Delivery Store & Driver Rating Modal */}
       {ratingModalOrder && (
-        <div className="fixed inset-0 z-50 bg-zinc-950/75 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-zinc-200 max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 space-y-5">
-            <div className="flex items-center justify-between pb-3 border-b border-zinc-200">
+        <div className="fixed inset-0 z-50 bg-[#131517]/75 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#1A1C1F] rounded-xl border border-white/10 max-w-lg w-full p-6 shadow-2xl animate-in zoom-in-95 space-y-5">
+            <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <div>
-                <h3 className="font-bold text-sm text-zinc-950 flex items-center gap-2">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+                <h3 className="font-bold text-sm text-white flex items-center gap-2">
+                  <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
                   <span>تقييم المحل وكابتن التوصيل بعد الاستلام</span>
                 </h3>
-                <p className="text-[11px] text-zinc-500 mt-0.5">
-                  الطلب رقم <span className="font-mono font-bold text-zinc-800">{ratingModalOrder.orderNumber}</span> · يظهر تقييمك مباشرة في لوحة تحكم الإدارة
+                <p className="text-[11px] text-[#898A8B] mt-0.5">
+                  الطلب رقم <span className="font-mono font-bold text-white/90">{ratingModalOrder.orderNumber}</span> · يظهر تقييمك مباشرة في لوحة تحكم الإدارة
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setRatingModalOrder(null)}
-                className="p-1 rounded text-zinc-400 hover:text-zinc-900"
+                className="p-1 rounded text-[#898A8B] hover:text-white"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1464,13 +1534,13 @@ export const CustomerApp: React.FC = () => {
 
             <form onSubmit={handleSaveOrderRating} className="space-y-4 text-xs">
               {/* 1. Store / Vendor Rating Section */}
-              <div className="p-4 rounded-lg bg-zinc-50 border border-zinc-200 space-y-3">
+              <div className="p-4 rounded-lg bg-white/[0.03] border border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="font-bold text-zinc-950 flex items-center gap-1.5">
-                    <Store className="w-4 h-4 text-zinc-700" />
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <Store className="w-4 h-4 text-white/80" />
                     <span>1. تقييم المتجر والملابس: {ratingModalOrder.vendorName}</span>
                   </div>
-                  <span className="font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  <span className="font-mono font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/25">
                     {vendorRatingVal} / 5 نجوم
                   </span>
                 </div>
@@ -1488,8 +1558,8 @@ export const CustomerApp: React.FC = () => {
                       <Star
                         className={`w-7 h-7 transition-colors ${
                           star <= vendorRatingVal
-                            ? 'fill-amber-400 text-amber-500'
-                            : 'text-zinc-300 hover:text-amber-300'
+                            ? 'fill-amber-300 text-amber-300'
+                            : 'text-white/80 hover:text-amber-300'
                         }`}
                       />
                     </button>
@@ -1512,7 +1582,7 @@ export const CustomerApp: React.FC = () => {
                           prev.includes(chip) ? prev : prev ? `${prev}، ${chip}` : chip
                         )
                       }
-                      className="text-[11px] bg-white hover:bg-zinc-900 hover:text-white text-zinc-700 border border-zinc-300 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                      className="text-[11px] bg-[#1A1C1F] hover:bg-white/10 hover:text-white text-white/80 border border-white/15 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
                     >
                       + {chip}
                     </button>
@@ -1520,7 +1590,7 @@ export const CustomerApp: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-zinc-600 mb-1 font-medium">
+                  <label className="block text-white/70 mb-1 font-medium">
                     ملاحظاتك على المتجر وجودة القطعة (اختياري):
                   </label>
                   <input
@@ -1528,21 +1598,21 @@ export const CustomerApp: React.FC = () => {
                     value={vendorReviewVal}
                     onChange={(e) => setVendorReviewVal(e.target.value)}
                     placeholder="اكتب رأيك في جودة القماش والمقاس والتغليف..."
-                    className="w-full p-2.5 bg-white border border-zinc-300 rounded-md text-xs focus:outline-none focus:border-zinc-900"
+                    className="w-full p-2.5 bg-[#1A1C1F] border border-white/15 rounded-md text-xs focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
               </div>
 
               {/* 2. Driver Rating Section */}
-              <div className="p-4 rounded-lg bg-zinc-50 border border-zinc-200 space-y-3">
+              <div className="p-4 rounded-lg bg-white/[0.03] border border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="font-bold text-zinc-950 flex items-center gap-1.5">
-                    <Bike className="w-4 h-4 text-emerald-600" />
+                  <div className="font-bold text-white flex items-center gap-1.5">
+                    <Bike className="w-4 h-4 text-[#D1FE17]" />
                     <span>
                       2. تقييم كابتن التوصيل: {ratingModalOrder.driverName || 'كابتن التوصيل'}
                     </span>
                   </div>
-                  <span className="font-mono font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                  <span className="font-mono font-bold text-amber-300 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/25">
                     {driverRatingVal} / 5 نجوم
                   </span>
                 </div>
@@ -1560,8 +1630,8 @@ export const CustomerApp: React.FC = () => {
                       <Star
                         className={`w-7 h-7 transition-colors ${
                           star <= driverRatingVal
-                            ? 'fill-amber-400 text-amber-500'
-                            : 'text-zinc-300 hover:text-amber-300'
+                            ? 'fill-amber-300 text-amber-300'
+                            : 'text-white/80 hover:text-amber-300'
                         }`}
                       />
                     </button>
@@ -1584,7 +1654,7 @@ export const CustomerApp: React.FC = () => {
                           prev.includes(chip) ? prev : prev ? `${prev}، ${chip}` : chip
                         )
                       }
-                      className="text-[11px] bg-white hover:bg-zinc-900 hover:text-white text-zinc-700 border border-zinc-300 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+                      className="text-[11px] bg-[#1A1C1F] hover:bg-white/10 hover:text-white text-white/80 border border-white/15 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
                     >
                       + {chip}
                     </button>
@@ -1592,7 +1662,7 @@ export const CustomerApp: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-zinc-600 mb-1 font-medium">
+                  <label className="block text-white/70 mb-1 font-medium">
                     ملاحظاتك على الكابتن وسرعة التوصيل (اختياري):
                   </label>
                   <input
@@ -1600,7 +1670,7 @@ export const CustomerApp: React.FC = () => {
                     value={driverReviewVal}
                     onChange={(e) => setDriverReviewVal(e.target.value)}
                     placeholder="اكتب رأيك في تعامل الكابتن وسرعة الوصول..."
-                    className="w-full p-2.5 bg-white border border-zinc-300 rounded-md text-xs focus:outline-none focus:border-zinc-900"
+                    className="w-full p-2.5 bg-[#1A1C1F] border border-white/15 rounded-md text-xs focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
               </div>
@@ -1609,15 +1679,15 @@ export const CustomerApp: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setRatingModalOrder(null)}
-                  className="px-4 py-2 border border-zinc-300 rounded-md text-zinc-700 font-medium hover:bg-zinc-100 cursor-pointer"
+                  className="px-4 py-2 border border-white/15 rounded-md text-white/80 font-medium hover:bg-white/10 cursor-pointer"
                 >
                   إلغاء
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 bg-zinc-950 hover:bg-zinc-800 text-white font-bold rounded-md shadow-sm flex items-center gap-1.5 cursor-pointer"
+                  className="px-5 py-2 bg-[#D1FE17] hover:bg-white text-[#131517] font-bold rounded-md shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
-                  <MessageSquare className="w-3.5 h-3.5 text-amber-400" />
+                  <MessageSquare className="w-3.5 h-3.5 text-amber-300" />
                   <span>اعتماد وإرسال التقييم</span>
                 </button>
               </div>

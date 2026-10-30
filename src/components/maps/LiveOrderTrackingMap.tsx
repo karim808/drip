@@ -191,19 +191,19 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
   const driverPlateNumber = driver?.vehicleNumber || order.driverVehicleNumber || 'س ب د ٩٥١';
 
   return (
-    <div className="border border-zinc-200 rounded-lg overflow-hidden bg-white shadow-xs animate-in fade-in duration-200">
+    <div className="border border-white/10 rounded-lg overflow-hidden bg-[#1A1C1F] shadow-xs animate-in fade-in duration-200">
       {/* Live Tracking Header Bar */}
-      <div className="bg-zinc-950 text-white p-3 flex flex-wrap items-center justify-between gap-2 border-b border-zinc-800">
+      <div className="bg-[#131517] text-white p-3 flex flex-wrap items-center justify-between gap-2 border-b border-white/10">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D1FE17] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#D1FE17]"></span>
           </span>
           <div>
             <div className="text-xs font-bold text-white flex items-center gap-1.5">
               <span>تتبع الكابتن المباشر على الخريطة (Live GPS)</span>
             </div>
-            <div className="text-[10px] text-zinc-400">
+            <div className="text-[10px] text-[#898A8B]">
               الطلب {order.orderNumber} · استلم القطعة وفي الطريق إليك
             </div>
           </div>
@@ -211,15 +211,15 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
 
         {/* Live Metrics: Remaining KM & ETA */}
         <div className="flex items-center gap-2">
-          <div className="bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded text-center">
-            <span className="text-[10px] text-zinc-400 block leading-tight">المسافة المتبقية</span>
-            <span className="text-xs font-bold text-emerald-400 font-mono tabular-nums">
+          <div className="bg-[#131517] border border-white/10 px-2 py-0.5 rounded text-center">
+            <span className="text-[10px] text-[#898A8B] block leading-tight">المسافة المتبقية</span>
+            <span className="text-xs font-bold text-[#D1FE17] font-mono tabular-nums">
               {remainingDistanceKm} كم
             </span>
           </div>
 
-          <div className="bg-zinc-900 border border-zinc-800 px-2 py-0.5 rounded text-center">
-            <span className="text-[10px] text-zinc-400 block leading-tight">وقت الوصول التقديري</span>
+          <div className="bg-[#131517] border border-white/10 px-2 py-0.5 rounded text-center">
+            <span className="text-[10px] text-[#898A8B] block leading-tight">وقت الوصول التقديري</span>
             <span className="text-xs font-bold text-white font-mono tabular-nums">
               ~{estimatedRemainingMins} دقيقة
             </span>
@@ -228,7 +228,7 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
       </div>
 
       {/* Interactive Map Canvas */}
-      <div className={`relative w-full ${heightClassName} bg-zinc-100`}>
+      <div className={`relative w-full ${heightClassName} bg-white/[0.06]`}>
         <Map
           mapId={'DEMO_MAP_ID'}
           defaultZoom={13}
@@ -243,8 +243,8 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
 
           {/* 1. Store Marker */}
           <AdvancedMarker position={origin} title={`المتجر: ${order.vendorName}`}>
-            <div className="flex items-center gap-1.5 bg-zinc-900 text-white text-[11px] font-bold px-2 py-1 rounded shadow-md border border-zinc-600">
-              <Store className="w-3.5 h-3.5 text-zinc-300 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-[#D1FE17] text-[#131517] text-[11px] font-bold px-2 py-1 rounded shadow-md border border-white/25">
+              <Store className="w-3.5 h-3.5 text-white/80 shrink-0" />
               <span>{order.vendorName}</span>
             </div>
           </AdvancedMarker>
@@ -253,19 +253,19 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
           <AdvancedMarker position={currentDriverPos} title={`موقع الكابتن الحي: ${driverDisplayName}`}>
             <div className="relative group cursor-pointer">
               {/* Radar pulse ring */}
-              <div className="absolute -inset-2 bg-emerald-500/20 rounded-full animate-ping pointer-events-none"></div>
+              <div className="absolute -inset-2 bg-[#D1FE17] rounded-full animate-ping pointer-events-none"></div>
 
-              <div className="relative flex items-center gap-1.5 bg-zinc-950 text-white px-2.5 py-1.5 rounded-full border-2 border-emerald-400 shadow-xl">
+              <div className="relative flex items-center gap-1.5 bg-[#D1FE17] text-[#131517] px-2.5 py-1.5 rounded-full border-2 border-[#D1FE17] shadow-xl">
                 <img
                   src={driverDisplayAvatar}
                   alt={driverDisplayName}
-                  className="w-6 h-6 rounded-full object-cover border border-zinc-700 shrink-0"
+                  className="w-6 h-6 rounded-full object-cover border border-white/15 shrink-0"
                 />
                 <div className="flex items-center gap-1">
-                  <Bike className="w-3.5 h-3.5 text-emerald-400" />
+                  <Bike className="w-3.5 h-3.5 text-[#D1FE17]" />
                   <span className="text-[11px] font-bold">{driverDisplayName}</span>
                 </div>
-                <span className="bg-emerald-600 text-white text-[9px] px-1.5 py-0.2 rounded-full font-bold">
+                <span className="bg-[#D1FE17] text-[#131517] text-[9px] px-1.5 py-0.2 rounded-full font-bold">
                   متحرك
                 </span>
               </div>
@@ -274,8 +274,8 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
 
           {/* 3. Customer Destination Marker */}
           <AdvancedMarker position={destination} title={`عنوانك: ${order.customerArea}`}>
-            <div className="flex items-center gap-1.5 bg-white text-zinc-950 text-[11px] font-bold px-2.5 py-1 rounded shadow-lg border border-red-500">
-              <User className="w-3.5 h-3.5 text-red-600 shrink-0" />
+            <div className="flex items-center gap-1.5 bg-[#1A1C1F] text-white text-[11px] font-bold px-2.5 py-1 rounded shadow-lg border border-red-500">
+              <User className="w-3.5 h-3.5 text-red-400 shrink-0" />
               <span>عنوانك: {order.customerArea}</span>
             </div>
           </AdvancedMarker>
@@ -287,16 +287,16 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
             type="button"
             onClick={() => setIsSimulatingMotion(!isSimulatingMotion)}
             title={isSimulatingMotion ? 'إيقاف محاكاة الحركة مؤقتاً' : 'تفعيل محاكاة حركة الطيار الحي'}
-            className="bg-white/95 backdrop-blur-xs text-zinc-800 hover:text-zinc-950 px-2.5 py-1 rounded border border-zinc-200 text-[10px] font-bold shadow-xs flex items-center gap-1"
+            className="bg-[#1A1C1F]/95 backdrop-blur-xs text-white/90 hover:text-white px-2.5 py-1 rounded border border-white/10 text-[10px] font-bold shadow-xs flex items-center gap-1"
           >
             {isSimulatingMotion ? (
               <>
-                <Pause className="w-3 h-3 text-amber-600" />
+                <Pause className="w-3 h-3 text-amber-300" />
                 <span>إيقاف الحركة</span>
               </>
             ) : (
               <>
-                <Play className="w-3 h-3 text-emerald-600" />
+                <Play className="w-3 h-3 text-[#D1FE17]" />
                 <span>محاكاة الحركة</span>
               </>
             )}
@@ -304,48 +304,48 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
         </div>
 
         {/* Bottom Legend */}
-        <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded border border-zinc-200 shadow-xs text-[10px] text-zinc-700 flex items-center gap-2">
+        <div className="absolute bottom-2 left-2 bg-[#1A1C1F]/95 backdrop-blur-xs px-2.5 py-1 rounded border border-white/10 shadow-xs text-[10px] text-white/80 flex items-center gap-2">
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-zinc-700"></span>
+            <span className="w-2 h-2 rounded-full bg-white/25"></span>
             <span>المتجر</span>
           </div>
           <span>•</span>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="w-2 h-2 rounded-full bg-[#D1FE17] animate-pulse"></span>
             <span>الطيار (GPS)</span>
           </div>
           <span>•</span>
           <div className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+            <span className="w-2 h-2 rounded-full bg-red-600"></span>
             <span>عنوانك</span>
           </div>
         </div>
       </div>
 
       {/* Driver Card & Google Maps External Navigation Strip */}
-      <div className="p-3 bg-zinc-50 border-t border-zinc-200 space-y-2.5">
+      <div className="p-3 bg-white/[0.03] border-t border-white/10 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img
               src={driverDisplayAvatar}
               alt={driverDisplayName}
-              className="w-9 h-9 rounded-full object-cover border border-zinc-300"
+              className="w-9 h-9 rounded-full object-cover border border-white/15"
             />
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-bold text-xs text-zinc-950">{driverDisplayName}</span>
-                <span className="text-[10px] bg-zinc-200 text-zinc-800 font-mono px-1.5 py-0.2 rounded border border-zinc-300">
+                <span className="font-bold text-xs text-white">{driverDisplayName}</span>
+                <span className="text-[10px] bg-white/10 text-white/90 font-mono px-1.5 py-0.2 rounded border border-white/15">
                   {driverPlateNumber}
                 </span>
               </div>
-              <div className="text-[11px] text-zinc-500">{driverVehicleName}</div>
+              <div className="text-[11px] text-[#898A8B]">{driverVehicleName}</div>
             </div>
           </div>
 
           {order.driverPhone && (
             <a
               href={`tel:${order.driverPhone}`}
-              className="flex items-center gap-1 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-xs shadow-xs transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 bg-[#D1FE17] hover:bg-white text-[#131517] rounded font-bold text-xs shadow-xs transition-colors"
             >
               <Phone className="w-3.5 h-3.5" />
               <span>اتصال بالكابتن</span>
@@ -358,9 +358,9 @@ export const LiveOrderTrackingMap: React.FC<LiveOrderTrackingMapProps> = ({
           href={googleMapsLiveUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full flex items-center justify-center gap-2 bg-zinc-950 hover:bg-zinc-800 text-white font-bold py-2 px-3 rounded-md text-xs transition active:scale-[0.99] shadow-xs text-center"
+          className="w-full flex items-center justify-center gap-2 bg-[#D1FE17] hover:bg-white text-[#131517] font-bold py-2 px-3 rounded-md text-xs transition active:scale-[0.99] shadow-xs text-center"
         >
-          <Navigation className="w-3.5 h-3.5 text-emerald-400" />
+          <Navigation className="w-3.5 h-3.5 text-[#D1FE17]" />
           <span>فتح خط السير المباشر في Google Maps</span>
           <ExternalLink className="w-3 h-3 opacity-70" />
         </a>

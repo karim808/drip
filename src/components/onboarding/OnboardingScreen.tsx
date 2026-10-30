@@ -120,23 +120,23 @@ export const OnboardingScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-50 py-12 px-4 sm:px-6">
+    <div className="min-h-screen bg-[#131517] py-12 px-4 sm:px-6">
       <div className="max-w-2xl mx-auto">
         {/* Editorial Brand Header */}
         <div className="text-center space-y-2 mb-8">
-          <div className="text-xs font-mono tracking-widest text-zinc-400 uppercase">
-            JOIN VOGUE FAST NETWORK // CAIRO
+          <div className="text-xs font-mono tracking-widest text-[#898A8B] uppercase">
+            JOIN FAST DRIP NETWORK // CAIRO
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             انضم لمنظومة التوصيل السريع للملابس
           </h1>
-          <p className="text-xs sm:text-sm text-zinc-500 max-w-md mx-auto">
+          <p className="text-xs sm:text-sm text-[#898A8B] max-w-md mx-auto">
             سواء كنت براند أزياء تبحث عن توصيل فوري لمبيعاتك كاش، أو كابتن توصيل يرغب في دخل فوري وأعلى تسعيرة للمشاوير الحضرية.
           </p>
         </div>
 
         {/* Tab Selection */}
-        <div className="grid grid-cols-2 gap-2 p-1 bg-zinc-200/80 rounded-lg mb-8 max-w-md mx-auto text-xs font-bold">
+        <div className="grid grid-cols-2 gap-2 p-1 bg-white/10 rounded-lg mb-8 max-w-md mx-auto text-xs font-bold">
           <button
             onClick={() => {
               setActiveTab('vendor');
@@ -145,8 +145,8 @@ export const OnboardingScreen: React.FC = () => {
             }}
             className={`flex items-center justify-center gap-2 py-2.5 rounded-md transition-all ${
               activeTab === 'vendor'
-                ? 'bg-zinc-950 text-white shadow-sm'
-                : 'text-zinc-600 hover:text-zinc-950'
+                ? 'bg-[#D1FE17] text-[#131517] shadow-sm'
+                : 'text-white/70 hover:text-white'
             }`}
           >
             <Store className="w-4 h-4" />
@@ -161,8 +161,8 @@ export const OnboardingScreen: React.FC = () => {
             }}
             className={`flex items-center justify-center gap-2 py-2.5 rounded-md transition-all ${
               activeTab === 'driver'
-                ? 'bg-zinc-950 text-white shadow-sm'
-                : 'text-zinc-600 hover:text-zinc-950'
+                ? 'bg-[#D1FE17] text-[#131517] shadow-sm'
+                : 'text-white/70 hover:text-white'
             }`}
           >
             <Bike className="w-4 h-4" />
@@ -172,22 +172,22 @@ export const OnboardingScreen: React.FC = () => {
 
         {/* VENDOR ONBOARDING */}
         {activeTab === 'vendor' && (
-          <div className="bg-white border border-zinc-200 rounded-lg p-6 sm:p-8 shadow-xs">
+          <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-6 sm:p-8 shadow-xs">
             {vendorSubmitted ? (
               <div className="text-center py-8 space-y-4">
-                <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-full bg-[#D1FE17]/15 text-[#D1FE17] flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-bold text-zinc-950">
+                <h3 className="text-lg font-bold text-white">
                   تم استلام طلب انضمام متجرك بنجاح!
                 </h3>
-                <p className="text-xs text-zinc-600 max-w-md mx-auto leading-relaxed">
-                  طلبك الآن بحالة <strong className="text-zinc-900">Pending (قيد الفحص)</strong> في لوحة الإدارة العليا. سيقوم الفريق بتحديد نسبة العمولة وسقف المديونية الائتمانية وتفعيل المتجر.
+                <p className="text-xs text-white/70 max-w-md mx-auto leading-relaxed">
+                  طلبك الآن بحالة <strong className="text-white">Pending (قيد الفحص)</strong> في لوحة الإدارة العليا. سيقوم الفريق بتحديد نسبة العمولة وسقف المديونية الائتمانية وتفعيل المتجر.
                 </p>
                 <div className="pt-4 flex items-center justify-center gap-3">
                   <button
                     onClick={() => setActivePortal('admin')}
-                    className="px-5 py-2.5 bg-zinc-950 text-white rounded-md text-xs font-bold hover:bg-zinc-800 transition-colors"
+                    className="px-5 py-2.5 bg-[#D1FE17] text-[#131517] rounded-md text-xs font-bold hover:bg-white transition-colors"
                   >
                     معاينة الطلب في لوحة الإدارة (Admin)
                   </button>
@@ -195,16 +195,16 @@ export const OnboardingScreen: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleVendorSubmit} className="space-y-4 text-xs">
-                <div className="border-b border-zinc-100 pb-3 mb-2">
-                  <h3 className="font-bold text-sm text-zinc-950">بيانات البراند والفرع</h3>
-                  <p className="text-zinc-400 text-[11px]">
+                <div className="border-b border-white/10 pb-3 mb-2">
+                  <h3 className="font-bold text-sm text-white">بيانات البراند والفرع</h3>
+                  <p className="text-[#898A8B] text-[11px]">
                     الطيارون سيتوجهون لهذا العنوان لاستلام الملابس ودفع ثمنها كاش.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       اسم البراند / المتجر:
                     </label>
                     <input
@@ -213,12 +213,12 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="مثال: BLACKOUT CAIRO"
                       value={vendorName}
                       onChange={(e) => setVendorName(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       اسم المالك / المدير المسؤول:
                     </label>
                     <input
@@ -227,28 +227,28 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="أحمد ممدوح"
                       value={vendorOwner}
                       onChange={(e) => setVendorOwner(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       البريد الإلكتروني الرسمي للمتجر:
                     </label>
                     <input
                       type="email"
                       required
-                      placeholder="brand@voguefast.eg"
+                      placeholder="brand@dripfit.eg"
                       value={vendorEmail}
                       onChange={(e) => setVendorEmail(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       رقم الهاتف / واتساب المحل:
                     </label>
                     <input
@@ -257,19 +257,19 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="010XXXXXXXX"
                       value={vendorPhone}
                       onChange={(e) => setVendorPhone(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">
+                  <label className="block font-semibold text-white/80 mb-1">
                     المنطقة والحي:
                   </label>
                   <select
                     value={vendorArea}
                     onChange={(e) => setVendorArea(e.target.value)}
-                    className="w-full p-2.5 border border-zinc-300 rounded bg-white focus:outline-none focus:border-zinc-900 font-medium"
+                    className="w-full p-2.5 border border-white/15 rounded bg-[#1A1C1F] focus:outline-none focus:border-[#D1FE17] font-medium"
                   >
                     <option value="المعادي">المعادي (دجلة والشارع 9)</option>
                     <option value="الزمالك">الزمالك</option>
@@ -282,7 +282,7 @@ export const OnboardingScreen: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">
+                  <label className="block font-semibold text-white/80 mb-1">
                     العنوان التفصيلي للفرع لاستلام الملابس:
                   </label>
                   <input
@@ -291,25 +291,25 @@ export const OnboardingScreen: React.FC = () => {
                     placeholder="شارع 206، بجوار بنك مصر، دجلة المعادي"
                     value={vendorAddress}
                     onChange={(e) => setVendorAddress(e.target.value)}
-                    className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                    className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       نوع الأزياء والتصنيف:
                     </label>
                     <input
                       type="text"
                       value={vendorCategory}
                       onChange={(e) => setVendorCategory(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       حساب إنستاجرام البراند:
                     </label>
                     <input
@@ -317,13 +317,13 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="@brandname.eg"
                       value={vendorInstagram}
                       onChange={(e) => setVendorInstagram(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">
+                  <label className="block font-semibold text-white/80 mb-1">
                     كلمة المرور لبوابة المحل (POS):
                   </label>
                   <input
@@ -332,7 +332,7 @@ export const OnboardingScreen: React.FC = () => {
                     placeholder="••••••••"
                     value={vendorPassword}
                     onChange={(e) => setVendorPassword(e.target.value)}
-                    className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                    className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
 
@@ -346,13 +346,13 @@ export const OnboardingScreen: React.FC = () => {
                   enableUrlInput={true}
                 />
 
-                <div className="pt-4 border-t border-zinc-100 flex items-center justify-between">
-                  <span className="text-[11px] text-zinc-400">
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                  <span className="text-[11px] text-[#898A8B]">
                     بإرسال الطلب أنت توافق على شروط عمولات التوصيل السريع.
                   </span>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 bg-zinc-950 text-white font-bold rounded-md hover:bg-zinc-800 transition-colors shadow-xs"
+                    className="px-6 py-2.5 bg-[#D1FE17] text-[#131517] font-bold rounded-md hover:bg-white transition-colors shadow-xs"
                   >
                     إرسال طلب الانضمام
                   </button>
@@ -364,22 +364,22 @@ export const OnboardingScreen: React.FC = () => {
 
         {/* DRIVER ONBOARDING */}
         {activeTab === 'driver' && (
-          <div className="bg-white border border-zinc-200 rounded-lg p-6 sm:p-8 shadow-xs">
+          <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-6 sm:p-8 shadow-xs">
             {driverSubmitted ? (
               <div className="text-center py-8 space-y-4">
-                <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto">
+                <div className="w-14 h-14 rounded-full bg-[#D1FE17]/15 text-[#D1FE17] flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
-                <h3 className="text-lg font-bold text-zinc-950">
+                <h3 className="text-lg font-bold text-white">
                   تم استلام طلب تسجيل الكابتن بنجاح!
                 </h3>
-                <p className="text-xs text-zinc-600 max-w-md mx-auto leading-relaxed">
-                  طلبك الآن بحالة <strong className="text-zinc-900">Pending (فحص الأوراق)</strong> في لوحة أسطول الإدارة. سيتم فحص صورة البطاقة والرخصة وتفعيل حسابك بسقف مديونية 1,000 ج.م للبدء فوراً.
+                <p className="text-xs text-white/70 max-w-md mx-auto leading-relaxed">
+                  طلبك الآن بحالة <strong className="text-white">Pending (فحص الأوراق)</strong> في لوحة أسطول الإدارة. سيتم فحص صورة البطاقة والرخصة وتفعيل حسابك بسقف مديونية 1,000 ج.م للبدء فوراً.
                 </p>
                 <div className="pt-4 flex items-center justify-center gap-3">
                   <button
                     onClick={() => setActivePortal('admin')}
-                    className="px-5 py-2.5 bg-zinc-950 text-white rounded-md text-xs font-bold hover:bg-zinc-800 transition-colors"
+                    className="px-5 py-2.5 bg-[#D1FE17] text-[#131517] rounded-md text-xs font-bold hover:bg-white transition-colors"
                   >
                     معاينة أوراق الكابتن في لوحة الإدارة (Admin)
                   </button>
@@ -387,16 +387,16 @@ export const OnboardingScreen: React.FC = () => {
               </div>
             ) : (
               <form onSubmit={handleDriverSubmit} className="space-y-4 text-xs">
-                <div className="border-b border-zinc-100 pb-3 mb-2">
-                  <h3 className="font-bold text-sm text-zinc-950">بيانات الكابتن والمركبة</h3>
-                  <p className="text-zinc-400 text-[11px]">
+                <div className="border-b border-white/10 pb-3 mb-2">
+                  <h3 className="font-bold text-sm text-white">بيانات الكابتن والمركبة</h3>
+                  <p className="text-[#898A8B] text-[11px]">
                     ارفع أوراقك الرسمية للبدء في استلام مشاوير توصيل الأزياء في أحيائك المفضلة.
                   </p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       اسم الكابتن كاملاً (رباعي):
                     </label>
                     <input
@@ -405,27 +405,27 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="طارق السعيد بدر الدين"
                       value={driverName}
                       onChange={(e) => setDriverName(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       البريد الإلكتروني للكابتن:
                     </label>
                     <input
                       type="email"
                       required
-                      placeholder="captain@voguefast.eg"
+                      placeholder="captain@dripfit.eg"
                       value={driverEmail}
                       onChange={(e) => setDriverEmail(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">
+                  <label className="block font-semibold text-white/80 mb-1">
                     رقم الهاتف (المسجل بفودافون كاش أو إنستاباي):
                   </label>
                   <input
@@ -434,13 +434,13 @@ export const OnboardingScreen: React.FC = () => {
                     placeholder="010XXXXXXXX"
                     value={driverPhone}
                     onChange={(e) => setDriverPhone(e.target.value)}
-                    className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                    className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       الرقم القومي (14 رقم):
                     </label>
                     <input
@@ -450,18 +450,18 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="29906140107765"
                       value={driverNationalId}
                       onChange={(e) => setDriverNationalId(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900 font-mono"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17] font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       نطاق التغطية المفضل:
                     </label>
                     <select
                       value={driverArea}
                       onChange={(e) => setDriverArea(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded bg-white focus:outline-none focus:border-zinc-900 font-medium"
+                      className="w-full p-2.5 border border-white/15 rounded bg-[#1A1C1F] focus:outline-none focus:border-[#D1FE17] font-medium"
                     >
                       <option value="المعادي والتجمع الخامس">المعادي والتجمع الخامس</option>
                       <option value="الزمالك والدقي والمهندسين">الزمالك والدقي والمهندسين</option>
@@ -474,7 +474,7 @@ export const OnboardingScreen: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       نوع المركبة والموديل:
                     </label>
                     <input
@@ -483,12 +483,12 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="سكوتر هوندا فورزا 300"
                       value={driverVehicle}
                       onChange={(e) => setDriverVehicle(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold text-zinc-700 mb-1">
+                    <label className="block font-semibold text-white/80 mb-1">
                       رقم لوحة المركبة:
                     </label>
                     <input
@@ -497,13 +497,13 @@ export const OnboardingScreen: React.FC = () => {
                       placeholder="ق أ د ٧٤١٩"
                       value={driverPlate}
                       onChange={(e) => setDriverPlate(e.target.value)}
-                      className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                      className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-zinc-700 mb-1">
+                  <label className="block font-semibold text-white/80 mb-1">
                     كلمة المرور لتطبيق الطيار:
                   </label>
                   <input
@@ -512,41 +512,41 @@ export const OnboardingScreen: React.FC = () => {
                     placeholder="••••••••"
                     value={driverPassword}
                     onChange={(e) => setDriverPassword(e.target.value)}
-                    className="w-full p-2.5 border border-zinc-300 rounded focus:outline-none focus:border-zinc-900"
+                    className="w-full p-2.5 border border-white/15 rounded focus:outline-none focus:border-[#D1FE17]"
                   />
                 </div>
 
                 {/* 4 MANDATORY KYC DOCUMENT UPLOADS */}
                 <div className="space-y-4 pt-2">
-                  <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-3.5 space-y-2">
-                    <div className="flex items-center justify-between text-xs font-bold text-zinc-900">
+                  <div className="bg-white/[0.03] border border-white/10 rounded-lg p-3.5 space-y-2">
+                    <div className="flex items-center justify-between text-xs font-bold text-white">
                       <span>اكتمال مستندات الهوية والتحقق (KYC):</span>
-                      <span className="font-mono tabular-nums px-2 py-0.5 rounded bg-white border border-zinc-200">
+                      <span className="font-mono tabular-nums px-2 py-0.5 rounded bg-[#1A1C1F] border border-white/10">
                         {[driverAvatarPhoto, driverVehiclePhoto, driverNationalIdPhoto, driverLicensePhoto].filter(Boolean).length} / 4 مكتمل
                       </span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-[11px]">
-                      <div className={`flex items-center gap-1.5 ${driverAvatarPhoto ? 'text-emerald-700 font-bold' : 'text-zinc-500'}`}>
-                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverAvatarPhoto ? 'text-emerald-600' : 'text-zinc-300'}`} />
+                      <div className={`flex items-center gap-1.5 ${driverAvatarPhoto ? 'text-[#D1FE17] font-bold' : 'text-[#898A8B]'}`}>
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverAvatarPhoto ? 'text-[#D1FE17]' : 'text-white/80'}`} />
                         <span>الصورة الشخصية (سيلفي)</span>
                       </div>
-                      <div className={`flex items-center gap-1.5 ${driverVehiclePhoto ? 'text-emerald-700 font-bold' : 'text-zinc-500'}`}>
-                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverVehiclePhoto ? 'text-emerald-600' : 'text-zinc-300'}`} />
+                      <div className={`flex items-center gap-1.5 ${driverVehiclePhoto ? 'text-[#D1FE17] font-bold' : 'text-[#898A8B]'}`}>
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverVehiclePhoto ? 'text-[#D1FE17]' : 'text-white/80'}`} />
                         <span>صورة الدراجة مع اللوحة</span>
                       </div>
-                      <div className={`flex items-center gap-1.5 ${driverNationalIdPhoto ? 'text-emerald-700 font-bold' : 'text-zinc-500'}`}>
-                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverNationalIdPhoto ? 'text-emerald-600' : 'text-zinc-300'}`} />
+                      <div className={`flex items-center gap-1.5 ${driverNationalIdPhoto ? 'text-[#D1FE17] font-bold' : 'text-[#898A8B]'}`}>
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverNationalIdPhoto ? 'text-[#D1FE17]' : 'text-white/80'}`} />
                         <span>بطاقة الرقم القومي</span>
                       </div>
-                      <div className={`flex items-center gap-1.5 ${driverLicensePhoto ? 'text-emerald-700 font-bold' : 'text-zinc-500'}`}>
-                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverLicensePhoto ? 'text-emerald-600' : 'text-zinc-300'}`} />
+                      <div className={`flex items-center gap-1.5 ${driverLicensePhoto ? 'text-[#D1FE17] font-bold' : 'text-[#898A8B]'}`}>
+                        <CheckCircle2 className={`w-3.5 h-3.5 ${driverLicensePhoto ? 'text-[#D1FE17]' : 'text-white/80'}`} />
                         <span>رخصة القيادة السارية</span>
                       </div>
                     </div>
 
                     {!areAllKycUploaded && (
-                      <div className="text-[11px] text-red-600 bg-red-50 p-2 rounded border border-red-200 font-medium">
+                      <div className="text-[11px] text-red-400 bg-red-500/10 p-2 rounded border border-red-500/25 font-medium">
                         ⚠️ إلزامي: يجب رفع الصور والمستندات الـ 4 كاملة لتفعيل زر إرسال الطلب.
                       </div>
                     )}
@@ -599,14 +599,14 @@ export const OnboardingScreen: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-zinc-100 flex items-center justify-between">
-                  <span className="text-[11px] text-zinc-400">
+                <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                  <span className="text-[11px] text-[#898A8B]">
                     سقف المديونية الأولي عند القبول: 1,000 ج.م
                   </span>
                   <button
                     type="submit"
                     disabled={!areAllKycUploaded}
-                    className="px-6 py-2.5 bg-zinc-950 text-white font-bold rounded-md hover:bg-zinc-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
+                    className="px-6 py-2.5 bg-[#D1FE17] text-[#131517] font-bold rounded-md hover:bg-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
                   >
                     تسجيل الكابتن وإرسال المستندات للفحص
                   </button>

@@ -14,27 +14,27 @@ export const ToastContainer: React.FC = () => {
           key={toast.id}
           className={`pointer-events-auto flex items-start gap-3 p-3.5 rounded-lg border shadow-lg text-xs leading-relaxed transition-all duration-200 animate-in slide-in-from-bottom-2 ${
             toast.type === 'success'
-              ? 'bg-zinc-950 text-white border-zinc-800'
+              ? 'bg-[#131517] text-white border-white/10'
               : toast.type === 'error'
-              ? 'bg-red-950 text-red-100 border-red-800'
-              : 'bg-zinc-900 text-zinc-100 border-zinc-700'
+              ? 'bg-red-500/15 text-red-300 border-red-500/30'
+              : 'bg-[#1A1C1F] text-white border-white/15'
           }`}
         >
           {toast.type === 'success' && (
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+            <CheckCircle2 className="w-4 h-4 text-[#D1FE17] shrink-0 mt-0.5" />
           )}
           {toast.type === 'error' && (
             <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
           )}
           {toast.type === 'info' && (
-            <Info className="w-4 h-4 text-zinc-300 shrink-0 mt-0.5" />
+            <Info className="w-4 h-4 text-white/75 shrink-0 mt-0.5" />
           )}
 
           <div className="flex-1 font-medium">{toast.message}</div>
 
           <button
             onClick={() => removeToast(toast.id)}
-            className="text-zinc-400 hover:text-white p-0.5 shrink-0"
+            className="text-[#898A8B] hover:text-white p-0.5 shrink-0"
           >
             <X className="w-3.5 h-3.5" />
           </button>

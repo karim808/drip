@@ -214,10 +214,10 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
   return (
     <div className="space-y-6">
       {/* Top Filter Bar */}
-      <div className="bg-white border border-zinc-200 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-4 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 className="text-base font-bold text-zinc-950">النظرة العامة والمؤشرات المالية</h2>
-          <p className="text-xs text-zinc-500 mt-0.5">
+          <h2 className="text-base font-bold text-white">النظرة العامة والمؤشرات المالية</h2>
+          <p className="text-xs text-[#898A8B] mt-0.5">
             تحليل بياني لحجم الطلبات اليومية، إجمالي الإيرادات، وتدفقات الخزنة والذمم
           </p>
         </div>
@@ -225,14 +225,14 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
         <div className="flex flex-wrap items-center gap-3">
           {/* Vendor Filter */}
           <div className="flex items-center gap-2 text-xs">
-            <span className="text-zinc-500 flex items-center gap-1">
+            <span className="text-[#898A8B] flex items-center gap-1">
               <Filter className="w-3.5 h-3.5" /> المتجر:
             </span>
             <select
               aria-label="تصفية حسب المتجر"
               value={vendorFilter}
               onChange={(e) => setVendorFilter(e.target.value)}
-              className="bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-zinc-900"
+              className="bg-white/[0.03] border border-white/10 text-white rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-[#D1FE17]"
             >
               <option value="all">جميع البراندات والمحلات ({vendors.length})</option>
               {vendors.map((v) => (
@@ -244,13 +244,13 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
           </div>
 
           {/* Time Filter Tabs */}
-          <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-md text-xs border border-zinc-200">
+          <div className="flex items-center gap-1 bg-white/[0.06] p-1 rounded-md text-xs border border-white/10">
             <button
               onClick={() => setTimeFilter('today')}
               className={`px-3 py-1 rounded font-medium transition-colors ${
                 timeFilter === 'today'
-                  ? 'bg-white text-zinc-950 shadow-xs font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#1A1C1F] text-white shadow-xs font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               اليوم
@@ -259,8 +259,8 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
               onClick={() => setTimeFilter('week')}
               className={`px-3 py-1 rounded font-medium transition-colors ${
                 timeFilter === 'week'
-                  ? 'bg-white text-zinc-950 shadow-xs font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#1A1C1F] text-white shadow-xs font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               هذا الأسبوع
@@ -269,8 +269,8 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
               onClick={() => setTimeFilter('month')}
               className={`px-3 py-1 rounded font-medium transition-colors ${
                 timeFilter === 'month'
-                  ? 'bg-white text-zinc-950 shadow-xs font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#1A1C1F] text-white shadow-xs font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               هذا الشهر
@@ -279,8 +279,8 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
               onClick={() => setTimeFilter('all')}
               className={`px-3 py-1 rounded font-medium transition-colors ${
                 timeFilter === 'all'
-                  ? 'bg-white text-zinc-950 shadow-xs font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#1A1C1F] text-white shadow-xs font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               كل الأوقات
@@ -292,76 +292,76 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
       {/* 5 Core Financial Bento Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* 1. Gross Clothing Sales */}
-        <div className="bg-white border border-zinc-200 rounded-lg p-4">
-          <div className="flex items-center justify-between text-zinc-500 mb-2">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-4">
+          <div className="flex items-center justify-between text-[#898A8B] mb-2">
             <span className="text-xs font-medium">إجمالي مبيعات الملابس</span>
-            <Building2 className="w-4 h-4 text-zinc-400" />
+            <Building2 className="w-4 h-4 text-[#898A8B]" />
           </div>
-          <div className="text-2xl font-bold tracking-tight tabular-nums text-zinc-950">
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-white">
             {grossClothingSales.toLocaleString('ar-EG')}{' '}
-            <span className="text-xs font-normal text-zinc-500">ج.م</span>
+            <span className="text-xs font-normal text-[#898A8B]">ج.م</span>
           </div>
-          <div className="text-[11px] text-zinc-500 mt-2">
+          <div className="text-[11px] text-[#898A8B] mt-2">
             القيمة السوقية للقطع المطلوبة
           </div>
         </div>
 
         {/* 2. Platform Cut from Vendors */}
-        <div className="bg-white border border-zinc-200 rounded-lg p-4">
-          <div className="flex items-center justify-between text-zinc-500 mb-2">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-4">
+          <div className="flex items-center justify-between text-[#898A8B] mb-2">
             <span className="text-xs font-medium">أرباح عمولات المحلات</span>
-            <span className="text-xs font-mono text-zinc-500">~15%</span>
+            <span className="text-xs font-mono text-[#898A8B]">~15%</span>
           </div>
-          <div className="text-2xl font-bold tracking-tight tabular-nums text-emerald-700">
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-[#D1FE17]">
             {platformVendorCommission.toLocaleString('ar-EG')}{' '}
-            <span className="text-xs font-normal text-zinc-500">ج.م</span>
+            <span className="text-xs font-normal text-[#898A8B]">ج.م</span>
           </div>
-          <div className="text-[11px] text-zinc-500 mt-2">
+          <div className="text-[11px] text-[#898A8B] mt-2">
             عمولة مخصومة من ثمن بيع الملابس
           </div>
         </div>
 
         {/* 3. Platform Cut from Delivery */}
-        <div className="bg-white border border-zinc-200 rounded-lg p-4">
-          <div className="flex items-center justify-between text-zinc-500 mb-2">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-4">
+          <div className="flex items-center justify-between text-[#898A8B] mb-2">
             <span className="text-xs font-medium">أرباح عمولة التوصيل</span>
-            <Bike className="w-4 h-4 text-zinc-400" />
+            <Bike className="w-4 h-4 text-[#898A8B]" />
           </div>
-          <div className="text-2xl font-bold tracking-tight tabular-nums text-emerald-700">
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-[#D1FE17]">
             {platformDeliveryCommission.toLocaleString('ar-EG')}{' '}
-            <span className="text-xs font-normal text-zinc-500">ج.م</span>
+            <span className="text-xs font-normal text-[#898A8B]">ج.م</span>
           </div>
-          <div className="text-[11px] text-zinc-500 mt-2">
+          <div className="text-[11px] text-[#898A8B] mt-2">
             20% من إجمالي رسوم مشاوير الطيارين
           </div>
         </div>
 
         {/* 4. Total Cash Settled in Vault */}
-        <div className="bg-white border border-zinc-200 rounded-lg p-4">
-          <div className="flex items-center justify-between text-zinc-500 mb-2">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-4">
+          <div className="flex items-center justify-between text-[#898A8B] mb-2">
             <span className="text-xs font-medium">الكاش المحصل بالخزنة</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <CheckCircle2 className="w-4 h-4 text-[#D1FE17]" />
           </div>
-          <div className="text-2xl font-bold tracking-tight tabular-nums text-zinc-950">
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-white">
             {settledCashInVault.toLocaleString('ar-EG')}{' '}
-            <span className="text-xs font-normal text-zinc-500">ج.م</span>
+            <span className="text-xs font-normal text-[#898A8B]">ج.م</span>
           </div>
-          <div className="text-[11px] text-emerald-600 mt-2 font-medium">
+          <div className="text-[11px] text-[#D1FE17] mt-2 font-medium">
             مستلم ومطابق بكشوفات إنستاباي وفودافون
           </div>
         </div>
 
         {/* 5. Total Outstanding Market Debt */}
-        <div className="bg-white border border-zinc-200 rounded-lg p-4">
-          <div className="flex items-center justify-between text-zinc-500 mb-2">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-4">
+          <div className="flex items-center justify-between text-[#898A8B] mb-2">
             <span className="text-xs font-medium">المديونيات المعلقة بالسوق</span>
-            <AlertCircle className="w-4 h-4 text-amber-600" />
+            <AlertCircle className="w-4 h-4 text-amber-300" />
           </div>
-          <div className="text-2xl font-bold tracking-tight tabular-nums text-amber-700">
+          <div className="text-2xl font-bold tracking-tight tabular-nums text-amber-300">
             {totalOutstandingMarketDebt.toLocaleString('ar-EG')}{' '}
-            <span className="text-xs font-normal text-zinc-500">ج.م</span>
+            <span className="text-xs font-normal text-[#898A8B]">ج.م</span>
           </div>
-          <div className="text-[11px] text-zinc-500 mt-2 flex items-center justify-between">
+          <div className="text-[11px] text-[#898A8B] mt-2 flex items-center justify-between">
             <span>محلات: {outstandingVendorDebt.toLocaleString('ar-EG')}</span>
             <span>·</span>
             <span>طيارين: {outstandingDriverDebt.toLocaleString('ar-EG')}</span>
@@ -370,35 +370,35 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
       </div>
 
       {/* RECHARTS LINE CHART: DAILY ORDER VOLUME & TOTAL REVENUE */}
-      <div className="bg-white border border-zinc-200 rounded-lg p-5 space-y-5">
-        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-zinc-100 pb-4">
+      <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-5 space-y-5">
+        <div className="flex flex-wrap items-start justify-between gap-4 border-b border-white/10 pb-4">
           <div>
             <div className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-emerald-600" />
-              <h3 className="font-bold text-sm text-zinc-950">
+              <BarChart3 className="w-4 h-4 text-[#D1FE17]" />
+              <h3 className="font-bold text-sm text-white">
                 منحنى حجم الطلبات اليومية وإجمالي الإيرادات (Daily Order Volume & Total Revenue)
               </h3>
             </div>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 mt-1">
-              <span>إجمالي طلبات الفترة: <strong className="text-zinc-900 tabular-nums">{chartSummary.totalVol} طلب</strong></span>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-[#898A8B] mt-1">
+              <span>إجمالي طلبات الفترة: <strong className="text-white tabular-nums">{chartSummary.totalVol} طلب</strong></span>
               <span aria-hidden="true">·</span>
-              <span>إجمالي الإيرادات: <strong className="text-emerald-700 tabular-nums">{chartSummary.totalRev.toLocaleString('ar-EG')} ج.م</strong></span>
+              <span>إجمالي الإيرادات: <strong className="text-[#D1FE17] tabular-nums">{chartSummary.totalRev.toLocaleString('ar-EG')} ج.م</strong></span>
               <span aria-hidden="true">·</span>
-              <span>متوسط قيمة الطلب: <strong className="text-zinc-900 tabular-nums">{chartSummary.avgOrderValue.toLocaleString('ar-EG')} ج.م</strong></span>
+              <span>متوسط قيمة الطلب: <strong className="text-white tabular-nums">{chartSummary.avgOrderValue.toLocaleString('ar-EG')} ج.م</strong></span>
               <span aria-hidden="true">·</span>
-              <span>أعلى ذروة يومية: <strong className="text-zinc-900">{chartSummary.peakDay}</strong></span>
+              <span>أعلى ذروة يومية: <strong className="text-white">{chartSummary.peakDay}</strong></span>
             </div>
           </div>
 
           {/* Interactive Chart Metric Selector */}
-          <div className="flex items-center gap-1 bg-zinc-100 p-1 rounded-md text-xs border border-zinc-200">
+          <div className="flex items-center gap-1 bg-white/[0.06] p-1 rounded-md text-xs border border-white/10">
             <button
               type="button"
               onClick={() => setChartViewMode('combined')}
               className={`px-3 py-1 rounded font-medium transition-colors ${
                 chartViewMode === 'combined'
-                  ? 'bg-white text-zinc-950 shadow-xs font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#1A1C1F] text-white shadow-xs font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               الإيرادات + حجم الطلبات
@@ -408,8 +408,8 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
               onClick={() => setChartViewMode('revenue')}
               className={`px-3 py-1 rounded font-medium transition-colors ${
                 chartViewMode === 'revenue'
-                  ? 'bg-white text-zinc-950 shadow-xs font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#1A1C1F] text-white shadow-xs font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               إجمالي الإيرادات (ج.م)
@@ -419,8 +419,8 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
               onClick={() => setChartViewMode('volume')}
               className={`px-3 py-1 rounded font-medium transition-colors ${
                 chartViewMode === 'volume'
-                  ? 'bg-white text-zinc-950 shadow-xs font-bold'
-                  : 'text-zinc-600 hover:text-zinc-950'
+                  ? 'bg-[#1A1C1F] text-white shadow-xs font-bold'
+                  : 'text-white/70 hover:text-white'
               }`}
             >
               عدد الطلبات اليومية
@@ -527,111 +527,111 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
       {/* Financial Breakdown & Summary Banner */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Cashflow Model Visual */}
-        <div className="bg-white border border-zinc-200 rounded-lg p-5 lg:col-span-2">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-bold text-sm text-zinc-950">
+            <h3 className="font-bold text-sm text-white">
               دورة الكاش والذمم المالية في النظام (Cash Flow Architecture)
             </h3>
-            <span className="text-xs text-zinc-500">تصفية فورية 100% كاش</span>
+            <span className="text-xs text-[#898A8B]">تصفية فورية 100% كاش</span>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div className="border border-zinc-200 rounded-md p-3.5 bg-zinc-50">
-              <div className="font-bold text-zinc-900 mb-1">1. عند المتجر (المحل)</div>
-              <p className="text-zinc-600 leading-relaxed">
-                الطيار يدفع للمحل <strong className="text-zinc-950">100% من ثمن الملابس كاش</strong> فوراً. يتسجل على المحل مديونية للمنصة بنسبة العمولة ({vendors[0]?.commissionRate || 15}%).
+            <div className="border border-white/10 rounded-md p-3.5 bg-white/[0.03]">
+              <div className="font-bold text-white mb-1">1. عند المتجر (المحل)</div>
+              <p className="text-white/70 leading-relaxed">
+                الطيار يدفع للمحل <strong className="text-white">100% من ثمن الملابس كاش</strong> فوراً. يتسجل على المحل مديونية للمنصة بنسبة العمولة ({vendors[0]?.commissionRate || 15}%).
               </p>
             </div>
 
-            <div className="border border-zinc-200 rounded-md p-3.5 bg-zinc-50">
-              <div className="font-bold text-zinc-900 mb-1">2. عند باب العميل</div>
-              <p className="text-zinc-600 leading-relaxed">
-                الطيار يستلم من العميل <strong className="text-zinc-950">(ثمن الملابس + التوصيل)</strong>. يسترد كاش الملابس، ويتسجل عليه عمولة التوصيل (20%).
+            <div className="border border-white/10 rounded-md p-3.5 bg-white/[0.03]">
+              <div className="font-bold text-white mb-1">2. عند باب العميل</div>
+              <p className="text-white/70 leading-relaxed">
+                الطيار يستلم من العميل <strong className="text-white">(ثمن الملابس + التوصيل)</strong>. يسترد كاش الملابس، ويتسجل عليه عمولة التوصيل (20%).
               </p>
             </div>
 
-            <div className="border border-zinc-200 rounded-md p-3.5 bg-zinc-50">
-              <div className="font-bold text-zinc-900 mb-1">3. في خزنة المنصة</div>
-              <p className="text-zinc-600 leading-relaxed">
-                المحلات والطيارون يسددون عند بلوغ سقف المديونية عبر <strong className="text-zinc-950">إنستاباي / فودافون كاش</strong> وتُفحص الإيصالات في لوحة الموافقات.
+            <div className="border border-white/10 rounded-md p-3.5 bg-white/[0.03]">
+              <div className="font-bold text-white mb-1">3. في خزنة المنصة</div>
+              <p className="text-white/70 leading-relaxed">
+                المحلات والطيارون يسددون عند بلوغ سقف المديونية عبر <strong className="text-white">إنستاباي / فودافون كاش</strong> وتُفحص الإيصالات في لوحة الموافقات.
               </p>
             </div>
           </div>
 
           {/* Quick Ledger Stats */}
-          <div className="mt-5 pt-4 border-t border-zinc-200 flex flex-wrap items-center justify-between gap-4 text-xs">
+          <div className="mt-5 pt-4 border-t border-white/10 flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-4">
               <div>
-                <span className="text-zinc-500">إجمالي الطلبات المدارة: </span>
-                <span className="font-bold text-zinc-900 tabular-nums">{orders.length} طلب</span>
+                <span className="text-[#898A8B]">إجمالي الطلبات المدارة: </span>
+                <span className="font-bold text-white tabular-nums">{orders.length} طلب</span>
               </div>
               <div>
-                <span className="text-zinc-500">صافي أرباح المنصة المكتسبة: </span>
-                <span className="font-bold text-emerald-700 tabular-nums">
+                <span className="text-[#898A8B]">صافي أرباح المنصة المكتسبة: </span>
+                <span className="font-bold text-[#D1FE17] tabular-nums">
                   {netPlatformProfits.toLocaleString('ar-EG')} ج.م
                 </span>
               </div>
             </div>
-            <div className="text-zinc-400">
+            <div className="text-[#898A8B]">
               محدث وفق التوقيت المحلي لمدينة القاهرة
             </div>
           </div>
         </div>
 
         {/* Market Risk & Freeze Status */}
-        <div className="bg-white border border-zinc-200 rounded-lg p-5 flex flex-col justify-between">
+        <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-5 flex flex-col justify-between">
           <div>
-            <h3 className="font-bold text-sm text-zinc-950 mb-3">
+            <h3 className="font-bold text-sm text-white mb-3">
               حالة استقرار السيولة والمخاطر
             </h3>
 
             <div className="space-y-3 text-xs">
-              <div className="flex items-center justify-between p-2.5 rounded bg-zinc-50 border border-zinc-200">
-                <span className="text-zinc-600">المحلات المجمدة لتجاوز الليميت:</span>
-                <span className="font-bold text-red-600 tabular-nums">
+              <div className="flex items-center justify-between p-2.5 rounded bg-white/[0.03] border border-white/10">
+                <span className="text-white/70">المحلات المجمدة لتجاوز الليميت:</span>
+                <span className="font-bold text-red-400 tabular-nums">
                   {vendors.filter((v) => v.status === 'frozen').length} محل
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded bg-zinc-50 border border-zinc-200">
-                <span className="text-zinc-600">الطيارون الموقوفون لتجاوز الـ 1000 ج:</span>
-                <span className="font-bold text-red-600 tabular-nums">
+              <div className="flex items-center justify-between p-2.5 rounded bg-white/[0.03] border border-white/10">
+                <span className="text-white/70">الطيارون الموقوفون لتجاوز الـ 1000 ج:</span>
+                <span className="font-bold text-red-400 tabular-nums">
                   {drivers.filter((d) => d.status === 'frozen').length} طيار
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-2.5 rounded bg-zinc-50 border border-zinc-200">
-                <span className="text-zinc-600">إيصالات تحويل بانتظار الاعتماد:</span>
-                <span className="font-bold text-emerald-700 tabular-nums">
+              <div className="flex items-center justify-between p-2.5 rounded bg-white/[0.03] border border-white/10">
+                <span className="text-white/70">إيصالات تحويل بانتظار الاعتماد:</span>
+                <span className="font-bold text-[#D1FE17] tabular-nums">
                   {settlements.filter((s) => s.status === 'pending').length} إيصال
                 </span>
               </div>
             </div>
           </div>
 
-          <div className="mt-4 pt-3 border-t border-zinc-100 text-[11px] text-zinc-500 leading-normal">
+          <div className="mt-4 pt-3 border-t border-white/10 text-[11px] text-[#898A8B] leading-normal">
             تنبيه النظام: الإغلاق التلقائي للمتاجر المتجاوزة للحد يضمن عدم تراكم ذمم معدومة في السوق.
           </div>
         </div>
       </div>
 
       {/* Customer Ratings & Reviews for Stores & Drivers */}
-      <div className="bg-white border border-zinc-200 rounded-lg p-5 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-100 pb-3">
+      <div className="bg-[#1A1C1F] border border-white/10 rounded-lg p-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
           <div>
-            <h3 className="font-bold text-sm text-zinc-950 flex items-center gap-2">
-              <Star className="w-4 h-4 fill-amber-400 text-amber-500" />
+            <h3 className="font-bold text-sm text-white flex items-center gap-2">
+              <Star className="w-4 h-4 fill-amber-300 text-amber-300" />
               <span>تقييمات العملاء للمحلات وكباتن التوصيل (Customer Ratings & Reviews)</span>
             </h3>
-            <p className="text-xs text-zinc-500 mt-0.5">
+            <p className="text-xs text-[#898A8B] mt-0.5">
               تظهر هنا التقييمات والملاحظات التي يسجلها العميل بعد استلام الطلب لكل من المتجر والطيار
             </p>
           </div>
 
           <div className="flex items-center gap-2.5 text-xs">
-            <div className="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-md">
-              <span className="text-zinc-600">الطلبات المقيّمة: </span>
-              <strong className="text-amber-900 font-mono tabular-nums">
+            <div className="bg-amber-400/10 border border-amber-400/25 px-3 py-1.5 rounded-md">
+              <span className="text-white/70">الطلبات المقيّمة: </span>
+              <strong className="text-amber-300 font-mono tabular-nums">
                 {orders.filter((o) => o.vendorRating || o.driverRating).length} طلب
               </strong>
             </div>
@@ -644,35 +644,35 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
             .map((ord) => (
               <div
                 key={ord.id}
-                className="border border-zinc-200 rounded-lg p-3.5 bg-zinc-50/70 space-y-2.5 text-xs"
+                className="border border-white/10 rounded-lg p-3.5 bg-white/[0.03] space-y-2.5 text-xs"
               >
-                <div className="flex items-center justify-between border-b border-zinc-200/80 pb-2">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
                   <div>
-                    <span className="font-mono font-bold text-zinc-950">{ord.orderNumber}</span>
-                    <span className="text-zinc-500 mr-2">· العميل: {ord.customerName}</span>
+                    <span className="font-mono font-bold text-white">{ord.orderNumber}</span>
+                    <span className="text-[#898A8B] mr-2">· العميل: {ord.customerName}</span>
                   </div>
-                  <span className="text-[10px] font-mono text-zinc-400">
+                  <span className="text-[10px] font-mono text-[#898A8B]">
                     {ord.ratedAt || ord.createdAt}
                   </span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                  <div className="bg-white p-2.5 rounded border border-zinc-200 space-y-1">
-                    <div className="flex items-center justify-between font-bold text-zinc-900">
+                  <div className="bg-[#1A1C1F] p-2.5 rounded border border-white/10 space-y-1">
+                    <div className="flex items-center justify-between font-bold text-white">
                       <span>المحل: {ord.vendorName}</span>
-                      <span className="text-amber-600 font-mono">{ord.vendorRating || 5}/5 ★</span>
+                      <span className="text-amber-300 font-mono">{ord.vendorRating || 5}/5 ★</span>
                     </div>
-                    <p className="text-[11px] text-zinc-600 leading-normal">
+                    <p className="text-[11px] text-white/70 leading-normal">
                       {ord.vendorReview || 'تقييم بدون تعليق نصي'}
                     </p>
                   </div>
 
-                  <div className="bg-white p-2.5 rounded border border-zinc-200 space-y-1">
-                    <div className="flex items-center justify-between font-bold text-zinc-900">
+                  <div className="bg-[#1A1C1F] p-2.5 rounded border border-white/10 space-y-1">
+                    <div className="flex items-center justify-between font-bold text-white">
                       <span>الكابتن: {ord.driverName || 'الطيار'}</span>
-                      <span className="text-amber-600 font-mono">{ord.driverRating || 5}/5 ★</span>
+                      <span className="text-amber-300 font-mono">{ord.driverRating || 5}/5 ★</span>
                     </div>
-                    <p className="text-[11px] text-zinc-600 leading-normal">
+                    <p className="text-[11px] text-white/70 leading-normal">
                       {ord.driverReview || 'تقييم بدون تعليق نصي'}
                     </p>
                   </div>
@@ -683,14 +683,14 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
       </div>
 
       {/* Admin Orders Stream with Status Filtering System */}
-      <div className="bg-white border border-zinc-200 rounded-lg overflow-hidden">
-        <div className="px-5 py-4 border-b border-zinc-200 space-y-3.5">
+      <div className="bg-[#1A1C1F] border border-white/10 rounded-lg overflow-hidden">
+        <div className="px-5 py-4 border-b border-white/10 space-y-3.5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="font-bold text-sm text-zinc-950">
+              <h3 className="font-bold text-sm text-white">
                 سجل وإدارة الطلبات (Admin Orders Status Filtering)
               </h3>
-              <p className="text-[11px] text-zinc-500 mt-0.5">
+              <p className="text-[11px] text-[#898A8B] mt-0.5">
                 تصفية فورية للطلبات حسب حالتها التشغيلية (Pending, In Transit, Delivered, Returning, Cancelled)
               </p>
             </div>
@@ -700,7 +700,7 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
                 <button
                   type="button"
                   onClick={onNavigateToOrders}
-                  className="px-3 py-1.5 rounded-md bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-bold transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-md bg-[#D1FE17] hover:bg-white text-[#131517] text-xs font-bold transition-colors cursor-pointer"
                 >
                   فتح شاشة إدارة الطلبات الكاملة ←
                 </button>
@@ -762,14 +762,14 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
                     }}
                     className={`px-3 py-1.5 rounded-md font-bold border transition-colors flex items-center gap-1.5 cursor-pointer ${
                       active
-                        ? 'bg-zinc-950 text-white border-zinc-950'
-                        : 'bg-zinc-50 hover:bg-zinc-100 text-zinc-700 border-zinc-200'
+                        ? 'bg-[#D1FE17] text-[#131517] border-[#D1FE17]'
+                        : 'bg-white/[0.03] hover:bg-white/10 text-white/80 border-white/10'
                     }`}
                   >
                     <span>{pill.label}</span>
                     <span
                       className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full tabular-nums ${
-                        active ? 'bg-white/20 text-white' : 'bg-zinc-200 text-zinc-800'
+                        active ? 'bg-[#1A1C1F]/20 text-white' : 'bg-white/10 text-white/90'
                       }`}
                     >
                       {pill.count}
@@ -787,16 +787,16 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
                   value={orderSearchQuery}
                   onChange={(e) => setOrderSearchQuery(e.target.value)}
                   placeholder="بحث برقم الطلب أو العميل..."
-                  className="bg-zinc-50 border border-zinc-200 rounded-md pr-7 pl-2.5 py-1.5 text-xs text-zinc-900 w-48 focus:outline-none focus:border-zinc-900"
+                  className="bg-white/[0.03] border border-white/10 rounded-md pr-7 pl-2.5 py-1.5 text-xs text-white w-48 focus:outline-none focus:border-[#D1FE17]"
                 />
-                <Search className="w-3.5 h-3.5 text-zinc-400 absolute right-2 top-2" />
+                <Search className="w-3.5 h-3.5 text-[#898A8B] absolute right-2 top-2" />
               </div>
 
               <select
                 aria-label="تصفية حسب الحالة الفرعية الدقيقة"
                 value={exactOrderStatus}
                 onChange={(e) => setExactOrderStatus(e.target.value as OrderStatus | 'all')}
-                className="bg-zinc-50 border border-zinc-200 text-zinc-900 rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-zinc-900"
+                className="bg-white/[0.03] border border-white/10 text-white rounded-md px-2.5 py-1.5 text-xs font-medium focus:outline-none focus:border-[#D1FE17]"
               >
                 <option value="all">كل الحالات الفرعية</option>
                 <option value="pending_vendor">بانتظار تأكيد المحل (Pending Vendor)</option>
@@ -822,7 +822,7 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
                     setExactOrderStatus('all');
                     setOrderSearchQuery('');
                   }}
-                  className="flex items-center gap-1 text-red-600 hover:text-red-700 bg-red-50 border border-red-200 px-2.5 py-1.5 rounded-md font-bold cursor-pointer"
+                  className="flex items-center gap-1 text-red-400 hover:text-red-400 bg-red-500/10 border border-red-500/25 px-2.5 py-1.5 rounded-md font-bold cursor-pointer"
                 >
                   <RotateCw className="w-3 h-3" />
                   <span>مسح</span>
@@ -834,7 +834,7 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
 
         <div className="overflow-x-auto">
           <table className="w-full text-right text-xs">
-            <thead className="bg-zinc-50 text-zinc-500 border-b border-zinc-200">
+            <thead className="bg-white/[0.03] text-[#898A8B] border-b border-white/10">
               <tr>
                 <th className="px-4 py-2.5 font-medium">رقم الطلب</th>
                 <th className="px-4 py-2.5 font-medium">المحل</th>
@@ -847,7 +847,7 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
                 <th className="px-4 py-2.5 font-medium">الحالة</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-200">
+            <tbody className="divide-y divide-white/10">
               {filteredOrders
                 .filter((ord) => {
                   if (!matchesOrderCategoryFilter(ord.status, orderCategoryFilter)) return false;
@@ -867,46 +867,46 @@ export const AdminAnalytics: React.FC<{ onNavigateToOrders?: () => void }> = ({
                         (order.status === 'delivered' ? order.driverCommission : 0)
                       : 0;
                   return (
-                    <tr key={order.id} className="hover:bg-zinc-50/80 transition-colors">
-                      <td className="px-4 py-3 font-mono font-bold text-zinc-900">
+                    <tr key={order.id} className="hover:bg-white/5 transition-colors">
+                      <td className="px-4 py-3 font-mono font-bold text-white">
                         {order.orderNumber}
                       </td>
-                      <td className="px-4 py-3 font-medium text-zinc-900">
+                      <td className="px-4 py-3 font-medium text-white">
                         {order.vendorName}
                       </td>
-                      <td className="px-4 py-3 text-zinc-600">
+                      <td className="px-4 py-3 text-white/70">
                         {order.customerName} · {order.customerArea}
                       </td>
-                      <td className="px-4 py-3 text-zinc-600">
-                        {order.driverName || <span className="text-zinc-400">بانتظار طيار</span>}
+                      <td className="px-4 py-3 text-white/70">
+                        {order.driverName || <span className="text-[#898A8B]">بانتظار طيار</span>}
                       </td>
-                      <td className="px-4 py-3 text-left font-bold tabular-nums text-zinc-900">
+                      <td className="px-4 py-3 text-left font-bold tabular-nums text-white">
                         {order.clothesTotal.toLocaleString('ar-EG')} ج.م
                       </td>
-                      <td className="px-4 py-3 text-left tabular-nums text-zinc-600">
+                      <td className="px-4 py-3 text-left tabular-nums text-white/70">
                         {order.deliveryFee} ج.م
                       </td>
-                      <td className="px-4 py-3 text-left font-bold tabular-nums text-emerald-700">
+                      <td className="px-4 py-3 text-left font-bold tabular-nums text-[#D1FE17]">
                         {totalComm > 0 ? `+${totalComm.toFixed(1)} ج.م` : '—'}
                       </td>
                       <td className="px-4 py-3">
                         {order.vendorRating || order.driverRating ? (
                           <div className="flex items-center gap-1.5 text-[11px] font-bold">
-                            <span className="bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.5 rounded font-mono">
+                            <span className="bg-amber-400/10 text-amber-300 border border-amber-400/25 px-1.5 py-0.5 rounded font-mono">
                               محل: {order.vendorRating || 5}★
                             </span>
-                            <span className="bg-emerald-50 text-emerald-800 border border-emerald-200 px-1.5 py-0.5 rounded font-mono">
+                            <span className="bg-[#D1FE17]/10 text-[#D1FE17] border border-[#D1FE17]/25 px-1.5 py-0.5 rounded font-mono">
                               طيار: {order.driverRating || 5}★
                             </span>
                           </div>
                         ) : (
-                          <span className="text-[11px] text-zinc-400">—</span>
+                          <span className="text-[11px] text-[#898A8B]">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
                         <span
                           className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${
-                            meta?.badgeClass || 'bg-zinc-100 text-zinc-700 border-zinc-200'
+                            meta?.badgeClass || 'bg-white/[0.06] text-white/80 border-white/10'
                           }`}
                         >
                           {meta?.label || order.status}

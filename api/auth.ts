@@ -27,7 +27,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'admin-root',
     role: 'admin',
-    email: process.env.ADMIN_EMAIL || 'admin@voguefast.eg',
+    email: process.env.ADMIN_EMAIL || 'admin@fastdrip.eg',
     name: 'المدير العام المالي',
     status: 'active',
     passwordHash:
@@ -37,7 +37,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'v-1',
     role: 'vendor',
-    email: 'untitled@voguefast.eg',
+    email: 'untitled@fastdrip.eg',
     name: 'UNTITLED CAIRO',
     status: 'active',
     passwordHash:
@@ -46,7 +46,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'v-2',
     role: 'vendor',
-    email: 'shabab@voguefast.eg',
+    email: 'shabab@fastdrip.eg',
     name: 'SHABAB CO.',
     status: 'active',
     passwordHash:
@@ -55,7 +55,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'v-3',
     role: 'vendor',
-    email: 'zag@voguefast.eg',
+    email: 'zag@fastdrip.eg',
     name: 'ZAG STORE',
     status: 'frozen',
     passwordHash:
@@ -64,7 +64,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'v-4',
     role: 'vendor',
-    email: 'oversized@voguefast.eg',
+    email: 'oversized@fastdrip.eg',
     name: 'OVERSIZED EG',
     status: 'active',
     passwordHash:
@@ -73,7 +73,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'v-5',
     role: 'vendor',
-    email: 'noir@voguefast.eg',
+    email: 'noir@fastdrip.eg',
     name: 'NOIR ATELIER',
     status: 'active',
     passwordHash:
@@ -82,7 +82,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'v-6',
     role: 'vendor',
-    email: 'streetvibe@voguefast.eg',
+    email: 'streetvibe@fastdrip.eg',
     name: 'STREET VIBE CAIRO',
     status: 'pending',
     passwordHash:
@@ -91,7 +91,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'd-1',
     role: 'driver',
-    email: 'ahmed.driver@voguefast.eg',
+    email: 'ahmed.driver@fastdrip.eg',
     name: 'كابتن أحمد يوسف',
     status: 'active',
     passwordHash:
@@ -100,7 +100,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'd-2',
     role: 'driver',
-    email: 'mahmoud.driver@voguefast.eg',
+    email: 'mahmoud.driver@fastdrip.eg',
     name: 'كابتن محمود شريف',
     status: 'active',
     passwordHash:
@@ -109,7 +109,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'd-3',
     role: 'driver',
-    email: 'hossam.driver@voguefast.eg',
+    email: 'hossam.driver@fastdrip.eg',
     name: 'كابتن حسام عبد الرحمن',
     status: 'frozen',
     passwordHash:
@@ -118,7 +118,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'd-4',
     role: 'driver',
-    email: 'tarek.driver@voguefast.eg',
+    email: 'tarek.driver@fastdrip.eg',
     name: 'كابتن طارق السعيد',
     status: 'pending',
     passwordHash:
@@ -127,7 +127,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'cust-1',
     role: 'customer',
-    email: 'karim@voguefast.eg',
+    email: 'karim@fastdrip.eg',
     name: 'كريم مجدي',
     status: 'active',
     passwordHash:
@@ -136,7 +136,7 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'cust-2',
     role: 'customer',
-    email: 'sara@voguefast.eg',
+    email: 'sara@fastdrip.eg',
     name: 'سارة طارق',
     status: 'active',
     passwordHash:

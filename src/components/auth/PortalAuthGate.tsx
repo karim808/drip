@@ -55,48 +55,48 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
     };
 
     return (
-      <div className="min-h-screen bg-zinc-950 text-white flex flex-col justify-center items-center p-4">
-        <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl p-6 sm:p-8 shadow-2xl space-y-6">
-          <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+      <div className="min-h-screen bg-[#131517] text-white flex flex-col justify-center items-center p-4">
+        <div className="w-full max-w-md bg-[#1A1C1F] border border-white/10 rounded-xl p-6 sm:p-8 shadow-2xl space-y-6">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+              <div className="w-11 h-11 rounded-lg bg-[#D1FE17]/10 border border-[#D1FE17]/40 flex items-center justify-center">
+                <ShieldCheck className="w-6 h-6 text-[#D1FE17]" />
               </div>
               <div>
                 <h1 className="text-lg font-extrabold tracking-tight text-white">
-                  VOGUE FAST // ADMIN
+                  FAST DRIP // ADMIN
                 </h1>
-                <p className="text-xs text-zinc-400">بوابة الإدارة العليا والخزنة المالية</p>
+                <p className="text-xs text-[#898A8B]">بوابة الإدارة العليا والخزنة المالية</p>
               </div>
             </div>
-            <span className="text-[10px] font-mono bg-zinc-800 text-zinc-300 px-2 py-1 rounded border border-zinc-700">
+            <span className="text-[10px] font-mono bg-[#1C1E21] text-white/75 px-2 py-1 rounded border border-white/15">
               /admin
             </span>
           </div>
 
           <form onSubmit={handleAdminSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold text-zinc-300 mb-1.5">
+              <label className="block font-bold text-white/75 mb-1.5">
                 البريد الإلكتروني للإدارة:
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-[#898A8B] absolute right-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   required
                   autoComplete="email"
                   value={adminEmail}
                   onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="name@voguefast.eg"
-                  className="w-full pr-9 pl-3 py-2.5 bg-zinc-950 border border-zinc-700 rounded-lg text-white font-mono focus:outline-none focus:border-emerald-500"
+                  placeholder="name@dripfit.eg"
+                  className="w-full pr-9 pl-3 py-2.5 bg-[#131517] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-bold text-zinc-300 mb-1.5">كلمة المرور:</label>
+              <label className="block font-bold text-white/75 mb-1.5">كلمة المرور:</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#898A8B] absolute right-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   required
@@ -104,7 +104,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full pr-9 pl-3 py-2.5 bg-zinc-950 border border-zinc-700 rounded-lg text-white font-mono focus:outline-none focus:border-emerald-500"
+                  className="w-full pr-9 pl-3 py-2.5 bg-[#131517] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
                 />
               </div>
             </div>
@@ -112,7 +112,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50"
+              className="w-full py-3 bg-[#D1FE17] hover:bg-white disabled:opacity-50 text-[#131517] font-bold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-lg shadow-emerald-950/50"
             >
               <span>{isSubmitting ? 'جاري التحقق من الصلاحية...' : 'تسجيل الدخول للخزنة والإدارة'}</span>
               <ArrowLeft className="w-4 h-4" />
@@ -134,46 +134,46 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
     };
 
     return (
-      <div className="min-h-screen bg-zinc-50 flex flex-col justify-center items-center p-4">
-        <div className="w-full max-w-md bg-white border border-zinc-200 rounded-xl p-6 sm:p-8 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-zinc-100 pb-4">
+      <div className="min-h-screen bg-[#131517] flex flex-col justify-center items-center p-4">
+        <div className="w-full max-w-md bg-[#1A1C1F] border border-white/10 rounded-xl p-6 sm:p-8 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-lg bg-zinc-950 text-white flex items-center justify-center">
+              <div className="w-11 h-11 rounded-lg bg-[#D1FE17] text-[#131517] flex items-center justify-center">
                 <Store className="w-5 h-5" />
               </div>
               <div>
-                <h1 className="text-lg font-extrabold text-zinc-950">بوابة المتجر والبراند (POS)</h1>
-                <p className="text-xs text-zinc-500">إدارة الطلبات، الكتالوج، والمحفظة المالية</p>
+                <h1 className="text-lg font-extrabold text-white">بوابة المتجر والبراند (POS)</h1>
+                <p className="text-xs text-[#898A8B]">إدارة الطلبات، الكتالوج، والمحفظة المالية</p>
               </div>
             </div>
-            <span className="text-[10px] font-mono bg-zinc-100 text-zinc-700 px-2 py-1 rounded border border-zinc-200">
+            <span className="text-[10px] font-mono bg-white/[0.06] text-white/80 px-2 py-1 rounded border border-white/10">
               /vendor
             </span>
           </div>
 
           <form onSubmit={handleVendorSubmit} className="space-y-4 text-xs">
             <div>
-              <label className="block font-bold text-zinc-700 mb-1.5">
+              <label className="block font-bold text-white/80 mb-1.5">
                 البريد الإلكتروني للمتجر:
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-[#898A8B] absolute right-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   required
                   autoComplete="email"
                   value={vendorEmail}
                   onChange={(e) => setVendorEmail(e.target.value)}
-                  placeholder="store@voguefast.eg"
-                  className="w-full pr-9 pl-3 py-2.5 bg-white border border-zinc-300 rounded-lg text-zinc-950 font-mono focus:outline-none focus:border-zinc-950"
+                  placeholder="store@dripfit.eg"
+                  className="w-full pr-9 pl-3 py-2.5 bg-[#1A1C1F] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block font-bold text-zinc-700 mb-1.5">كلمة المرور:</label>
+              <label className="block font-bold text-white/80 mb-1.5">كلمة المرور:</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-zinc-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#898A8B] absolute right-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   required
@@ -181,7 +181,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
                   value={vendorPassword}
                   onChange={(e) => setVendorPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pr-9 pl-3 py-2.5 bg-white border border-zinc-300 rounded-lg text-zinc-950 font-mono focus:outline-none focus:border-zinc-950"
+                  className="w-full pr-9 pl-3 py-2.5 bg-[#1A1C1F] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
                 />
               </div>
             </div>
@@ -189,22 +189,22 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-3 bg-zinc-950 hover:bg-zinc-800 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+              className="w-full py-3 bg-[#D1FE17] hover:bg-white disabled:opacity-50 text-[#131517] font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
             >
               <span>{isSubmitting ? 'جاري التحقق...' : 'تسجيل الدخول لبوابة المتجر'}</span>
               <ArrowLeft className="w-4 h-4" />
             </button>
           </form>
 
-          <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-xs">
-            <span className="text-zinc-500">براند أزياء جديد؟</span>
+          <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+            <span className="text-[#898A8B]">براند أزياء جديد؟</span>
             <button
               type="button"
               onClick={() => {
                 setOnboardingType('vendor');
                 setActivePortal('onboarding');
               }}
-              className="font-bold text-zinc-950 hover:underline flex items-center gap-1"
+              className="font-bold text-white hover:underline flex items-center gap-1"
             >
               <UserPlus className="w-3.5 h-3.5" />
               <span>قدم طلب انضمام متجر</span>
@@ -225,44 +225,44 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-white flex flex-col justify-center items-center p-4">
-      <div className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-xl p-6 sm:p-8 shadow-2xl space-y-6">
-        <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+    <div className="min-h-screen bg-[#131517] text-white flex flex-col justify-center items-center p-4">
+      <div className="w-full max-w-md bg-[#1A1C1F] border border-white/10 rounded-xl p-6 sm:p-8 shadow-2xl space-y-6">
+        <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-              <Bike className="w-6 h-6 text-emerald-400" />
+            <div className="w-11 h-11 rounded-lg bg-[#D1FE17]/10 border border-[#D1FE17]/40 flex items-center justify-center">
+              <Bike className="w-6 h-6 text-[#D1FE17]" />
             </div>
             <div>
-              <h1 className="text-lg font-extrabold text-white">تطبيق كباتن VOGUE FAST</h1>
-              <p className="text-xs text-zinc-400">رادار التوصيل السريع والمحفظة النقدية</p>
+              <h1 className="text-lg font-extrabold text-white">تطبيق كباتن FAST DRIP</h1>
+              <p className="text-xs text-[#898A8B]">رادار التوصيل السريع والمحفظة النقدية</p>
             </div>
           </div>
-          <span className="text-[10px] font-mono bg-zinc-800 text-zinc-300 px-2 py-1 rounded border border-zinc-700">
+          <span className="text-[10px] font-mono bg-[#1C1E21] text-white/75 px-2 py-1 rounded border border-white/15">
             /driver
           </span>
         </div>
 
         <form onSubmit={handleDriverSubmit} className="space-y-4 text-xs">
           <div>
-            <label className="block font-bold text-zinc-300 mb-1.5">البريد الإلكتروني للكابتن:</label>
+            <label className="block font-bold text-white/75 mb-1.5">البريد الإلكتروني للكابتن:</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-[#898A8B] absolute right-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 autoComplete="email"
                 value={driverEmail}
                 onChange={(e) => setDriverEmail(e.target.value)}
-                placeholder="captain@voguefast.eg"
-                className="w-full pr-9 pl-3 py-2.5 bg-zinc-950 border border-zinc-700 rounded-lg text-white font-mono focus:outline-none focus:border-emerald-500"
+                placeholder="captain@dripfit.eg"
+                className="w-full pr-9 pl-3 py-2.5 bg-[#131517] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-bold text-zinc-300 mb-1.5">كلمة المرور:</label>
+            <label className="block font-bold text-white/75 mb-1.5">كلمة المرور:</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-zinc-500 absolute right-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-[#898A8B] absolute right-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
@@ -270,7 +270,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
                 value={driverPassword}
                 onChange={(e) => setDriverPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pr-9 pl-3 py-2.5 bg-zinc-950 border border-zinc-700 rounded-lg text-white font-mono focus:outline-none focus:border-emerald-500"
+                className="w-full pr-9 pl-3 py-2.5 bg-[#131517] border border-white/15 rounded-lg text-white font-mono focus:outline-none focus:border-[#D1FE17]"
               />
             </div>
           </div>
@@ -278,22 +278,22 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({ portal, children
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 bg-[#D1FE17] hover:bg-white disabled:opacity-50 text-[#131517] font-bold rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <span>{isSubmitting ? 'جاري التحقق...' : 'تشغيل رادار الكابتن'}</span>
             <ArrowLeft className="w-4 h-4" />
           </button>
         </form>
 
-        <div className="pt-3 border-t border-zinc-800 flex items-center justify-between text-xs">
-          <span className="text-zinc-400">ترغب بالانضمام ككابتن توصيل؟</span>
+        <div className="pt-3 border-t border-white/10 flex items-center justify-between text-xs">
+          <span className="text-[#898A8B]">ترغب بالانضمام ككابتن توصيل؟</span>
           <button
             type="button"
             onClick={() => {
               setOnboardingType('driver');
               setActivePortal('onboarding');
             }}
-            className="font-bold text-emerald-400 hover:underline flex items-center gap-1"
+            className="font-bold text-[#D1FE17] hover:underline flex items-center gap-1"
           >
             <UserPlus className="w-3.5 h-3.5" />
             <span>سجل بياناتك وأوراقك الآن</span>
