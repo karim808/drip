@@ -411,21 +411,24 @@ export const CustomerApp: React.FC = () => {
             <p className="text-sm sm:text-base text-[#898A8B] leading-relaxed max-w-xl">
               اختر قطعتك من أفضل براندات الشارع المصرية، والطيار يدفع ثمنها كاش للمحل ويوصلها لك فوراً، مع إمكانية الدفع كاش عند الاستلام أو بمحفظة فودافون كاش أو إنستاباي.
             </p>
-            <div className="flex flex-wrap items-center gap-2.5 pt-1 text-xs">
-              <span className="flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-white/90">
-                <Truck className="w-4 h-4 text-[#D1FE17]" /> توصيل فوري مباشر بالكيلومتر
-              </span>
-              <span className="flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-white/90">
-                <CreditCard className="w-4 h-4 text-[#D1FE17]" /> كاش · فودافون كاش · إنستاباي
-              </span>
-              <span className="flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-white/90">
-                <ShieldCheck className="w-4 h-4 text-[#D1FE17]" /> معاينة القطعة واستلام فوري
-              </span>
-            </div>
           </div>
 
         </div>
       </section>
+
+      <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5 px-4 sm:px-6 py-4 text-xs bg-[#131517]">
+        <div className="max-w-7xl mx-auto w-full flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <Truck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> توصيل فوري مباشر بالكيلومتر
+          </span>
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <CreditCard className="w-4 h-4 shrink-0 text-[#D1FE17]" /> كاش · فودافون كاش · إنستاباي
+          </span>
+          <span className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-full border border-white/15 bg-white/[0.04] px-3.5 py-2 text-center leading-relaxed text-white/90">
+            <ShieldCheck className="w-4 h-4 shrink-0 text-[#D1FE17]" /> معاينة القطعة واستلام فوري
+          </span>
+        </div>
+      </div>
 
       {/* Partner stores */}
       <section className="border-b border-white/10 bg-[#1A1C1F] px-4 sm:px-6 py-5 sm:py-6">
