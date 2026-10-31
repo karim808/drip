@@ -286,15 +286,9 @@ export const CustomerApp: React.FC = () => {
     <div className="min-h-screen bg-[#131517] text-white font-['Readex_Pro',sans-serif] overflow-x-clip">
       {/* Top Bar */}
       <header className="sticky top-0 z-30 border-b border-white/10 bg-[#131517]/85 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 md:h-[68px] md:flex-nowrap">
-          <button type="button" aria-label="فتح القائمة" aria-expanded={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(true)} className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17] sm:hidden">
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-              <path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" />
-            </svg>
-          </button>
-
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2.5 flex flex-nowrap items-center justify-between gap-2 md:h-[68px] md:gap-6 md:py-3">
           {/* Brand Wordmark */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="order-1 flex flex-1 items-center justify-center gap-3 shrink-0 md:order-none md:flex-none md:justify-start">
             <div className="flex items-center gap-2.5 group/brand">
               <span className="font-display text-2xl sm:text-3xl leading-none text-[#D1FE17] -rotate-2 select-none">
                 FAST DRIP
@@ -307,7 +301,7 @@ export const CustomerApp: React.FC = () => {
           </div>
 
           {/* Search bar */}
-          <div className="relative order-last md:order-none w-full md:max-w-sm md:flex-1">
+          <div className="relative hidden order-last w-full md:order-none md:block md:max-w-sm md:flex-1">
             <input
               type="text"
               placeholder="ابحث عن هودي، كارجو، أو براند..."
@@ -320,10 +314,10 @@ export const CustomerApp: React.FC = () => {
           </div>
 
           {/* Right Action Icons: Customer Account, My Orders, Shopping Bag */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="order-2 flex items-center gap-1.5 shrink-0 md:order-none md:gap-3">
             {/* Customer Account Button */}
             {currentCustomer ? (
-              <div className="flex items-center gap-2">
+              <div className="hidden items-center gap-2 sm:flex">
                 <button
                   onClick={() => setIsOrdersDrawerOpen(true)}
                   className="flex items-center gap-1.5 px-3.5 py-2 bg-white/[0.06] border border-white/10 hover:border-[#D1FE17] hover:text-[#D1FE17] rounded-full text-xs font-semibold text-white transition-colors"
@@ -362,17 +356,21 @@ export const CustomerApp: React.FC = () => {
                   setAuthMode('login');
                   setIsAuthModalOpen(true);
                 }}
-                className="flex items-center gap-1.5 px-3.5 py-2 border border-white/25 rounded-full text-xs font-semibold hover:border-[#D1FE17] hover:text-[#D1FE17] transition-colors"
+                className="hidden items-center gap-1.5 px-3.5 py-2 border border-white/25 rounded-full text-xs font-semibold hover:border-[#D1FE17] hover:text-[#D1FE17] transition-colors sm:flex"
               >
                 <User className="w-3.5 h-3.5" />
                 <span>دخول / حساب جديد</span>
               </button>
             )}
 
+            <button type="button" aria-label="فتح القائمة" aria-expanded={isMobileMenuOpen} onClick={() => setIsMobileMenuOpen(true)} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/15 text-white transition-colors hover:border-[#D1FE17] hover:text-[#D1FE17] sm:hidden">
+              <svg viewBox="0 0 24 24" className="h-[18px] w-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16" /><path d="M4 12h16" /><path d="M4 17h16" /></svg>
+            </button>
+
             {/* Shopping Bag Trigger */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="group/bag flex items-center gap-2 px-4 py-2 bg-[#D1FE17] text-[#131517] rounded-full text-xs font-bold hover:bg-white hover:-translate-y-0.5 active:translate-y-0 transition-all"
+              className="group/bag flex h-9 w-9 items-center justify-center gap-2 rounded-full bg-[#D1FE17] px-2.5 text-[#131517] text-xs font-bold transition-all hover:bg-white hover:-translate-y-0.5 active:translate-y-0 sm:h-auto sm:w-auto sm:rounded-full sm:px-4 sm:py-2"
             >
               <ShoppingBag className="w-4 h-4 group-hover/bag:-rotate-12 transition-transform" />
               <span className="hidden sm:inline">حقيبة التسوق</span>
