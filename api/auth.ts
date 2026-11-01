@@ -27,12 +27,12 @@ const accountStore: AuthAccountRecord[] = [
   {
     id: 'admin-root',
     role: 'admin',
-    email: process.env.ADMIN_EMAIL || 'admin@fastdrip.eg',
+    email: process.env.ADMIN_EMAIL || 'owner@fastdrip.eg',
     name: 'المدير العام المالي',
     status: 'active',
     passwordHash:
       process.env.ADMIN_PASSWORD_HASH ||
-      'd5e09224d0ea0c6cd20feb8e23aae25d:475a729fa6b1227ec2eb4d6146425842c78305141aa734c02b1fcec6f859810ff065647bd334445474717e272c170d0b9dd67128328d47545aa88689c117036a',
+      '7ddd1d1a24ee41818de7a8fbbcd4d481:113c3b7ce777cebae1c12f3948d98ad5a7eafaa97f5c8c1819afa718a0c1c1cc8b0b7f77c335b38e7fcea3710c427c056b36a1da9255de79c0729e353c94b6b1',
   },
   {
     id: 'v-1',
