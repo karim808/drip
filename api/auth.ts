@@ -32,7 +32,7 @@ const accountStore: AuthAccountRecord[] = [
     status: 'active',
     passwordHash:
       process.env.ADMIN_PASSWORD_HASH ||
-      'f2ea7b047f68838aa8836516e685d8d8:7ec852979d5d0e3d04a9846a10ace49012f1d1deacf64dd80240e1b8701bcb48abb7939685c857bd285868a9982951f343b1b769ca99a9da081cbdd976f56302',
+      'd5e09224d0ea0c6cd20feb8e23aae25d:475a729fa6b1227ec2eb4d6146425842c78305141aa734c02b1fcec6f859810ff065647bd334445474717e272c170d0b9dd67128328d47545aa88689c117036a',
   },
   {
     id: 'v-1',
