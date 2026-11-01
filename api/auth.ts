@@ -1,4 +1,10 @@
+import dotenv from 'dotenv';
 import crypto from 'crypto';
+import { eq } from 'drizzle-orm';
+import { db } from '../lib/db';
+import { portalCredentials } from '../lib/db-schema';
+
+dotenv.config({ path: '.env.development.local' });
 
 const AUTH_SECRET = process.env.VF_AUTH_SECRET || 'vogue-fast-hmac-vault-secret-2026-eg-v2';
 
@@ -335,8 +341,18 @@ export default async function handler(req: any, res: any) {
       );
     }
 
+    let passwordHash = account.passwordHash;
+    if (db && (account.role === 'vendor' || account.role === 'driver')) {
+      const savedCredential = await db
+        .select({ passwordHash: portalCredentials.passwordHash })
+        .from(portalCredentials)
+        .where(eq(portalCredentials.entityId, account.id))
+        .limit(1);
+      passwordHash = savedCredential[0]?.passwordHash || passwordHash;
+    }
+
     // Verify password against salted scrypt hash
-    const isPasswordValid = verifyPassword(password, account.passwordHash);
+    const isPasswordValid = verifyPassword(password, passwordHash);
     if (!isPasswordValid) {
       res.statusCode = 401;
       return res.end(
@@ -593,9 +609,27 @@ export default async function handler(req: any, res: any) {
       return res.end(JSON.stringify({ ok: false, error: 'الحساب غير موجود' }));
     }
 
-    targetAcc.passwordHash = hashPassword(newPassword);
+    const passwordHash = hashPassword(newPassword);
+    targetAcc.passwordHash = passwordHash;
+
+    if (db && (targetAcc.role === 'vendor' || targetAcc.role === 'driver')) {
+      await db
+        .insert(portalCredentials)
+        .values({
+          id: `${targetAcc.role}:${targetAcc.id}`,
+          entityType: targetAcc.role,
+          entityId: targetAcc.id,
+          email: targetAcc.email.toLowerCase(),
+          passwordHash,
+        })
+        .onConflictDoUpdate({
+          target: [portalCredentials.entityType, portalCredentials.entityId],
+          set: { passwordHash, updatedAt: new Date() },
+        });
+    }
+
     res.statusCode = 200;
-    return res.end(JSON.stringify({ ok: true }));
+    return res.end(JSON.stringify({ ok: true, persisted: Boolean(db) }));
   }
 
   // 6. LOGOUT
