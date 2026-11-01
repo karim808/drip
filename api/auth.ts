@@ -1,8 +1,41 @@
 import dotenv from 'dotenv';
 import crypto from 'crypto';
 import { eq } from 'drizzle-orm';
-import { db } from '../lib/db';
-import { portalCredentials } from '../lib/db-schema';
+
+
+import { pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+
+export const portalCredentials = pgTable(
+  'portal_credentials',
+  {
+    id: text('id').primaryKey(),
+    entityType: text('entity_type').notNull(),
+    entityId: text('entity_id').notNull(),
+    email: text('email').notNull(),
+    passwordHash: text('password_hash').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    entityUnique: unique('portal_credentials_entity_unique').on(table.entityType, table.entityId),
+    emailUnique: unique('portal_credentials_email_unique').on(table.email),
+  })
+);
+
+const databaseUrl = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+let pool = null;
+let db = null;
+if (databaseUrl) {
+  try {
+    pool = new Pool({ connectionString: databaseUrl, max: 5 });
+    db = drizzle(pool, { schema: { portalCredentials } });
+  } catch (e) {
+    console.error('Failed to init Neon Postgres pool:', e);
+  }
+}
+
 
 dotenv.config({ path: '.env.development.local' });
 
