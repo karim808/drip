@@ -365,7 +365,8 @@ export default async function handler(req: any, res: any) {
       return res.end(JSON.stringify({ ok: false, error: 'يرجى إدخال البريد الإلكتروني وكلمة المرور' }));
     }
 
-    const account = accountStore.find((acc) => acc.email.toLowerCase() === email);
+    const normalizeEmail = (e: string) => e.toLowerCase().trim().replace(/@(fastdrip|voguefast|dripfit)\.eg$/, '');
+    const account = accountStore.find((acc) => acc.email.toLowerCase() === email || normalizeEmail(acc.email) === normalizeEmail(email));
     if (!account) {
       // Do not auto-create accounts or leak existence
       res.statusCode = 401;
