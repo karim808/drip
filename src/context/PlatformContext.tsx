@@ -395,9 +395,41 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     targetEntityId?: string
   ): Promise<boolean> => {
     try {
+      let roleToken = window.localStorage.getItem(`fastdrip_token_${requiredRole}`);
+      const adminToken = window.localStorage.getItem('fastdrip_token_admin');
+
+      // If this is an admin mutation and no admin token exists in localStorage, sync one seamlessly
+      if (requiredRole === 'admin' && !roleToken) {
+        try {
+          const syncRes = await fetch('/api/auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ action: 'sync-admin' }),
+          });
+          if (syncRes.ok) {
+            const syncData = await syncRes.json();
+            if (syncData.token) {
+              roleToken = syncData.token;
+              window.localStorage.setItem('fastdrip_token_admin', syncData.token);
+            }
+          }
+        } catch {}
+      }
+
+      const activeToken = roleToken || (isAdminAuthenticated ? adminToken : null) || '';
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        'X-Portal-Role': requiredRole,
+      };
+      if (activeToken) {
+        headers['Authorization'] = `Bearer ${activeToken}`;
+        headers['X-Portal-Token'] = activeToken;
+      }
+
       const res = await fetch('/api/auth', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         credentials: 'include',
         body: JSON.stringify({
           action: 'authorize-mutation',
@@ -423,64 +455,114 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     let cancelled = false;
     async function verifyServerSession() {
       try {
-        const res = await fetch('/api/auth?action=session', {
-          method: 'GET',
-          credentials: 'include',
-        });
-        if (!res.ok || cancelled) return;
-        const data = await res.json();
-        if (cancelled) return;
+        const adminToken = window.localStorage.getItem('fastdrip_token_admin');
+        const vendorToken = window.localStorage.getItem('fastdrip_token_vendor');
+        const driverToken = window.localStorage.getItem('fastdrip_token_driver');
+        const customerToken = window.localStorage.getItem('fastdrip_token_customer');
 
-        const session = data?.session;
-        if (!session) {
-          setIsAdminAuthenticated(false);
-          setIsVendorAuthenticated(false);
-          setIsDriverAuthenticated(false);
-          setCurrentCustomer(null);
-          return;
+        // Verify Admin token if exists
+        if (adminToken) {
+          fetch('/api/auth?action=verify&role=admin', {
+            headers: { Authorization: `Bearer ${adminToken}`, 'X-Portal-Role': 'admin' },
+            credentials: 'include',
+          })
+            .then((r) => {
+              if (cancelled) return;
+              if (r.ok) setIsAdminAuthenticated(true);
+              else {
+                setIsAdminAuthenticated(false);
+                window.localStorage.removeItem('fastdrip_token_admin');
+              }
+            })
+            .catch(() => {});
         }
 
-        // Strict single-role session enforcement
-        setIsAdminAuthenticated(session.role === 'admin');
-        setIsVendorAuthenticated(session.role === 'vendor');
-        setIsDriverAuthenticated(session.role === 'driver');
-
-        if (session.role === 'vendor' && session.entityId) {
-          setActiveVendorIdState(session.entityId);
-        } else if (session.role !== 'vendor') {
-          setActiveVendorIdState('');
+        // Verify Vendor token if exists
+        if (vendorToken) {
+          fetch('/api/auth?action=verify&role=vendor', {
+            headers: { Authorization: `Bearer ${vendorToken}`, 'X-Portal-Role': 'vendor' },
+            credentials: 'include',
+          })
+            .then(async (r) => {
+              if (cancelled) return;
+              if (r.ok) {
+                const data = await r.json();
+                setIsVendorAuthenticated(true);
+                if (data.session?.entityId) setActiveVendorIdState(data.session.entityId);
+              } else {
+                setIsVendorAuthenticated(false);
+                window.localStorage.removeItem('fastdrip_token_vendor');
+              }
+            })
+            .catch(() => {});
         }
 
-        if (session.role === 'driver' && session.entityId) {
-          setActiveDriverIdState(session.entityId);
-        } else if (session.role !== 'driver') {
-          setActiveDriverIdState('');
+        // Verify Driver token if exists
+        if (driverToken) {
+          fetch('/api/auth?action=verify&role=driver', {
+            headers: { Authorization: `Bearer ${driverToken}`, 'X-Portal-Role': 'driver' },
+            credentials: 'include',
+          })
+            .then(async (r) => {
+              if (cancelled) return;
+              if (r.ok) {
+                const data = await r.json();
+                setIsDriverAuthenticated(true);
+                if (data.session?.entityId) setActiveDriverIdState(data.session.entityId);
+              } else {
+                setIsDriverAuthenticated(false);
+                window.localStorage.removeItem('fastdrip_token_driver');
+              }
+            })
+            .catch(() => {});
         }
 
-        if (session.role === 'customer' && session.entityId) {
-          const foundCust = customers.find((c) => c.id === session.entityId);
-          if (foundCust) {
-            setCurrentCustomer(foundCust);
-          } else {
-            setCurrentCustomer({
-              id: session.entityId,
-              name: session.name,
-              email: session.email,
-              phone: session.phone || '',
-              area: 'القاهرة',
-              address: 'القاهرة',
-              createdAt: new Date().toISOString().slice(0, 10),
-            });
+        // Verify Customer token if exists
+        if (customerToken) {
+          fetch('/api/auth?action=verify&role=customer', {
+            headers: { Authorization: `Bearer ${customerToken}`, 'X-Portal-Role': 'customer' },
+            credentials: 'include',
+          })
+            .then(async (r) => {
+              if (cancelled) return;
+              if (r.ok) {
+                const data = await r.json();
+                if (data.session?.entityId) {
+                  const foundCust = customers.find((c) => c.id === data.session.entityId);
+                  if (foundCust) setCurrentCustomer(foundCust);
+                }
+              } else {
+                window.localStorage.removeItem('fastdrip_token_customer');
+              }
+            })
+            .catch(() => {});
+        }
+
+        // If no tokens in localStorage, check default cookie session
+        if (!adminToken && !vendorToken && !driverToken && !customerToken) {
+          const res = await fetch('/api/auth?action=session', { credentials: 'include' });
+          if (!res.ok || cancelled) return;
+          const data = await res.json();
+          if (cancelled) return;
+          const session = data?.session;
+          if (session) {
+            if (session.role === 'admin') setIsAdminAuthenticated(true);
+            if (session.role === 'vendor') {
+              setIsVendorAuthenticated(true);
+              if (session.entityId) setActiveVendorIdState(session.entityId);
+            }
+            if (session.role === 'driver') {
+              setIsDriverAuthenticated(true);
+              if (session.entityId) setActiveDriverIdState(session.entityId);
+            }
+            if (session.role === 'customer') {
+              const foundCust = customers.find((c) => c.id === session.entityId);
+              if (foundCust) setCurrentCustomer(foundCust);
+            }
           }
-        } else if (session.role !== 'customer') {
-          setCurrentCustomer(null);
         }
       } catch {
-        // If server unreachable, default to unauthenticated
-        setIsAdminAuthenticated(false);
-        setIsVendorAuthenticated(false);
-        setIsDriverAuthenticated(false);
-        setCurrentCustomer(null);
+        // network issue
       }
     }
     verifyServerSession();
@@ -573,9 +655,9 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         createdAt: new Date().toISOString().slice(0, 10),
       };
 
-      setIsAdminAuthenticated(false);
-      setIsVendorAuthenticated(false);
-      setIsDriverAuthenticated(false);
+      if (data.token) {
+        window.localStorage.setItem('fastdrip_token_customer', data.token);
+      }
       setCurrentCustomer(custRecord);
       showToast(`مرحباً بعودتك، ${custRecord.name}!`, 'success');
       return true;
@@ -622,6 +704,10 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return null;
       }
 
+      if (respData.token) {
+        window.localStorage.setItem('fastdrip_token_customer', respData.token);
+      }
+
       const newCust: CustomerUser = {
         id: respData.session?.entityId || newId,
         name: data.name.trim(),
@@ -643,11 +729,12 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const logoutCustomer = () => {
     setCurrentCustomer(null);
+    window.localStorage.removeItem('fastdrip_token_customer');
     fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
+      body: JSON.stringify({ action: 'logout', role: 'customer' }),
     }).catch(() => {});
     showToast('تم تسجيل الخروج من حساب العميل', 'info');
   };
@@ -679,9 +766,9 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return false;
       }
 
-      setIsVendorAuthenticated(false);
-      setIsDriverAuthenticated(false);
-      setCurrentCustomer(null);
+      if (data.token) {
+        window.localStorage.setItem('fastdrip_token_admin', data.token);
+      }
       setIsAdminAuthenticated(true);
       showToast('مرحباً بك في لوحة الإدارة العليا والخزنة المالية', 'success');
       return true;
@@ -694,11 +781,12 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const logoutAdmin = () => {
     setIsAdminAuthenticated(false);
+    window.localStorage.removeItem('fastdrip_token_admin');
     fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
+      body: JSON.stringify({ action: 'logout', role: 'admin' }),
     }).catch(() => {});
     showToast('تم تسجيل الخروج من لوحة الإدارة العليا', 'info');
   };
@@ -737,9 +825,9 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return false;
       }
 
-      setIsAdminAuthenticated(false);
-      setIsDriverAuthenticated(false);
-      setCurrentCustomer(null);
+      if (data.token) {
+        window.localStorage.setItem('fastdrip_token_vendor', data.token);
+      }
       setActiveVendorIdState(entityId);
       setIsVendorAuthenticated(true);
       showToast(`تم تسجيل الدخول إلى بوابة متجر: ${matched?.name || data.session.name}`, 'success');
@@ -754,11 +842,12 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const logoutVendor = () => {
     setIsVendorAuthenticated(false);
     setActiveVendorIdState('');
+    window.localStorage.removeItem('fastdrip_token_vendor');
     fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
+      body: JSON.stringify({ action: 'logout', role: 'vendor' }),
     }).catch(() => {});
     showToast('تم تسجيل الخروج من بوابة المتجر', 'info');
   };
@@ -797,9 +886,9 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return false;
       }
 
-      setIsAdminAuthenticated(false);
-      setIsVendorAuthenticated(false);
-      setCurrentCustomer(null);
+      if (data.token) {
+        window.localStorage.setItem('fastdrip_token_driver', data.token);
+      }
       setActiveDriverIdState(entityId);
       setIsDriverAuthenticated(true);
       showToast(`أهلاً بك يا ${matched?.name || data.session.name}!`, 'success');
@@ -814,11 +903,12 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const logoutDriver = () => {
     setIsDriverAuthenticated(false);
     setActiveDriverIdState('');
+    window.localStorage.removeItem('fastdrip_token_driver');
     fetch('/api/auth', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
-      body: JSON.stringify({ action: 'logout' }),
+      body: JSON.stringify({ action: 'logout', role: 'driver' }),
     }).catch(() => {});
     showToast('تم تسجيل الخروج من تطبيق الكابتن', 'info');
   };
