@@ -1,3 +1,4 @@
+import React from "react"
 import { useEffect, useState } from "react"
 // router replaced with standalone state
 import {
@@ -1452,7 +1453,7 @@ function BottomNavigation({
   )
 }
 
-function App() {
+export function CustomerApp() {
 // hooks injected below
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -2436,4 +2437,4 @@ function App() {
   )
 }
 
-export default App
+export default CustomerApp
