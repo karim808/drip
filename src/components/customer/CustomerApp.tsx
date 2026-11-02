@@ -1,3 +1,4 @@
+import { usePlatform } from '../../context/PlatformContext';
 import React from "react"
 import { useEffect, useState } from "react"
 // router replaced with standalone state
@@ -685,7 +686,7 @@ function CartPanel({
               <strong>{formatPrice(total)}</strong>
             </span>
             <button className="primary-button wide" onClick={onCheckout}>
-              Demo checkout <ArrowRight size={17} />
+              Confirm & Place Order <ArrowRight size={17} />
             </button>
             <small>No payment will be processed.</small>
           </div>
@@ -1249,7 +1250,7 @@ function OrderTracker({
 }) {
   const [stage, setStage] = useState(1)
   const steps = [
-    ["Order placed", "Your demo order is confirmed"],
+    ["Order placed", "Your order is confirmed and sent to store"],
     ["Store confirmed", "Inventory secured at each partner"],
     ["Rider collecting", "Pickup route is optimized"],
     ["Arriving", "Inspect items before accepting"],
@@ -1272,7 +1273,7 @@ function OrderTracker({
       >
         <div className="panel-head">
           <div>
-            <span className="eyebrow">Demo order / FD-2030</span>
+            <span className="eyebrow">Live Order / FD-2030</span>
             <h2>TRACK THE DRIP</h2>
           </div>
           <IconButton label="Close order tracking" onClick={onClose}>
@@ -1454,6 +1455,58 @@ function BottomNavigation({
 }
 
 export function CustomerApp() {
+  const {
+    currentCustomer,
+    loginCustomer,
+    registerCustomer,
+    logoutCustomer,
+    placeOrder,
+    showToast,
+  } = usePlatform();
+
+  // Customer Authentication Modal State
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authPhone, setAuthPhone] = useState('');
+  const [authArea, setAuthArea] = useState('التجمع الخامس');
+  const [authAddress, setAuthAddress] = useState('');
+  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+
+  const handleCustomerAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isAuthSubmitting) return;
+    setIsAuthSubmitting(true);
+    try {
+      if (authMode === 'login') {
+        const ok = await loginCustomer(authEmail, authPassword);
+        if (ok) {
+          setIsAuthModalOpen(false);
+          setAuthPassword('');
+          showToast(isArabic ? 'تم تسجيل الدخول بنجاح! يمكنك الآن إتمام الطلب.' : 'Logged in successfully! You can now complete your order.', 'success');
+        }
+      } else {
+        if (!authName || !authEmail || !authPhone || !authPassword) return;
+        const created = await registerCustomer({
+          name: authName,
+          email: authEmail,
+          phone: authPhone,
+          password: authPassword,
+          area: authArea,
+          address: authAddress || authArea,
+        });
+        if (created) {
+          setIsAuthModalOpen(false);
+          setAuthPassword('');
+          showToast(isArabic ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!', 'success');
+        }
+      }
+    } finally {
+      setIsAuthSubmitting(false);
+    }
+  };
 // hooks injected below
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -1513,8 +1566,8 @@ export function CustomerApp() {
         partners: "شركاء التوصيل الرسميون / ٠٥",
         categories: "تسوق كل المتاجر حسب التصنيف",
         swipe: "اسحب للاستكشاف",
-        allProducts: "١٥ منتجًا تجريبيًا / ٣ لكل متجر",
-        catalog: "الكتالوج التجريبي",
+        allProducts: "أزياء حصرية جاهزة للتوصيل الفوري",
+        catalog: "كتالوج الأزياء الفورية",
         clear: "مسح الفلتر",
         viewAll: "عرض الكل",
         shown: "منتجات ظاهرة",
@@ -2378,8 +2431,33 @@ export function CustomerApp() {
               })
             }
             onCheckout={() => {
-              setCartOpen(false)
-              setOrderOpen(true)
+              if (!currentCustomer) {
+                setCartOpen(false);
+                setAuthMode('login');
+                setIsAuthModalOpen(true);
+                showToast(
+                  isArabic
+                    ? 'يجب تسجيل الدخول أو إنشاء حساب أولاً لإتمام الطلب'
+                    : 'Please login or create an account to complete your order',
+                  'error'
+                );
+                return;
+              }
+              // User is logged in: trigger real order placement and open tracker!
+              if (cart[0]) {
+                const storeObj = stores.find(s => s.name === cart[0].brand);
+                placeOrder({
+                  customerId: currentCustomer.id,
+                  name: currentCustomer.name,
+                  phone: currentCustomer.phone,
+                  area: currentCustomer.area || location,
+                  address: currentCustomer.address || location,
+                  paymentMethod: 'cash_on_delivery',
+                  notes: 'Order placed via Futuristic Storefront',
+                });
+              }
+              setCartOpen(false);
+              setOrderOpen(true);
             }}
           />
         )}
@@ -2433,7 +2511,189 @@ export function CustomerApp() {
           </motion.div>
         )}
       </AnimatePresence>
+    
+      {/* Real Customer Authentication Gate Modal */}
+      <AnimatePresence>
+        {isAuthModalOpen && (
+          <motion.div
+            className="modal-backdrop panel-backdrop"
+            style={{ zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsAuthModalOpen(false)}
+          >
+            <motion.div
+              style={{
+                background: '#131517',
+                border: '1px solid rgba(209, 254, 23, 0.3)',
+                borderRadius: '16px',
+                padding: '2rem',
+                width: '100%',
+                maxWidth: '460px',
+                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.75)',
+                color: '#fff',
+                fontFamily: isArabic ? "'Noto Sans Arabic', sans-serif" : "'Space Grotesk', sans-serif",
+                direction: isArabic ? 'rtl' : 'ltr',
+              }}
+              initial={{ scale: 0.92, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.92, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.75rem' }}>
+                <div>
+                  <span style={{ fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#D1FE17', fontWeight: 600 }}>
+                    FAST DRIP // SECURE CHECKOUT
+                  </span>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: '4px 0 0', color: '#fff' }}>
+                    {authMode === 'login' ? (isArabic ? 'تسجيل الدخول لإتمام الطلب' : 'Sign in to Checkout') : (isArabic ? 'إنشاء حساب عميل جديد' : 'Create Customer Account')}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAuthModalOpen(false)}
+                  style={{ background: 'transparent', border: 'none', color: '#898A8B', cursor: 'pointer', padding: '6px' }}
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <form onSubmit={handleCustomerAuth} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', fontSize: '0.85rem' }}>
+                {authMode === 'register' && (
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '4px', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                      {isArabic ? 'الاسم الكامل:' : 'Full Name:'}
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      placeholder={isArabic ? 'مثال: يوسف إبراهيم' : 'e.g. Youssef Ibrahim'}
+                      value={authName}
+                      onChange={(e) => setAuthName(e.target.value)}
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#1c1e21', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.85rem' }}
+                    />
+                  </div>
+                )}
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                    {isArabic ? 'البريد الإلكتروني:' : 'Email Address:'}
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="name@example.com"
+                    value={authEmail}
+                    onChange={(e) => setAuthEmail(e.target.value)}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#1c1e21', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.85rem', fontFamily: 'monospace' }}
+                  />
+                </div>
+
+                {authMode === 'register' && (
+                  <>
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                        {isArabic ? 'رقم الهاتف:' : 'Phone Number:'}
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="010XXXXXXXX"
+                        value={authPhone}
+                        onChange={(e) => setAuthPhone(e.target.value)}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#1c1e21', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.85rem', fontFamily: 'monospace' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                        {isArabic ? 'المنطقة:' : 'Delivery Area:'}
+                      </label>
+                      <select
+                        value={authArea}
+                        onChange={(e) => setAuthArea(e.target.value)}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#1c1e21', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.85rem' }}
+                      >
+                        <option value="التجمع الخامس">التجمع الخامس</option>
+                        <option value="المعادي">المعادي</option>
+                        <option value="الزمالك">الزمالك</option>
+                        <option value="مصر الجديدة">مصر الجديدة</option>
+                        <option value="الشيخ زايد">الشيخ زايد</option>
+                        <option value="الدقي والمهندسين">الدقي والمهندسين</option>
+                        <option value="مدينة نصر">مدينة نصر</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', marginBottom: '4px', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                        {isArabic ? 'العنوان بالتفصيل:' : 'Detailed Address:'}
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder={isArabic ? 'شارع 9، المعادي، القاهرة' : 'Street 9, Maadi, Cairo'}
+                        value={authAddress}
+                        onChange={(e) => setAuthAddress(e.target.value)}
+                        style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#1c1e21', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.85rem' }}
+                      />
+                    </div>
+                  </>
+                )}
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '4px', color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>
+                    {isArabic ? 'كلمة المرور:' : 'Password:'}
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    minLength={6}
+                    placeholder="••••••••"
+                    value={authPassword}
+                    onChange={(e) => setAuthPassword(e.target.value)}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#1c1e21', border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontSize: '0.85rem' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0.5rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                    style={{ background: 'transparent', border: 'none', color: '#D1FE17', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.8rem' }}
+                  >
+                    {authMode === 'login'
+                      ? (isArabic ? 'ليس لديك حساب؟ أنشئ حساباً جديداً' : 'Need an account? Register now')
+                      : (isArabic ? 'لديك حساب بالفعل؟ تسجيل الدخول' : 'Already have an account? Sign in')}
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '1rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setIsAuthModalOpen(false)}
+                    style={{ flex: 1, padding: '0.75rem', borderRadius: '8px', background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', cursor: 'pointer', fontWeight: 600 }}
+                  >
+                    {isArabic ? 'إلغاء' : 'Cancel'}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isAuthSubmitting}
+                    style={{ flex: 2, padding: '0.75rem', borderRadius: '8px', background: '#D1FE17', border: 'none', color: '#131517', cursor: 'pointer', fontWeight: 700 }}
+                  >
+                    {isAuthSubmitting
+                      ? (isArabic ? 'جاري التحقق...' : 'Verifying...')
+                      : (authMode === 'login' ? (isArabic ? 'تسجيل الدخول والمتابعة' : 'Sign In & Continue') : (isArabic ? 'إنشاء الحساب والمتابعة' : 'Register & Continue'))}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
     </div>
+
   )
 }
 
