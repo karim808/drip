@@ -39,7 +39,9 @@ import {
   Package,
   ListOrdered,
 } from "lucide-react"
-import { CustomerPaymentMethod, CustomerUser, Order, OrderStatus, Product as BackendProduct } from '../../types';
+import { CustomerPaymentMethod, CustomerUser, Order, OrderStatus, Product as BackendProduct, Vendor } from '../../types';
+import { LocationPickerMap } from '../maps/LocationPickerMap';
+import { calculateGeoDistanceKm, getCairoAreaName } from '../../data/mockData';
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 const fastDripMark = "/brand/fast-drip-mark.webp"
 
@@ -657,7 +659,7 @@ function CartPanel({
   onCheckout,
   currentCustomer,
   location,
-  deliveryFee,
+  deliveryFee: baseDeliveryFee,
   isArabic,
   onRequestAuth,
 }: {
@@ -670,6 +672,7 @@ function CartPanel({
     phone: string
     paymentMethod: CustomerPaymentMethod
     notes: string
+    coordinates?: { lat: number; lng: number }
   }) => void
   currentCustomer: CustomerUser | null
   location: string
@@ -677,11 +680,15 @@ function CartPanel({
   isArabic: boolean
   onRequestAuth: () => void
 }) {
+  const { vendors, calculateDeliveryFee, showToast } = usePlatform();
   const clothesTotal = cart.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0,
   )
   const cartStores = [...new Set(cart.map((item) => item.product.vendorName))]
+  const cartVendor = vendors.find((v) => v.name === cartStores[0]) || vendors[0];
+  const vendorCoords = cartVendor?.coordinates || { lat: 29.9602, lng: 31.2785 }; // Default Maadi
+
   const selectedCartStore = stores.find((store) => store.name === cartStores[0])
   const deliveryTimes = selectedCartStore?.time.match(/\d+/g)?.map(Number) ?? []
   const deliveryMax = deliveryTimes.length ? Math.max(...deliveryTimes) : 999
@@ -697,12 +704,67 @@ function CartPanel({
     useState<CustomerPaymentMethod>("cash_on_delivery")
   const [orderNotes, setOrderNotes] = useState("")
 
+  const [customerCoords, setCustomerCoords] = useState<{ lat: number; lng: number } | null>(
+    currentCustomer?.coordinates || null
+  );
+  const [isLocatingGps, setIsLocatingGps] = useState(false);
+  const [isMapModalOpen, setIsMapModalOpen] = useState(false);
+
   useEffect(() => {
     if (currentCustomer?.address) setDeliveryAddress(currentCustomer.address)
     if (currentCustomer?.phone) setCustomerPhone(currentCustomer.phone)
+    if (currentCustomer?.coordinates) setCustomerCoords(currentCustomer.coordinates)
   }, [currentCustomer])
 
-  const total = clothesTotal + deliveryFee
+  // Real-time Road Distance & Dynamic Fee
+  const directKm = customerCoords
+    ? calculateGeoDistanceKm(vendorCoords.lat, vendorCoords.lng, customerCoords.lat, customerCoords.lng)
+    : (deliveryAddress.includes('زايد') || deliveryAddress.includes('Zayed')
+        ? (cartVendor?.area.includes('زايد') ? 4.5 : 28.0)
+        : deliveryAddress.includes('المعادي') || deliveryAddress.includes('Maadi')
+          ? (cartVendor?.area.includes('المعادي') ? 3.5 : 16.0)
+          : deliveryAddress.includes('التجمع') || deliveryAddress.includes('New Cairo')
+            ? (cartVendor?.area.includes('التجمع') ? 4.0 : 18.5)
+            : 8.5);
+
+  const roadDistanceKm = Math.max(1.5, Math.round(directKm * 1.25 * 10) / 10);
+  const dynamicDeliveryFee = calculateDeliveryFee(roadDistanceKm);
+  const total = clothesTotal + dynamicDeliveryFee;
+
+  const handleUseGps = () => {
+    if (!navigator.geolocation) {
+      showToast(isArabic ? 'متصفحك لا يدعم قراءة الـ GPS' : 'Geolocation is not supported', 'error');
+      return;
+    }
+    setIsLocatingGps(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setIsLocatingGps(false);
+        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCustomerCoords(coords);
+        const detectedArea = getCairoAreaName(coords.lat, coords.lng);
+        setDeliveryAddress(`${detectedArea} (موقع GPS محدد)`);
+        showToast(
+          isArabic
+            ? `📍 تم التقاط موقعك (${detectedArea}) وتحديث المسافة وتكلفة الشحن!`
+            : `📍 GPS detected: ${detectedArea}`,
+          'success'
+        );
+      },
+      (err) => {
+        setIsLocatingGps(false);
+        console.warn('Geolocation error:', err);
+        showToast(
+          isArabic
+            ? 'يرجى السماح بصلاحية الموقع في المتصفح، أو انقر على الخريطة لتحديده مباشرة'
+            : 'Please allow location permission or pick on the map',
+          'error'
+        );
+        setIsMapModalOpen(true);
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  };
 
   return (
     <motion.div
@@ -832,15 +894,105 @@ function CartPanel({
             </p>
 
             <div className="checkout-address-box">
-              <label>
-                {isArabic ? "عنوان التوصيل في القاهرة:" : "Cairo Delivery Address:"}
-              </label>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                <label style={{ margin: 0 }}>
+                  {isArabic ? "عنوان وموقع التوصيل في القاهرة:" : "Cairo Delivery Address & GPS:"}
+                </label>
+                {customerCoords && (
+                  <span style={{ fontSize: '10px', color: 'var(--lime)', fontFamily: "'DM Mono', monospace", fontWeight: 700 }}>
+                    GPS: {customerCoords.lat.toFixed(3)}, {customerCoords.lng.toFixed(3)}
+                  </span>
+                )}
+              </div>
+
+              {/* Interactive GPS & Google Map trigger buttons */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                <button
+                  type="button"
+                  onClick={handleUseGps}
+                  disabled={isLocatingGps}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '8px 10px',
+                    background: 'rgba(209, 254, 23, 0.12)',
+                    border: '1px solid var(--lime)',
+                    borderRadius: '8px',
+                    color: 'var(--lime)',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <Navigation size={13} className={isLocatingGps ? 'animate-spin' : ''} />
+                  <span>{isLocatingGps ? (isArabic ? 'جاري تحديد GPS...' : 'Locating...') : (isArabic ? '📍 موقعي الحالي (GPS)' : '📍 Current GPS')}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsMapModalOpen(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '6px',
+                    padding: '8px 10px',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    border: '1px solid rgba(255, 255, 255, 0.15)',
+                    borderRadius: '8px',
+                    color: 'var(--white)',
+                    fontSize: '11px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  <MapPin size={13} style={{ color: 'var(--lime)' }} />
+                  <span>{isArabic ? '🗺️ تحديد على الخريطة' : '🗺️ Open Map'}</span>
+                </button>
+              </div>
+
               <input
                 type="text"
                 value={deliveryAddress}
                 onChange={(e) => setDeliveryAddress(e.target.value)}
-                placeholder={isArabic ? "مثال: الزمالك، شارع حسن مظهر" : "e.g. Zamalek, Hassan Mazhar St"}
+                placeholder={isArabic ? "مثال: الزمالك، شارع حسن مظهر، عمارة 12" : "e.g. Zamalek, Hassan Mazhar St, Bldg 12"}
               />
+
+              {/* Dynamic Distance & Route Calculation Badge */}
+              <div style={{
+                marginTop: '8px',
+                padding: '9px 11px',
+                background: 'rgba(255, 255, 255, 0.03)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                borderRadius: '8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '4px',
+                fontSize: '11px'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'var(--muted)' }}>
+                    {isArabic ? `متجر الشحن: ${cartVendor.name} (${cartVendor.area})` : `Boutique: ${cartVendor.name} (${cartVendor.area})`}
+                  </span>
+                  <span style={{ color: 'var(--lime)', fontFamily: "'DM Mono', monospace", fontWeight: 700 }}>
+                    {roadDistanceKm} {isArabic ? "كم" : "km"}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: 'rgba(255, 255, 255, 0.75)' }}>
+                  <span>{isArabic ? "وقت وصول الطيار المقدر:" : "Estimated Courier ETA:"}</span>
+                  <span style={{ fontFamily: "'DM Mono', monospace", color: 'var(--white)' }}>
+                    {roadDistanceKm <= 5 ? "18–25 min" : roadDistanceKm <= 15 ? "25–35 min" : "35–45 min"}
+                  </span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '4px', borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                  <span style={{ color: 'var(--muted)' }}>{isArabic ? "تكلفة الشحن حسب المسافة:" : "Distance-based Fee:"}</span>
+                  <strong style={{ color: 'var(--lime)', fontFamily: "'DM Mono', monospace" }}>{formatPrice(dynamicDeliveryFee)}</strong>
+                </div>
+              </div>
             </div>
 
             <div className="checkout-address-box">
@@ -894,7 +1046,7 @@ function CartPanel({
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
                 <span>{isArabic ? "خدمة التوصيل السريع:" : "Express Courier Fee:"}</span>
-                <span>{formatPrice(deliveryFee)}</span>
+                <span style={{ color: 'var(--lime)', fontWeight: 600 }}>{formatPrice(dynamicDeliveryFee)} ({roadDistanceKm} km)</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '14px', color: 'var(--white)', paddingTop: '4px' }}>
                 <span>{isArabic ? "الإجمالي المستحق:" : "Total Amount:"}</span>
@@ -923,6 +1075,7 @@ function CartPanel({
                     phone: customerPhone,
                     paymentMethod,
                     notes: orderNotes,
+                    coordinates: customerCoords || undefined,
                   })
                 }
               >
@@ -930,6 +1083,53 @@ function CartPanel({
                 <ArrowRight size={17} />
               </button>
             )}
+          </div>
+        )}
+
+        {/* Full Google Maps Location Picker Modal */}
+        {isMapModalOpen && (
+          <div
+            className="modal-backdrop panel-backdrop"
+            style={{ zIndex: 120, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px' }}
+            onClick={() => setIsMapModalOpen(false)}
+          >
+            <div
+              className="order-panel"
+              style={{ maxWidth: '600px', width: '100%', maxHeight: '90vh', overflowY: 'auto' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="panel-head" style={{ marginBottom: '12px' }}>
+                <div>
+                  <span className="eyebrow">{isArabic ? "خريطة Google التفاعلية" : "Interactive Google Map"}</span>
+                  <h2>{isArabic ? "حدد موقعك بدقة على الخريطة" : "PINPOINT YOUR LOCATION"}</h2>
+                </div>
+                <IconButton label="Close map" onClick={() => setIsMapModalOpen(false)}>
+                  <X size={20} />
+                </IconButton>
+              </div>
+
+              <LocationPickerMap
+                vendor={cartVendor}
+                initialCoordinates={customerCoords || vendorCoords}
+                onLocationSelected={(coords, areaName, roadDist) => {
+                  setCustomerCoords(coords);
+                  setDeliveryAddress(areaName);
+                }}
+                currentAddressDetail={deliveryAddress}
+                onAddressDetailChange={(detail) => setDeliveryAddress(detail)}
+                calculatedFee={dynamicDeliveryFee}
+              />
+
+              <div style={{ marginTop: '16px' }}>
+                <button
+                  type="button"
+                  className="primary-button wide"
+                  onClick={() => setIsMapModalOpen(false)}
+                >
+                  {isArabic ? "✅ تأكيد الموقع وحساب التكلفة" : "✅ Confirm Location & Fee"}
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </motion.aside>
@@ -2500,6 +2700,7 @@ export function CustomerApp() {
     phone: string
     paymentMethod: CustomerPaymentMethod
     notes: string
+    coordinates?: { lat: number; lng: number }
   }) => {
     if (!currentCustomer) {
       setCartOpen(false)
@@ -2520,12 +2721,17 @@ export function CustomerApp() {
       return
     }
 
+    const detectedArea = details.coordinates
+      ? getCairoAreaName(details.coordinates.lat, details.coordinates.lng)
+      : (currentCustomer.area || location);
+
     const createdOrder = placeOrder({
       customerId: currentCustomer.id,
       name: currentCustomer.name,
       phone: details.phone || currentCustomer.phone,
-      area: currentCustomer.area || location,
+      area: detectedArea,
       address: details.address || currentCustomer.address || location,
+      coordinates: details.coordinates,
       paymentMethod: details.paymentMethod,
       notes: details.notes || 'Order placed via Futuristic Storefront',
     })
