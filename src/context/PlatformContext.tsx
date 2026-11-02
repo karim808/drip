@@ -611,6 +611,54 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return () => window.removeEventListener('storage', handleStorageSync);
   }, []);
 
+  // Live Cloud Synchronization with PostgreSQL (Multi-Device Auto-Sync)
+  useEffect(() => {
+    let cancelled = false;
+    const syncCloudData = async () => {
+      try {
+        const [ordersRes, setRes] = await Promise.all([
+          fetch('/api/orders').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+          fetch('/api/settlements').then((r) => (r.ok ? r.json() : null)).catch(() => null),
+        ]);
+
+        if (cancelled) return;
+
+        if (ordersRes && ordersRes.ok && Array.isArray(ordersRes.orders) && ordersRes.orders.length > 0) {
+          setOrders((prev) => {
+            const serverOrders: Order[] = ordersRes.orders;
+            const merged = [...serverOrders];
+            prev.forEach((localOrd) => {
+              if (!merged.some((m) => m.id === localOrd.id)) {
+                merged.push(localOrd);
+              }
+            });
+            return merged;
+          });
+        }
+
+        if (setRes && setRes.ok && Array.isArray(setRes.settlements) && setRes.settlements.length > 0) {
+          setSettlements((prev) => {
+            const serverSets: SettlementRequest[] = setRes.settlements;
+            const merged = [...serverSets];
+            prev.forEach((localS) => {
+              if (!merged.some((m) => m.id === localS.id)) {
+                merged.push(localS);
+              }
+            });
+            return merged;
+          });
+        }
+      } catch {}
+    };
+
+    syncCloudData();
+    const interval = setInterval(syncCloudData, 6000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
+
   // ============================================================================
   // STRICT EMAIL + PASSWORD AUTHENTICATION HANDLERS
   // ============================================================================
@@ -1085,6 +1133,14 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setOrders((prev) => [newOrder, ...prev]);
     clearCart();
     setIsCartOpen(false);
+
+    // Auto-persist order to cloud database
+    fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ order: newOrder }),
+    }).catch(() => {});
+
     showToast(
       `تم إرسال طلبك رقم ${newOrder.orderNumber} بنجاح إلى متجر ${vendor.name}! في انتظار تأكيد توفر القطعة بالمخزن.`,
       'success'
@@ -1106,6 +1162,14 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: 'ready_for_driver' } : ord))
     );
+
+    // Persist status change to cloud database
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, updates: { status: 'ready_for_driver' } }),
+    }).catch(() => {});
+
     showToast('✓ القطعة متوفرة وتم التجهيز! الأوردر الآن متاح في رادار الطيارين للاستلام الفوري.', 'success');
   };
 
@@ -1128,6 +1192,16 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           : ord
       )
     );
+
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId,
+        updates: { status: 'cancelled_by_vendor', vendorRejectedReason: cancelReason },
+      }),
+    }).catch(() => {});
+
     showToast('تم إلغاء الطلب والاعتذار للعميل لعدم توفر المقاس بالمخزن.', 'error');
   };
 
@@ -1172,6 +1246,26 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           : ord
       )
     );
+
+    // Persist driver assignment to cloud database
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId,
+        updates: {
+          status: 'driver_assigned',
+          driverId: driver.id,
+          driverName: driver.name,
+          driverPhone: driver.phone,
+          driverAvatar: driver.avatarPhoto,
+          driverVehicle: driver.vehicle,
+          driverVehicleNumber: driver.vehicleNumber,
+          driverVehiclePhoto: driver.vehiclePhoto,
+        },
+      }),
+    }).catch(() => {});
+
     showToast(
       `تم قبول الطلب. توجه الآن إلى المحل (${orders.find((o) => o.id === orderId)?.vendorName}) لدفع الكاش واستلام الملابس`,
       'info'
@@ -1196,6 +1290,13 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: 'picked_up_paid_store' } : ord))
     );
+
+    // Persist store pickup to cloud database
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, updates: { status: 'picked_up_paid_store' } }),
+    }).catch(() => {});
 
     setVendors((prev) =>
       prev.map((v) => {
@@ -1238,6 +1339,13 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setOrders((prev) =>
       prev.map((ord) => (ord.id === orderId ? { ...ord, status: 'delivered' } : ord))
     );
+
+    // Persist delivered status to cloud database
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId, updates: { status: 'delivered' } }),
+    }).catch(() => {});
 
     if (targetOrder.driverId) {
       setDrivers((prev) =>
@@ -1303,6 +1411,23 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           : ord
       )
     );
+
+    // Persist rating to cloud database
+    fetch('/api/orders', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        orderId,
+        updates: {
+          status: 'delivered',
+          vendorRating: cleanVendorRating,
+          vendorReview: ratingData.vendorReview?.trim() || '',
+          driverRating: cleanDriverRating,
+          driverReview: ratingData.driverReview?.trim() || '',
+          ratedAt: nowStr,
+        },
+      }),
+    }).catch(() => {});
 
     if (wasNotDeliveredYet && targetOrder.driverId) {
       setDrivers((prev) =>
@@ -1511,6 +1636,13 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setSettlements((prev) => [newSettlement, ...prev]);
 
+    // Auto-persist settlement to cloud database
+    fetch('/api/settlements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settlement: newSettlement }),
+    }).catch(() => {});
+
     if (entityType === 'vendor') {
       setVendors((prev) =>
         prev.map((v) =>
@@ -1611,6 +1743,17 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       `تم تأكيد الاستلام بنجاح، وخصم ${target.amount.toLocaleString('ar-EG')} ج.م من مديونية ${target.entityName} وفتح الحساب.`,
       'success'
     );
+
+    // Persist approval to cloud database
+    fetch('/api/settlements', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settlementId,
+        status: 'approved',
+        adminNotes: adminNotes || 'تمت مطابقة المعاملة البنكية واعتماد السداد وتصفير المديونية',
+      }),
+    }).catch(() => {});
   };
 
   // Super Admin: Reject Settlement with Reason
@@ -1631,6 +1774,17 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           : s
       )
     );
+
+    // Persist rejection to cloud database
+    fetch('/api/settlements', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        settlementId,
+        status: 'rejected',
+        rejectionReason: reason,
+      }),
+    }).catch(() => {});
 
     if (target) {
       if (target.entityType === 'vendor') {
@@ -1736,6 +1890,13 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
 
     setSettlements((prev) => [newSettlement, ...prev]);
+
+    // Auto-persist settlement to cloud database
+    fetch('/api/settlements', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ settlement: newSettlement }),
+    }).catch(() => {});
     showToast(
       `تم تسجيل توريد كاش يدوي بقيمة ${amount.toLocaleString('ar-EG')} ج.م وتصفير جزء من مديونية ${entityName}`,
       'success'

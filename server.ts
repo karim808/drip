@@ -3,6 +3,8 @@ import express from 'express';
 import path from 'path';
 import authHandler from './api/auth';
 import mapsGroundingHandler from './api/maps-grounding';
+import ordersHandler from './api/orders';
+import settlementsHandler from './api/settlements';
 
 async function startServer() {
   const app = express();
@@ -16,6 +18,26 @@ async function startServer() {
       await authHandler(req, res);
     } catch (err) {
       console.error('Auth API error:', err);
+      res.status(500).json({ ok: false, error: 'Internal Server Error' });
+    }
+  });
+
+  // Server-side Orders Cloud Persistence API
+  app.all('/api/orders', async (req, res) => {
+    try {
+      await ordersHandler(req, res);
+    } catch (err) {
+      console.error('Orders API error:', err);
+      res.status(500).json({ ok: false, error: 'Internal Server Error' });
+    }
+  });
+
+  // Server-side Financial Settlements Vault API
+  app.all('/api/settlements', async (req, res) => {
+    try {
+      await settlementsHandler(req, res);
+    } catch (err) {
+      console.error('Settlements API error:', err);
       res.status(500).json({ ok: false, error: 'Internal Server Error' });
     }
   });

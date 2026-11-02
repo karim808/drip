@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, unique } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, unique, doublePrecision, integer, jsonb, boolean } from 'drizzle-orm/pg-core';
 
 export const portalCredentials = pgTable(
   'portal_credentials',
@@ -16,3 +16,77 @@ export const portalCredentials = pgTable(
     emailUnique: unique('portal_credentials_email_unique').on(table.email),
   })
 );
+
+export const ordersTable = pgTable('orders', {
+  id: text('id').primaryKey(),
+  orderNumber: text('order_number').notNull(),
+  customerId: text('customer_id'),
+  customerName: text('customer_name').notNull(),
+  customerPhone: text('customer_phone').notNull(),
+  customerArea: text('customer_area').notNull(),
+  customerAddress: text('customer_address').notNull(),
+  customerCoordinates: jsonb('customer_coordinates'),
+  paymentMethod: text('payment_method').notNull(),
+  vendorId: text('vendor_id').notNull(),
+  vendorName: text('vendor_name').notNull(),
+  vendorArea: text('vendor_area'),
+  vendorCoordinates: jsonb('vendor_coordinates'),
+  driverId: text('driver_id'),
+  driverName: text('driver_name'),
+  driverPhone: text('driver_phone'),
+  driverAvatar: text('driver_avatar'),
+  driverVehicle: text('driver_vehicle'),
+  driverVehicleNumber: text('driver_vehicle_number'),
+  driverVehiclePhoto: text('driver_vehicle_photo'),
+  items: jsonb('items').notNull(),
+  clothesTotal: doublePrecision('clothes_total').notNull(),
+  distanceKm: doublePrecision('distance_km').notNull(),
+  deliveryFee: doublePrecision('delivery_fee').notNull(),
+  totalAmount: doublePrecision('total_amount').notNull(),
+  vendorCommission: doublePrecision('vendor_commission').notNull(),
+  driverCommission: doublePrecision('driver_commission').notNull(),
+  status: text('status').notNull(),
+  returnReason: text('return_reason'),
+  returnCode: text('return_code'),
+  vendorRejectedReason: text('vendor_rejected_reason'),
+  returnReceivedAt: text('return_received_at'),
+  vendorRating: integer('vendor_rating'),
+  vendorReview: text('vendor_review'),
+  driverRating: integer('driver_rating'),
+  driverReview: text('driver_review'),
+  ratedAt: text('rated_at'),
+  notes: text('notes'),
+  createdAt: text('created_at').notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const settlementsTable = pgTable('settlements', {
+  id: text('id').primaryKey(),
+  entityType: text('entity_type').notNull(),
+  entityId: text('entity_id').notNull(),
+  entityName: text('entity_name').notNull(),
+  entityArea: text('entity_area'),
+  amount: doublePrecision('amount').notNull(),
+  method: text('method').notNull(),
+  transactionRef: text('transaction_ref').notNull(),
+  receiptImageUrl: text('receipt_image_url').notNull(),
+  receiptNotes: text('receipt_notes'),
+  status: text('status').notNull().default('pending'),
+  rejectionReason: text('rejection_reason'),
+  adminNotes: text('admin_notes'),
+  createdAt: text('created_at').notNull(),
+  resolvedAt: text('resolved_at'),
+});
+
+export const platformEntitiesTable = pgTable('platform_entities', {
+  id: text('id').primaryKey(),
+  entityType: text('entity_type').notNull(),
+  entityId: text('entity_id').notNull(),
+  currentDebt: doublePrecision('current_debt').notNull().default(0),
+  debtLimit: doublePrecision('debt_limit').notNull().default(3000),
+  totalSales: doublePrecision('total_sales').notNull().default(0),
+  totalTrips: integer('total_trips').notNull().default(0),
+  totalEarnings: doublePrecision('total_earnings').notNull().default(0),
+  status: text('status').notNull().default('active'),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+});
