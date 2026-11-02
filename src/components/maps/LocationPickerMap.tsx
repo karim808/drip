@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Map, AdvancedMarker, useMap } from '@vis.gl/react-google-maps';
 import { MapPin, Navigation, Compass, Check, Store, Info } from 'lucide-react';
 import { calculateGeoDistanceKm, getCairoAreaName } from '../../data/mockData';
+import { resolveUserLocation, reverseGeocodeLocation } from '../../utils/geolocation';
 import { Vendor } from '../../types';
 
 interface LocationPickerMapProps {
@@ -59,43 +60,56 @@ export const LocationPickerMap: React.FC<LocationPickerMapProps> = ({
   );
   const roadDistanceKm = Math.max(1.5, Math.round(directDistanceKm * 1.25 * 10) / 10);
 
-  const updateLocation = (newCoords: { lat: number; lng: number }) => {
+  const updateLocation = async (newCoords: { lat: number; lng: number }) => {
     setSelectedCoords(newCoords);
-    const areaName = getCairoAreaName(newCoords.lat, newCoords.lng);
-    setSelectedArea(areaName);
-    const directDist = calculateGeoDistanceKm(
-      vendorCoords.lat,
-      vendorCoords.lng,
-      newCoords.lat,
-      newCoords.lng
-    );
-    const roadDist = Math.max(1.5, Math.round(directDist * 1.25 * 10) / 10);
-    onLocationSelected(newCoords, areaName, roadDist);
+    try {
+      const geo = await reverseGeocodeLocation(newCoords.lat, newCoords.lng, true);
+      setSelectedArea(geo.areaName);
+      onAddressDetailChange(geo.address);
+      const directDist = calculateGeoDistanceKm(
+        vendorCoords.lat,
+        vendorCoords.lng,
+        newCoords.lat,
+        newCoords.lng
+      );
+      const roadDist = Math.max(1.5, Math.round(directDist * 1.25 * 10) / 10);
+      onLocationSelected(newCoords, geo.areaName, roadDist);
+    } catch {
+      const areaName = getCairoAreaName(newCoords.lat, newCoords.lng);
+      setSelectedArea(areaName);
+      const directDist = calculateGeoDistanceKm(
+        vendorCoords.lat,
+        vendorCoords.lng,
+        newCoords.lat,
+        newCoords.lng
+      );
+      const roadDist = Math.max(1.5, Math.round(directDist * 1.25 * 10) / 10);
+      onLocationSelected(newCoords, areaName, roadDist);
+    }
   };
 
-  const handleUseGps = () => {
-    if (!navigator.geolocation) {
-      setGpsError('خاصية تحديد الموقع غير مدعومة في متصفحك.');
-      return;
-    }
+  const handleUseGps = async () => {
     setIsLocating(true);
     setGpsError(null);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setIsLocating(false);
-        const coords = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-        };
-        updateLocation(coords);
-      },
-      (err) => {
-        setIsLocating(false);
-        console.warn('Geolocation error:', err);
-        setGpsError('تعذر الحصول على إحداثيات GPS. يمكنك النقر على الخريطة مباشرة.');
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
+    try {
+      const loc = await resolveUserLocation(true);
+      setSelectedCoords(loc.coords);
+      setSelectedArea(loc.areaName);
+      onAddressDetailChange(loc.address);
+      const directDist = calculateGeoDistanceKm(
+        vendorCoords.lat,
+        vendorCoords.lng,
+        loc.coords.lat,
+        loc.coords.lng
+      );
+      const roadDist = Math.max(1.5, Math.round(directDist * 1.25 * 10) / 10);
+      onLocationSelected(loc.coords, loc.areaName, roadDist);
+    } catch (err) {
+      console.warn('Geolocation error:', err);
+      setGpsError('تعذر الحصول على إحداثيات GPS. يمكنك النقر على الخريطة مباشرة.');
+    } finally {
+      setIsLocating(false);
+    }
   };
 
   return (

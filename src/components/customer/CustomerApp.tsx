@@ -42,6 +42,7 @@ import {
 import { CustomerPaymentMethod, CustomerUser, Order, OrderStatus, Product as BackendProduct, Vendor } from '../../types';
 import { LocationPickerMap } from '../maps/LocationPickerMap';
 import { calculateGeoDistanceKm, getCairoAreaName } from '../../data/mockData';
+import { resolveUserLocation } from '../../utils/geolocation';
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 const fastDripMark = "/brand/fast-drip-mark.webp"
 
@@ -731,39 +732,30 @@ function CartPanel({
   const dynamicDeliveryFee = calculateDeliveryFee(roadDistanceKm);
   const total = clothesTotal + dynamicDeliveryFee;
 
-  const handleUseGps = () => {
-    if (!navigator.geolocation) {
-      showToast(isArabic ? 'متصفحك لا يدعم قراءة الـ GPS' : 'Geolocation is not supported', 'error');
-      return;
-    }
+  const handleUseGps = async () => {
     setIsLocatingGps(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setIsLocatingGps(false);
-        const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setCustomerCoords(coords);
-        const detectedArea = getCairoAreaName(coords.lat, coords.lng);
-        setDeliveryAddress(`${detectedArea} (موقع GPS محدد)`);
-        showToast(
-          isArabic
-            ? `📍 تم التقاط موقعك (${detectedArea}) وتحديث المسافة وتكلفة الشحن!`
-            : `📍 GPS detected: ${detectedArea}`,
-          'success'
-        );
-      },
-      (err) => {
-        setIsLocatingGps(false);
-        console.warn('Geolocation error:', err);
-        showToast(
-          isArabic
-            ? 'يرجى السماح بصلاحية الموقع في المتصفح، أو انقر على الخريطة لتحديده مباشرة'
-            : 'Please allow location permission or pick on the map',
-          'error'
-        );
-        setIsMapModalOpen(true);
-      },
-      { timeout: 10000, enableHighAccuracy: true }
-    );
+    try {
+      const loc = await resolveUserLocation(isArabic);
+      setCustomerCoords(loc.coords);
+      setDeliveryAddress(loc.address);
+      showToast(
+        isArabic
+          ? `📍 تم التقاط موقعك (${loc.areaName}) بنجاح وتحديث مسار الشحن!`
+          : `📍 Location detected: ${loc.areaName}`,
+        'success'
+      );
+    } catch (err) {
+      console.warn('Geolocation resolution error:', err);
+      showToast(
+        isArabic
+          ? 'يرجى النقر على الخريطة لتحديد موقعك مباشرة'
+          : 'Please pick your location on the map',
+        'info'
+      );
+      setIsMapModalOpen(true);
+    } finally {
+      setIsLocatingGps(false);
+    }
   };
 
   return (
@@ -2052,6 +2044,7 @@ function LocationPickerModal({
     { nameEn: "Nasr City", nameAr: "مدينة نصر", time: "25–35 min" },
     { nameEn: "Downtown Cairo", nameAr: "وسط البلد والتحرير", time: "20–30 min" },
   ]
+  const [isDetecting, setIsDetecting] = useState(false)
 
   return (
     <motion.div
@@ -2084,6 +2077,43 @@ function LocationPickerModal({
             : "Courier ETA and delivery rates are dynamically optimized based on partner boutiques near your zone."}
         </p>
         <div className="location-picker-grid">
+          <button
+            type="button"
+            disabled={isDetecting}
+            onClick={async () => {
+              setIsDetecting(true)
+              try {
+                const loc = await resolveUserLocation(isArabic)
+                onSelectLocation(loc.areaName)
+                onClose()
+              } finally {
+                setIsDetecting(false)
+              }
+            }}
+            className="location-option-btn"
+            style={{
+              gridColumn: '1 / -1',
+              border: '1px solid var(--lime)',
+              background: 'rgba(209, 254, 23, 0.08)',
+              padding: '12px 14px'
+            }}
+          >
+            <div>
+              <strong style={{ color: 'var(--lime)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <Navigation size={14} className={isDetecting ? 'animate-spin' : ''} />
+                {isDetecting
+                  ? (isArabic ? "جاري تحديد موقعك الجغرافي..." : "Detecting your location...")
+                  : (isArabic ? "📍 موقعي الحالي تلقائياً (GPS / مباشر)" : "📍 Auto-Detect My Location (GPS)")}
+              </strong>
+              <small style={{ display: 'block', color: 'var(--muted)', fontSize: '11px', marginTop: '3px' }}>
+                {isArabic ? "التقاط فوري لموقعك وحساب أقرب فرع ومسار الشحن" : "Instant location detection via GPS & Network"}
+              </small>
+            </div>
+            <span style={{ fontSize: '11px', color: 'var(--lime)', fontWeight: 700, fontFamily: "'DM Mono', monospace" }}>
+              INSTANT
+            </span>
+          </button>
+
           {cairoAreas.map((area) => (
             <button
               key={area.nameEn}
