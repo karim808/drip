@@ -1,7 +1,6 @@
 import { usePlatform } from '../../context/PlatformContext';
 import React from "react"
 import { useEffect, useState } from "react"
-// router replaced with standalone state
 import {
   ArrowDown,
   ArrowLeft,
@@ -29,19 +28,37 @@ import {
   Truck,
   X,
   Zap,
+  User,
+  LogOut,
+  Star,
+  Phone,
+  CreditCard,
+  Wallet,
+  AlertCircle,
+  CheckCircle2,
+  Package,
+  ListOrdered,
 } from "lucide-react"
+import { CustomerPaymentMethod, CustomerUser, Order, OrderStatus, Product as BackendProduct } from '../../types';
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 const fastDripMark = "/brand/fast-drip-mark.webp"
 
 type Product = {
-  id: number
+  id: string | number
   name: string
   brand: string
+  vendorId?: string
   price: number
+  originalPrice?: number
   image: string
   tag?: string
   color: string
-  category: "T-Shirts" | "Shirts" | "Hoodies & Sweatshirts" | "Jackets" | "Pants" | "Jeans" | "Shorts" | "Sneakers" | "Accessories"
+  category: string
+  sizes?: string[]
+  inStock?: boolean
+  description?: string
+  fabricDetails?: string
+  fitType?: string
 }
 
 const images = {
@@ -237,6 +254,7 @@ const existingSizes = ["XS", "S", "M", "L", "XL"]
 const stores = [
   {
     name: "UNTITLED CAIRO",
+    vendorId: "v-1",
     location: "Maadi, Degla",
     time: "25–35 min",
     image:
@@ -246,6 +264,7 @@ const stores = [
   },
   {
     name: "SHABAB CO.",
+    vendorId: "v-2",
     location: "Zamalek",
     time: "18–25 min",
     image:
@@ -255,6 +274,7 @@ const stores = [
   },
   {
     name: "ZAG STORE",
+    vendorId: "v-3",
     location: "New Cairo",
     time: "30–40 min",
     image:
@@ -264,6 +284,7 @@ const stores = [
   },
   {
     name: "OVERSIZED EG",
+    vendorId: "v-4",
     location: "Heliopolis, Korba",
     time: "25–35 min",
     image:
@@ -273,6 +294,7 @@ const stores = [
   },
   {
     name: "NOIR ATELIER",
+    vendorId: "v-5",
     location: "Sheikh Zayed, Arkan",
     time: "35–45 min",
     image:
@@ -285,6 +307,9 @@ const stores = [
 type PartnerStore = typeof stores[number]
 type PendingStoreSwitch = {
   store: PartnerStore
+  pendingProduct?: Product
+  pendingSize?: string
+  pendingQuantity?: number
 }
 
 const ease = [0.22, 1, 0.36, 1] as const
@@ -431,12 +456,18 @@ function ProductModal({
   product,
   onClose,
   onAdd,
+  isArabic = false,
 }: {
   product: Product
   onClose: () => void
-  onAdd: (product: Product) => void
+  onAdd: (product: Product, size: string, quantity: number) => void
+  isArabic?: boolean
 }) {
-  const [size, setSize] = useState("M")
+  const availableSizes = product.sizes && product.sizes.length > 0 ? product.sizes : ["XS", "S", "M", "L", "XL"]
+  const [size, setSize] = useState(availableSizes[0] || "M")
+  const [quantity, setQuantity] = useState(1)
+  const isOutOfStock = product.inStock === false
+
   return (
     <motion.div
       className="modal-backdrop"
@@ -464,25 +495,26 @@ function ProductModal({
           </IconButton>
         </div>
         <div className="modal-content">
-          <span className="eyebrow">Sold by / {product.brand}</span>
+          <span className="eyebrow">{isArabic ? "المتجر الرسمي" : "Sold by"} / {product.brand}</span>
           <div className="modal-title">
             <h2>{product.name}</h2>
             <strong>{formatPrice(product.price)}</strong>
           </div>
           <p>
-            Available directly from {product.brand}. One local checkout, with
-            pickup from the store and delivery across Cairo in under 45 minutes.
+            {product.description || (isArabic
+              ? `متوفر مباشرة وحصرياً من متجر ${product.brand}. استلام وتجهيز فوري مع توصيل مباشر في القاهرة خلال أقل من 45 دقيقة.`
+              : `Available directly from ${product.brand}. One local checkout, with pickup from the store and delivery across Cairo in under 45 minutes.`)}
           </p>
           <div className="product-assurance">
             <span>
-              <PackageCheck size={15} /> Stock confirmed 2 min ago
+              <PackageCheck size={15} /> {isArabic ? "المخزون مؤكد وفحص فوري" : "Stock confirmed 2 min ago"}
             </span>
             <span>
-              <Eye size={15} /> Inspect before accepting at your door
+              <Eye size={15} /> {isArabic ? "عاين القطع قبل الاستلام عند بابك" : "Inspect before accepting at your door"}
             </span>
           </div>
           <div className="sizes" aria-label="Select size">
-            {["XS", "S", "M", "L", "XL"].map((item) => (
+            {availableSizes.map((item) => (
               <button
                 key={item}
                 className={size === item ? "selected" : ""}
@@ -492,14 +524,46 @@ function ProductModal({
               </button>
             ))}
           </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '14px 0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--muted)', textTransform: 'uppercase', fontFamily: "'DM Mono', monospace" }}>
+              {isArabic ? "الكمية المطلوبة" : "Quantity"}
+            </span>
+            <div className="cart-qty-controls">
+              <button
+                type="button"
+                className="cart-qty-btn"
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              >
+                -
+              </button>
+              <strong style={{ minWidth: '24px', textAlign: 'center', fontSize: '14px' }}>{quantity}</strong>
+              <button
+                type="button"
+                className="cart-qty-btn"
+                onClick={() => setQuantity(quantity + 1)}
+              >
+                +
+              </button>
+            </div>
+          </div>
+
           <button
             className="primary-button wide"
-            onClick={() => onAdd(product)}
+            disabled={isOutOfStock}
+            onClick={() => onAdd(product, size, quantity)}
+            style={isOutOfStock ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
           >
-            Add to bag <span>{formatPrice(product.price)}</span>
+            {isOutOfStock
+              ? (isArabic ? "نفذت الكمية حالياً" : "Out of stock")
+              : (
+                <>
+                  {isArabic ? "أضف إلى السلة" : "Add to bag"} <span>{formatPrice(product.price * quantity)}</span>
+                </>
+              )}
           </button>
           <span className="delivery-note">
-            <Zap size={15} /> Cairo delivery in 25–35 minutes
+            <Zap size={15} /> {isArabic ? "توصيل القاهرة خلال 25–35 دقيقة" : "Cairo delivery in 25–35 minutes"}
           </span>
         </div>
       </motion.article>
@@ -589,19 +653,56 @@ function CartPanel({
   cart,
   onClose,
   onRemove,
+  onUpdateQuantity,
   onCheckout,
+  currentCustomer,
+  location,
+  deliveryFee,
+  isArabic,
+  onRequestAuth,
 }: {
-  cart: Product[]
+  cart: { product: BackendProduct; size: string; quantity: number }[]
   onClose: () => void
-  onRemove: (productId: number) => void
-  onCheckout: () => void
+  onRemove: (productId: string, size: string) => void
+  onUpdateQuantity: (productId: string, size: string, qty: number) => void
+  onCheckout: (details: {
+    address: string
+    phone: string
+    paymentMethod: CustomerPaymentMethod
+    notes: string
+  }) => void
+  currentCustomer: CustomerUser | null
+  location: string
+  deliveryFee: number
+  isArabic: boolean
+  onRequestAuth: () => void
 }) {
-  const total = cart.reduce((sum, product) => sum + product.price, 0)
-  const cartStores = [...new Set(cart.map((product) => product.brand))]
+  const clothesTotal = cart.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0,
+  )
+  const cartStores = [...new Set(cart.map((item) => item.product.vendorName))]
   const selectedCartStore = stores.find((store) => store.name === cartStores[0])
   const deliveryTimes = selectedCartStore?.time.match(/\d+/g)?.map(Number) ?? []
   const deliveryMax = deliveryTimes.length ? Math.max(...deliveryTimes) : 999
   const qualifiesForFastDelivery = deliveryMax <= 60
+
+  const [deliveryAddress, setDeliveryAddress] = useState(
+    currentCustomer?.address || location || "Zamalek, Cairo",
+  )
+  const [customerPhone, setCustomerPhone] = useState(
+    currentCustomer?.phone || "",
+  )
+  const [paymentMethod, setPaymentMethod] =
+    useState<CustomerPaymentMethod>("cash_on_delivery")
+  const [orderNotes, setOrderNotes] = useState("")
+
+  useEffect(() => {
+    if (currentCustomer?.address) setDeliveryAddress(currentCustomer.address)
+    if (currentCustomer?.phone) setCustomerPhone(currentCustomer.phone)
+  }, [currentCustomer])
+
+  const total = clothesTotal + deliveryFee
 
   return (
     <motion.div
@@ -613,21 +714,25 @@ function CartPanel({
     >
       <motion.aside
         className="cart-panel"
-        initial={{ x: "100%" }}
+        initial={{ x: isArabic ? "-100%" : "100%" }}
         animate={{ x: 0 }}
-        exit={{ x: "100%" }}
+        exit={{ x: isArabic ? "-100%" : "100%" }}
         transition={{ duration: 0.4, ease }}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="panel-head">
           <div>
-            <span className="eyebrow">Your bag</span>
-            <h2>{cart.length} ITEMS</h2>
+            <span className="eyebrow">{isArabic ? "حقيبة التسوق" : "Your bag"}</span>
+            <h2>
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}{" "}
+              {isArabic ? "قطعة" : "ITEMS"}
+            </h2>
           </div>
           <IconButton label="Close bag" onClick={onClose}>
             <X size={20} />
           </IconButton>
         </div>
+
         <div className="cart-items">
           {cartStores.map((storeName) => {
             const store = stores.find((item) => item.name === storeName)
@@ -637,21 +742,57 @@ function CartPanel({
                   <span>
                     <Store size={13} /> {storeName}
                   </span>
-                  <small>{store?.time}</small>
+                  <small>{store?.time || "25–35 min"}</small>
                 </header>
                 {cart
-                  .filter((product) => product.brand === storeName)
-                  .map((product, index) => (
-                    <article key={`${product.id}-${index}`}>
-                      <img src={product.image} alt="" />
+                  .filter((item) => item.product.vendorName === storeName)
+                  .map((item, index) => (
+                    <article key={`${item.product.id}-${item.size}-${index}`}>
+                      <img src={item.product.image} alt={item.product.name} />
                       <div>
-                        <small>{product.color}</small>
-                        <strong>{product.name}</strong>
-                        <span>{formatPrice(product.price)}</span>
+                        <small>
+                          {item.product.color || "Standard"} ·{" "}
+                          <span style={{ color: "var(--lime)", fontWeight: 700 }}>
+                            {isArabic ? "مقاس" : "Size"} {item.size}
+                          </span>
+                        </small>
+                        <strong>{item.product.name}</strong>
+                        <span>{formatPrice(item.product.price)}</span>
+                        <div className="cart-qty-controls">
+                          <button
+                            type="button"
+                            className="cart-qty-btn"
+                            onClick={() =>
+                              onUpdateQuantity(
+                                item.product.id,
+                                item.size,
+                                item.quantity - 1,
+                              )
+                            }
+                          >
+                            -
+                          </button>
+                          <span style={{ fontSize: "12px", minWidth: "16px", textAlign: "center" }}>
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            className="cart-qty-btn"
+                            onClick={() =>
+                              onUpdateQuantity(
+                                item.product.id,
+                                item.size,
+                                item.quantity + 1,
+                              )
+                            }
+                          >
+                            +
+                          </button>
+                        </div>
                       </div>
                       <IconButton
-                        label={`Remove ${product.name}`}
-                        onClick={() => onRemove(product.id)}
+                        label={`Remove ${item.product.name}`}
+                        onClick={() => onRemove(item.product.id, item.size)}
                       >
                         <Trash2 size={16} />
                       </IconButton>
@@ -660,35 +801,135 @@ function CartPanel({
               </section>
             )
           })}
+
           {cart.length === 0 && (
             <div className="empty-state">
               <ShoppingBag size={30} />
-              <p>Your test bag is empty.</p>
+              <p>{isArabic ? "حقيبة التسوق فارغة حالياً." : "Your shopping bag is empty."}</p>
               <button className="text-link" onClick={onClose}>
-                Start shopping <ArrowRight size={15} />
+                {isArabic ? "ابدأ التسوق الآن" : "Start shopping"}{" "}
+                <ArrowRight size={15} />
               </button>
             </div>
           )}
         </div>
+
         {cart.length > 0 && (
           <div className="cart-summary">
             {qualifiesForFastDelivery && (
               <span className="cart-fast-delivery">
-                <Zap size={15} /> Estimated delivery within 60 minutes
+                <Zap size={15} />{" "}
+                {isArabic
+                  ? "توصيل سريع مباشر من المتجر خلال 45 دقيقة"
+                  : "Direct boutique delivery within 45 minutes"}
               </span>
             )}
             <p className="inspection-note">
-              <Eye size={15} /> Inspect every item before accepting. Return it
-              with the rider if it is not right.
+              <Eye size={15} />{" "}
+              {isArabic
+                ? "افحص كافة القطع وجرب المقاس عند بابك قبل الدفع والاستلام."
+                : "Inspect every item before accepting. Return with courier if not right."}
             </p>
-            <span>
-              Order from {cartStores[0]} · total{" "}
-              <strong>{formatPrice(total)}</strong>
-            </span>
-            <button className="primary-button wide" onClick={onCheckout}>
-              Confirm & Place Order <ArrowRight size={17} />
-            </button>
-            <small>No payment will be processed.</small>
+
+            <div className="checkout-address-box">
+              <label>
+                {isArabic ? "عنوان التوصيل في القاهرة:" : "Cairo Delivery Address:"}
+              </label>
+              <input
+                type="text"
+                value={deliveryAddress}
+                onChange={(e) => setDeliveryAddress(e.target.value)}
+                placeholder={isArabic ? "مثال: الزمالك، شارع حسن مظهر" : "e.g. Zamalek, Hassan Mazhar St"}
+              />
+            </div>
+
+            <div className="checkout-address-box">
+              <label>
+                {isArabic ? "رقم الهاتف للتواصل:" : "Contact Phone Number:"}
+              </label>
+              <input
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+                placeholder="010XXXXXXXX"
+              />
+            </div>
+
+            <div style={{ marginTop: '10px' }}>
+              <span style={{ fontSize: '10px', fontFamily: "'DM Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--muted)' }}>
+                {isArabic ? "طريقة الدفع:" : "Payment Method:"}
+              </span>
+              <div className="checkout-payment-methods">
+                <button
+                  type="button"
+                  className={`payment-method-chip ${paymentMethod === 'cash_on_delivery' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('cash_on_delivery')}
+                >
+                  <Wallet size={16} />
+                  <span>{isArabic ? "كاش عند الاستلام" : "Cash on Delivery"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`payment-method-chip ${paymentMethod === 'instapay' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('instapay')}
+                >
+                  <Zap size={16} />
+                  <span>{isArabic ? "إنستاباي IPN" : "InstaPay IPN"}</span>
+                </button>
+                <button
+                  type="button"
+                  className={`payment-method-chip ${paymentMethod === 'vodafone_cash' ? 'selected' : ''}`}
+                  onClick={() => setPaymentMethod('vodafone_cash')}
+                >
+                  <CreditCard size={16} />
+                  <span>{isArabic ? "فودافون كاش" : "Vodafone Cash"}</span>
+                </button>
+              </div>
+            </div>
+
+            <div style={{ padding: '10px 0', borderTop: '1px solid var(--line)', borderBottom: '1px solid var(--line)', margin: '12px 0', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
+                <span>{isArabic ? "سعر القطع:" : "Items Subtotal:"}</span>
+                <span>{formatPrice(clothesTotal)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
+                <span>{isArabic ? "خدمة التوصيل السريع:" : "Express Courier Fee:"}</span>
+                <span>{formatPrice(deliveryFee)}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '14px', color: 'var(--white)', paddingTop: '4px' }}>
+                <span>{isArabic ? "الإجمالي المستحق:" : "Total Amount:"}</span>
+                <strong style={{ color: 'var(--lime)' }}>{formatPrice(total)}</strong>
+              </div>
+            </div>
+
+            {!currentCustomer ? (
+              <div>
+                <p style={{ fontSize: '11px', color: '#ffb347', marginBottom: '8px', textAlign: 'center' }}>
+                  {isArabic
+                    ? "🔐 يرجى تسجيل الدخول أو إنشاء حساب لإتمام الطلب"
+                    : "🔐 Please sign in or create an account to complete your order"}
+                </p>
+                <button className="primary-button wide" onClick={onRequestAuth}>
+                  {isArabic ? "تسجيل الدخول لإتمام الطلب" : "Sign in to Checkout"}{" "}
+                  <ArrowRight size={17} />
+                </button>
+              </div>
+            ) : (
+              <button
+                className="primary-button wide"
+                onClick={() =>
+                  onCheckout({
+                    address: deliveryAddress,
+                    phone: customerPhone,
+                    paymentMethod,
+                    notes: orderNotes,
+                  })
+                }
+              >
+                {isArabic ? "تأكيد وإرسال الطلب" : "Confirm & Place Order"} · {formatPrice(total)}{" "}
+                <ArrowRight size={17} />
+              </button>
+            )}
           </div>
         )}
       </motion.aside>
@@ -1240,21 +1481,148 @@ function DedicatedStorefrontPage({
 }
 
 function OrderTracker({
-  storeName,
-  destination,
+  order,
   onClose,
+  onSubmitRating,
+  isArabic = false,
 }: {
-  storeName: string
-  destination: string
+  order: Order | null
   onClose: () => void
+  onSubmitRating?: (
+    orderId: string,
+    ratingData: {
+      vendorRating: number
+      driverRating?: number
+      vendorReview?: string
+      driverReview?: string
+    },
+  ) => void
+  isArabic?: boolean
 }) {
-  const [stage, setStage] = useState(1)
+  if (!order) return null
+
+  const [vendorStars, setVendorStars] = useState(5)
+  const [driverStars, setDriverStars] = useState(5)
+  const [ratingSubmitted, setRatingSubmitted] = useState(false)
+
+  const getStageInfo = (status: OrderStatus) => {
+    switch (status) {
+      case "pending_vendor":
+        return {
+          stage: 0,
+          eta: isArabic ? "٢٨–٣٥ دقيقة" : "28–35 min",
+          title: isArabic
+            ? "تم إرسال الطلب للمتجر · جاري فحص المقاس"
+            : "Order confirmed · Boutique checking stock",
+          desc: isArabic
+            ? "يقوم المتجر الآن بمراجعة القطعة وتغليفها بختم FAST DRIP الأمني."
+            : "The partner store is preparing your items and checking physical inventory.",
+        }
+      case "ready_for_driver":
+        return {
+          stage: 1,
+          eta: isArabic ? "٢٠–٢٨ دقيقة" : "20–28 min",
+          title: isArabic
+            ? "تم تأكيد وتغليف الطلب · جاري تعيين كابتن"
+            : "Order packaged · Searching for nearest courier",
+          desc: isArabic
+            ? "الطلب جاهز للاستلام الفوري وجاري توجيه كابتن التوصيل للمتجر."
+            : "Pieces verified with security tag. Locating nearest courier.",
+        }
+      case "driver_assigned":
+        return {
+          stage: 2,
+          eta: isArabic ? "١٥–٢٢ دقيقة" : "15–22 min",
+          title: isArabic
+            ? `الكابتن ${order.driverName || ""} في الطريق للمتجر`
+            : `${order.driverName || "Courier"} heading to store`,
+          desc: isArabic
+            ? `الكابتن يتحرك الآن لاستلام قطعك من متجر ${order.vendorName}.`
+            : `Courier assigned and en route to ${order.vendorName}.`,
+        }
+      case "picked_up_paid_store":
+        return {
+          stage: 2,
+          eta: isArabic ? "٨–١٤ دقيقة" : "8–14 min",
+          title: isArabic
+            ? "الكابتن استلم الطلب وفي طريقه لعنوانك"
+            : `${order.driverName || "Courier"} picked up order · Out for delivery`,
+          desc: isArabic
+            ? "الطلب في الطريق إليك الآن. جهز نفسك لمعاينة القطع عند الباب."
+            : "Courier is heading directly to your destination.",
+        }
+      case "delivered":
+        return {
+          stage: 3,
+          eta: isArabic ? "تم التسليم بنجاح ✓" : "Delivered · Drip in hand ✓",
+          title: isArabic
+            ? "تم تسليم وفحص الطلب بنجاح"
+            : "Delivered & Inspected",
+          desc: isArabic
+            ? "استمتع بستايلك الجديد! نسعد بتقييم تجربتك مع المتجر والكابتن."
+            : "Enjoy your new drip! Please rate your experience below.",
+        }
+      case "cancelled_by_vendor":
+        return {
+          stage: -1,
+          eta: isArabic ? "طلب ملغي" : "Cancelled",
+          title: isArabic
+            ? "اعتذر المتجر لعدم توفر المقاس بالمخزن"
+            : "Cancelled: boutique out of stock",
+          desc: isArabic
+            ? "تم إلغاء الطلب نظراً لعدم توفر المقاس بالمتجر الفيزيائي. لم يتم خصم أي مبالغ."
+            : "Item was sold out in physical store. No payment charged.",
+        }
+      default:
+        return {
+          stage: 1,
+          eta: "20–30 min",
+          title: "Processing order",
+          desc: "FAST DRIP courier network active",
+        }
+    }
+  }
+
+  const stageInfo = getStageInfo(order.status)
+  const isDelivered = order.status === "delivered"
+  const isCancelled = order.status === "cancelled_by_vendor"
+
   const steps = [
-    ["Order placed", "Your order is confirmed and sent to store"],
-    ["Store confirmed", "Inventory secured at each partner"],
-    ["Rider collecting", "Pickup route is optimized"],
-    ["Arriving", "Inspect items before accepting"],
+    [
+      isArabic ? "تم تقديم الطلب" : "Order placed",
+      isArabic ? "تم تأكيد طلبك وإرساله للمتجر" : "Your order is confirmed and sent to store",
+    ],
+    [
+      isArabic ? "المتجر أكد التوفر" : "Store confirmed",
+      order.status === "pending_vendor"
+        ? isArabic ? "المتجر يفحص المقاس في البوتيك" : "Boutique verifying physical size"
+        : isArabic ? "تم فحص المقاس وتغليفه بالختم الأمني" : "Inventory secured at partner store",
+    ],
+    [
+      isArabic ? "الكابتن استلم وفي الطريق" : "Rider collecting & en route",
+      order.driverName
+        ? isArabic
+          ? `${order.driverName} على الطريق (${order.driverVehicle || "دراجة نارية"})`
+          : `${order.driverName} on the way (${order.driverVehicle || "Motorcycle"})`
+        : isArabic ? "جاري تحسين مسار الكابتن الأقرب" : "Pickup route is optimized",
+    ],
+    [
+      isArabic ? "الوصول والفحص عند الباب" : "Arrived & Inspected",
+      isArabic ? "افحص القطع قبل الاستلام والدفع" : "Inspect items before accepting",
+    ],
   ]
+
+  const handleRatingSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (onSubmitRating) {
+      onSubmitRating(order.id, {
+        vendorRating: vendorStars,
+        driverRating: driverStars,
+      })
+    }
+    setRatingSubmitted(true)
+  }
+
   return (
     <motion.div
       className="modal-backdrop panel-backdrop"
@@ -1273,48 +1641,435 @@ function OrderTracker({
       >
         <div className="panel-head">
           <div>
-            <span className="eyebrow">Live Order / FD-2030</span>
-            <h2>TRACK THE DRIP</h2>
+            <span className="eyebrow">
+              {isArabic ? "طلب مباشر" : "Live Order"} / {order.orderNumber}
+            </span>
+            <h2>{isArabic ? "تتبع الستايل" : "TRACK THE DRIP"}</h2>
           </div>
           <IconButton label="Close order tracking" onClick={onClose}>
             <X size={20} />
           </IconButton>
         </div>
-        <div className="order-eta">
+
+        <div className="order-eta" style={isDelivered ? { background: '#22c55e', color: '#fff' } : isCancelled ? { background: '#ef4444', color: '#fff' } : {}}>
           <Navigation size={20} />
           <span>
-            <small>Estimated arrival</small>
-            <strong>{stage === 3 ? "8–12 min" : "24–32 min"}</strong>
+            <small>{isArabic ? "الوقت المتوقع للوصول" : "Estimated arrival"}</small>
+            <strong>{stageInfo.eta}</strong>
           </span>
         </div>
+
         <div className="order-route">
           <span>
-            <Store size={15} /> From <strong>{storeName}</strong>
+            <Store size={15} /> {isArabic ? "من" : "From"} <strong>{order.vendorName}</strong>
           </span>
           <ArrowRight size={15} />
           <span>
-            <MapPin size={15} /> To <strong>{destination}</strong>
+            <MapPin size={15} /> {isArabic ? "إلى" : "To"}{" "}
+            <strong>{order.customerAddress || order.customerArea || "Cairo"}</strong>
           </span>
         </div>
+
+        {!isDelivered && !isCancelled && (
+          <div className="live-pulse-badge">
+            <span className="pulse-dot" />
+            <span>
+              {isArabic
+                ? "تتبع مباشر وتحديث لحظي من النظام"
+                : "Live dispatch & GPS status active"}
+            </span>
+          </div>
+        )}
+
+        {/* Real Dynamic Steps */}
         <div className="order-steps">
-          {steps.map(([title, text], index) => (
-            <div key={title} className={index <= stage ? "complete" : ""}>
-              <i>{index < stage ? <Check size={14} /> : index + 1}</i>
-              <span>
-                <strong>{title}</strong>
-                <small>{text}</small>
-              </span>
+          {steps.map(([title, text], index) => {
+            const isComplete = !isCancelled && (index <= stageInfo.stage || (index === 0))
+            const isCurrent = !isCancelled && index === stageInfo.stage
+            return (
+              <div
+                key={title}
+                className={isComplete ? "complete" : ""}
+                style={isCurrent ? { opacity: 1 } : {}}
+              >
+                <i>{isComplete ? <Check size={14} /> : index + 1}</i>
+                <span>
+                  <strong>{title}</strong>
+                  <small>{text}</small>
+                </span>
+              </div>
+            )
+          })}
+        </div>
+
+        {/* Courier Info Card */}
+        {order.driverName && (
+          <div className="order-driver-card">
+            <div className="order-driver-info">
+              <div className="order-driver-avatar">
+                <Truck size={18} />
+              </div>
+              <div className="order-driver-details">
+                <strong>{order.driverName}</strong>
+                <small>
+                  {order.driverVehicle || "سكوتر"} ·{" "}
+                  {order.driverVehicleNumber || "مرخص رسمي"}
+                </small>
+              </div>
+            </div>
+            {order.driverPhone && (
+              <a
+                href={`tel:${order.driverPhone}`}
+                className="order-driver-call"
+              >
+                <Phone size={13} />
+                <span>{isArabic ? "اتصال بالكابتن" : "Call Courier"}</span>
+              </a>
+            )}
+          </div>
+        )}
+
+        {/* Order Items Preview */}
+        <div className="order-items-preview">
+          <span className="order-items-title">
+            {isArabic ? "محتويات الطلب" : "ORDER ITEMS"} ({order.items.length})
+          </span>
+          {order.items.map((item, idx) => (
+            <div key={idx} className="order-item-row">
+              <div className="order-item-meta">
+                <img src={item.product.image} alt={item.product.name} />
+                <span>
+                  <strong>{item.product.name}</strong>
+                  <small>
+                    {isArabic ? "مقاس" : "Size"} {item.size} × {item.quantity}
+                  </small>
+                </span>
+              </div>
+              <strong>{formatPrice(item.product.price * item.quantity)}</strong>
             </div>
           ))}
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: '12px' }}>
+            <span style={{ color: 'var(--muted)' }}>
+              {isArabic ? "إجمالي الطلب مع التوصيل:" : "Total with Delivery:"}
+            </span>
+            <strong style={{ color: 'var(--lime)', fontSize: '13px' }}>
+              {formatPrice(order.totalAmount)}
+            </strong>
+          </div>
         </div>
-        <button
-          className="primary-button wide"
-          onClick={() => (stage < 3 ? setStage(stage + 1) : onClose())}
-        >
-          {stage < 3 ? "Advance demo status" : "Finish demo"}{" "}
+
+        {/* Interactive Rating upon delivery */}
+        {isDelivered && (
+          <div className="order-rating-box">
+            {ratingSubmitted || order.ratedAt ? (
+              <div style={{ color: 'var(--lime)', fontSize: '13px', fontWeight: 700 }}>
+                ✓ {isArabic ? "تم تسجيل تقييمك بنجاح! شكراً لك." : "Thank you for rating your FAST DRIP experience!"}
+              </div>
+            ) : (
+              <form onSubmit={handleRatingSubmit}>
+                <span style={{ font: "11px 'DM Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--lime)' }}>
+                  {isArabic ? "قيّم تجربتك مع المتجر والكابتن" : "RATE YOUR EXPERIENCE"}
+                </span>
+                <div style={{ marginTop: '10px' }}>
+                  <small style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>
+                    {isArabic ? `تقييم متجر ${order.vendorName}:` : `Store rating (${order.vendorName}):`}
+                  </small>
+                  <div className="rating-stars">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <button
+                        type="button"
+                        key={s}
+                        className={`rating-star-btn ${vendorStars >= s ? "active" : ""}`}
+                        onClick={() => setVendorStars(s)}
+                      >
+                        <Star size={18} fill={vendorStars >= s ? "currentColor" : "none"} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '10px' }}>
+                  <small style={{ display: 'block', fontSize: '11px', color: 'var(--muted)', marginBottom: '4px' }}>
+                    {isArabic ? `تقييم الكابتن ${order.driverName || ''}:` : `Courier rating (${order.driverName || 'Rider'}):`}
+                  </small>
+                  <div className="rating-stars">
+                    {[1, 2, 3, 4, 5].map((s) => (
+                      <button
+                        type="button"
+                        key={s}
+                        className={`rating-star-btn ${driverStars >= s ? "active" : ""}`}
+                        onClick={() => setDriverStars(s)}
+                      >
+                        <Star size={18} fill={driverStars >= s ? "currentColor" : "none"} />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="primary-button"
+                  style={{ width: '100%', marginTop: '12px', padding: '10px', fontSize: '12px' }}
+                >
+                  {isArabic ? "إرسال التقييم" : "Submit Rating"}
+                </button>
+              </form>
+            )}
+          </div>
+        )}
+
+        <button className="primary-button wide" onClick={onClose} style={{ marginTop: '16px' }}>
+          {isDelivered
+            ? isArabic ? "إغلاق ومتابعة التسوق" : "Finish & Keep Shopping"
+            : isCancelled
+            ? isArabic ? "إغلاق وتصفح قطع أخرى" : "Close & Browse Drops"
+            : isArabic ? "متابعة التسوق أثناء التوصيل" : "Keep Shopping While In Progress"}{" "}
           <ArrowRight size={17} />
         </button>
       </motion.section>
+    </motion.div>
+  )
+}
+
+function LocationPickerModal({
+  currentLocation,
+  onSelectLocation,
+  onClose,
+  isArabic,
+}: {
+  currentLocation: string
+  onSelectLocation: (areaName: string) => void
+  onClose: () => void
+  isArabic: boolean
+}) {
+  const cairoAreas = [
+    { nameEn: "Zamalek, Cairo", nameAr: "الزمالك، القاهرة", time: "18–25 min" },
+    { nameEn: "Maadi, Degla", nameAr: "المعادي ودجلة", time: "25–35 min" },
+    { nameEn: "New Cairo (5th Settlement)", nameAr: "التجمع الخامس والقاهرة الجديدة", time: "25–35 min" },
+    { nameEn: "Heliopolis, Korba", nameAr: "مصر الجديدة والكوربة", time: "25–35 min" },
+    { nameEn: "Sheikh Zayed, Arkan", nameAr: "الشيخ زايد وأكتوبر", time: "35–45 min" },
+    { nameEn: "Dokki & Mohandessin", nameAr: "الدقي والمهندسين", time: "20–30 min" },
+    { nameEn: "Nasr City", nameAr: "مدينة نصر", time: "25–35 min" },
+    { nameEn: "Downtown Cairo", nameAr: "وسط البلد والتحرير", time: "20–30 min" },
+  ]
+
+  return (
+    <motion.div
+      className="modal-backdrop panel-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="order-panel"
+        initial={{ y: "100%" }}
+        animate={{ y: 0 }}
+        exit={{ y: "100%" }}
+        transition={{ duration: 0.45, ease }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="panel-head">
+          <div>
+            <span className="eyebrow">{isArabic ? "مناطق التوصيل السريع" : "Express Delivery Zones"}</span>
+            <h2>{isArabic ? "اختر منطقتك بالقاهرة" : "SELECT CAIRO AREA"}</h2>
+          </div>
+          <IconButton label="Close location picker" onClick={onClose}>
+            <X size={20} />
+          </IconButton>
+        </div>
+        <p style={{ fontSize: '13px', color: 'var(--muted)', marginTop: '8px' }}>
+          {isArabic
+            ? "يتم احتساب وقت ومسار التوصيل بناءً على قربك من متاجر الستريت وير الشريكة."
+            : "Courier ETA and delivery rates are dynamically optimized based on partner boutiques near your zone."}
+        </p>
+        <div className="location-picker-grid">
+          {cairoAreas.map((area) => (
+            <button
+              key={area.nameEn}
+              className={`location-option-btn ${currentLocation.includes(area.nameEn.split(',')[0]) ? "selected" : ""}`}
+              onClick={() => {
+                onSelectLocation(isArabic ? area.nameAr : area.nameEn)
+                onClose()
+              }}
+            >
+              <div>
+                <strong>{isArabic ? area.nameAr : area.nameEn}</strong>
+                <small style={{ display: 'block', color: 'var(--muted)', fontSize: '11px', marginTop: '3px' }}>
+                  <MapPin size={11} style={{ display: 'inline', marginRight: '4px' }} />
+                  {isArabic ? "تغطية توصيل فوري" : "Instant rider dispatch coverage"}
+                </small>
+              </div>
+              <span style={{ fontSize: '12px', color: 'var(--lime)', fontFamily: "'DM Mono', monospace", fontWeight: 700 }}>
+                {area.time}
+              </span>
+            </button>
+          ))}
+        </div>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function AccountDrawer({
+  customer,
+  orders,
+  onClose,
+  onLogout,
+  onTrackOrder,
+  onRequestAuth,
+  isArabic,
+}: {
+  customer: CustomerUser | null
+  orders: Order[]
+  onClose: () => void
+  onLogout: () => void
+  onTrackOrder: (order: Order) => void
+  onRequestAuth: () => void
+  isArabic: boolean
+}) {
+  const customerOrders = customer
+    ? orders.filter((o) => o.customerId === customer.id || o.customerPhone === customer.phone)
+    : []
+
+  return (
+    <motion.div
+      className="modal-backdrop panel-backdrop"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={onClose}
+    >
+      <motion.aside
+        className="cart-panel"
+        initial={{ x: isArabic ? "-100%" : "100%" }}
+        animate={{ x: 0 }}
+        exit={{ x: isArabic ? "-100%" : "100%" }}
+        transition={{ duration: 0.4, ease }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="panel-head">
+          <div>
+            <span className="eyebrow">{isArabic ? "الملف الشخصي والطلبات" : "Profile & Orders"}</span>
+            <h2>{isArabic ? "حساب العميل" : "CUSTOMER ACCOUNT"}</h2>
+          </div>
+          <IconButton label="Close account panel" onClick={onClose}>
+            <X size={20} />
+          </IconButton>
+        </div>
+
+        {customer ? (
+          <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100% - 70px)', justifyContent: 'space-between' }}>
+            <div style={{ overflowY: 'auto', paddingRight: '4px' }}>
+              <div className="account-profile-card">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginBottom: '14px' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'var(--lime)', color: 'var(--ink)', display: 'grid', placeItems: 'center', fontWeight: 800, fontSize: '18px' }}>
+                    {customer.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '16px', fontWeight: 700, margin: 0 }}>{customer.name}</h3>
+                    <small style={{ color: 'var(--muted)', fontSize: '12px', fontFamily: 'monospace' }}>{customer.email}</small>
+                  </div>
+                </div>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '10px' }}>
+                  <span><Phone size={12} style={{ display: 'inline', marginRight: '6px' }} /> {customer.phone || '010XXXXXXXX'}</span>
+                  <span><MapPin size={12} style={{ display: 'inline', marginRight: '6px' }} /> {customer.address || customer.area || 'Cairo'}</span>
+                </div>
+              </div>
+
+              <div style={{ marginBottom: '16px' }}>
+                <span style={{ font: "11px 'DM Mono', monospace", textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--lime)', display: 'block', marginBottom: '12px' }}>
+                  {isArabic ? "سجل طلباتك" : "YOUR ORDERS"} ({customerOrders.length})
+                </span>
+
+                {customerOrders.length === 0 ? (
+                  <div style={{ padding: '24px 16px', textAlign: 'center', background: 'var(--charcoal)', borderRadius: '10px', border: '1px solid var(--line)' }}>
+                    <PackageCheck size={28} style={{ margin: '0 auto 8px', color: 'var(--muted)' }} />
+                    <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0 }}>
+                      {isArabic ? "لم تقم بإنشاء أي طلبات حتى الآن." : "You haven't placed any orders yet."}
+                    </p>
+                  </div>
+                ) : (
+                  customerOrders.map((ord) => (
+                    <article key={ord.id} className="account-order-card">
+                      <div className="account-order-head">
+                        <div>
+                          <strong style={{ fontSize: '13px' }}>{ord.orderNumber}</strong>
+                          <small style={{ display: 'block', fontSize: '11px', color: 'var(--muted)' }}>
+                            {ord.vendorName} · {ord.createdAt.slice(0, 16)}
+                          </small>
+                        </div>
+                        <span className={`status-chip ${ord.status}`}>
+                          {ord.status === 'pending_vendor' ? (isArabic ? 'في انتظار المتجر' : 'Pending store')
+                            : ord.status === 'ready_for_driver' ? (isArabic ? 'جاهز للاستلام' : 'Ready for pickup')
+                            : ord.status === 'driver_assigned' ? (isArabic ? 'مع الكابتن' : 'Driver assigned')
+                            : ord.status === 'picked_up_paid_store' ? (isArabic ? 'في الطريق إليك' : 'Out for delivery')
+                            : ord.status === 'delivered' ? (isArabic ? 'تم التسليم ✓' : 'Delivered ✓')
+                            : (isArabic ? 'طلب ملغي' : 'Cancelled')}
+                        </span>
+                      </div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px', paddingTop: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--lime)' }}>
+                          {formatPrice(ord.totalAmount)}
+                        </span>
+                        <button
+                          type="button"
+                          className="secondary-button"
+                          style={{ padding: '6px 12px', fontSize: '11px' }}
+                          onClick={() => {
+                            onClose()
+                            onTrackOrder(ord)
+                          }}
+                        >
+                          <Navigation size={12} style={{ display: 'inline', marginRight: '4px' }} />
+                          {isArabic ? "تتبع مباشر" : "Track live"}
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="secondary-button wide"
+              onClick={onLogout}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '14px' }}
+            >
+              <LogOut size={16} />
+              {isArabic ? "تسجيل الخروج" : "Sign Out"}
+            </button>
+          </div>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '48px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px' }}>
+            <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(209, 254, 23, 0.1)', color: 'var(--lime)', display: 'grid', placeItems: 'center' }}>
+              <User size={30} />
+            </div>
+            <div>
+              <h3 style={{ fontSize: '18px', fontWeight: 800, margin: '0 0 8px' }}>
+                {isArabic ? "تصفح كزائر" : "Browsing as Guest"}
+              </h3>
+              <p style={{ fontSize: '13px', color: 'var(--muted)', maxWidth: '280px', margin: 0 }}>
+                {isArabic
+                  ? "سجل دخولك لمتابعة طلباتك، حفظ عناوين التوصيل، وتأكيد طلباتك بضغطة واحدة."
+                  : "Sign in to track real-time drops, save delivery addresses, and checkout instantly."}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="primary-button wide"
+              onClick={() => {
+                onClose()
+                onRequestAuth()
+              }}
+              style={{ marginTop: '12px' }}
+            >
+              {isArabic ? "تسجيل الدخول / إنشاء حساب" : "Sign In / Register"} <ArrowRight size={16} />
+            </button>
+          </div>
+        )}
+      </motion.aside>
     </motion.div>
   )
 }
@@ -1462,7 +2217,23 @@ export function CustomerApp() {
     logoutCustomer,
     placeOrder,
     showToast,
+    cart: platformCart,
+    addToCart: platformAddToCart,
+    removeFromCart: platformRemoveFromCart,
+    updateCartQuantity: platformUpdateCartQuantity,
+    clearCart: platformClearCart,
+    orders,
+    vendors,
+    products: platformProducts,
+    submitOrderRating,
+    calculateDeliveryFee,
   } = usePlatform();
+
+  const [activeTrackingOrderId, setActiveTrackingOrderId] = useState<string | null>(null);
+  const activeOrder = orders.find((o) => o.id === activeTrackingOrderId) || null;
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const [isLocationPickerOpen, setIsLocationPickerOpen] = useState(false);
+  const [isPendingCheckoutAfterAuth, setIsPendingCheckoutAfterAuth] = useState(false);
 
   // Customer Authentication Modal State
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -1486,6 +2257,10 @@ export function CustomerApp() {
           setIsAuthModalOpen(false);
           setAuthPassword('');
           showToast(isArabic ? 'تم تسجيل الدخول بنجاح! يمكنك الآن إتمام الطلب.' : 'Logged in successfully! You can now complete your order.', 'success');
+          if (isPendingCheckoutAfterAuth && platformCart.length > 0) {
+            setIsPendingCheckoutAfterAuth(false);
+            setCartOpen(true);
+          }
         }
       } else {
         if (!authName || !authEmail || !authPhone || !authPassword) return;
@@ -1501,6 +2276,10 @@ export function CustomerApp() {
           setIsAuthModalOpen(false);
           setAuthPassword('');
           showToast(isArabic ? 'تم إنشاء الحساب بنجاح!' : 'Account created successfully!', 'success');
+          if (isPendingCheckoutAfterAuth && platformCart.length > 0) {
+            setIsPendingCheckoutAfterAuth(false);
+            setCartOpen(true);
+          }
         }
       }
     } finally {
@@ -1657,19 +2436,111 @@ export function CustomerApp() {
     else if (normalizedPath === "/") setActiveTab("home")
   }, [normalizedPath])
 
-  const addToCart = (product: Product) => {
+  const cartCount = platformCart.reduce((sum, item) => sum + item.quantity, 0)
+
+  // Distance / delivery fee calculation based on chosen Cairo location
+  const deliveryFee = location.includes("Zamalek") || location.includes("الزمالك")
+    ? 45
+    : location.includes("Maadi") || location.includes("المعادي")
+    ? 55
+    : location.includes("New Cairo") || location.includes("التجمع")
+    ? 75
+    : location.includes("Zayed") || location.includes("زايد")
+    ? 95
+    : 55
+
+  const addToCart = (product: Product, size?: string, quantity: number = 1) => {
+    const chosenSize = size || (product.sizes && product.sizes[0]) || "M"
     const productStore = stores.find((store) => store.name === product.brand)
-    const cartStore = cart[0]?.brand
-    if (productStore && cartStore && cartStore !== product.brand) {
+    const cartStoreName = platformCart[0]?.product.vendorName
+
+    if (platformCart.length > 0 && cartStoreName && productStore && cartStoreName !== productStore.name) {
       setSelectedProduct(null)
-      setPendingSwitch({ store: productStore })
+      setPendingSwitch({
+        store: productStore,
+        pendingProduct: product,
+        pendingSize: chosenSize,
+        pendingQuantity: quantity,
+      })
       return
     }
 
-    setCart((items) => [...items, product])
+    const backendProduct: BackendProduct = platformProducts.find(
+      (p) => p.id === String(product.id) || p.name === product.name
+    ) || {
+      id: String(product.id),
+      vendorId: productStore?.vendorId || 'v-1',
+      vendorName: product.brand,
+      name: product.name,
+      category: product.category,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      sizes: product.sizes || ["XS", "S", "M", "L", "XL"],
+      inStock: product.inStock !== false,
+      image: product.image,
+      description: product.description || '',
+      color: product.color,
+      tag: product.tag,
+    }
+
+    for (let i = 0; i < quantity; i++) {
+      platformAddToCart(backendProduct, chosenSize, true)
+    }
+
     setSelectedProduct(null)
-    setNotice(`${product.name} added to your test bag.`)
-    window.setTimeout(() => setNotice(""), 2600)
+    notify(
+      isArabic
+        ? `تمت إضافة ${product.name} إلى حقيبة التسوق (${product.brand}).`
+        : `${product.name} added to your bag (${product.brand}).`
+    )
+  }
+
+  const handleCheckout = (details: {
+    address: string
+    phone: string
+    paymentMethod: CustomerPaymentMethod
+    notes: string
+  }) => {
+    if (!currentCustomer) {
+      setCartOpen(false)
+      setIsPendingCheckoutAfterAuth(true)
+      setAuthMode('login')
+      setIsAuthModalOpen(true)
+      showToast(
+        isArabic
+          ? 'يجب تسجيل الدخول أو إنشاء حساب أولاً لإتمام الطلب'
+          : 'Please sign in or create an account to complete your order',
+        'info'
+      )
+      return
+    }
+
+    if (platformCart.length === 0) {
+      showToast(isArabic ? 'حقيبة التسوق فارغة' : 'Your bag is empty', 'error')
+      return
+    }
+
+    const createdOrder = placeOrder({
+      customerId: currentCustomer.id,
+      name: currentCustomer.name,
+      phone: details.phone || currentCustomer.phone,
+      area: currentCustomer.area || location,
+      address: details.address || currentCustomer.address || location,
+      paymentMethod: details.paymentMethod,
+      notes: details.notes || 'Order placed via Futuristic Storefront',
+    })
+
+    if (createdOrder) {
+      setCartOpen(false)
+      setActiveTrackingOrderId(createdOrder.id)
+      setOrderOpen(true)
+      showToast(
+        isArabic
+          ? `تم إرسال الطلب ${createdOrder.orderNumber} بنجاح إلى متجر ${createdOrder.vendorName}!`
+          : `Order ${createdOrder.orderNumber} successfully sent to ${createdOrder.vendorName}!`,
+        'success'
+      )
+    }
   }
 
   const notify = (message: string) => {
@@ -1698,20 +2569,42 @@ export function CustomerApp() {
   const confirmStoreSwitch = () => {
     if (!pendingSwitch) return
     const nextStore = pendingSwitch.store
-    setCart([])
+    platformClearCart()
+
+    if (pendingSwitch.pendingProduct) {
+      const p = pendingSwitch.pendingProduct
+      const backendProduct: BackendProduct = platformProducts.find(
+        (bp) => bp.id === String(p.id) || bp.name === p.name
+      ) || {
+        id: String(p.id),
+        vendorId: nextStore.vendorId || 'v-1',
+        vendorName: nextStore.name,
+        name: p.name,
+        category: p.category,
+        price: p.price,
+        sizes: p.sizes || ["XS", "S", "M", "L", "XL"],
+        inStock: true,
+        image: p.image,
+        description: p.description || '',
+      }
+      for (let i = 0; i < (pendingSwitch.pendingQuantity || 1); i++) {
+        platformAddToCart(backendProduct, pendingSwitch.pendingSize || 'M', true)
+      }
+    }
+
     setActiveCategory(null)
     setSelectedProduct(null)
     setPendingSwitch(null)
     navigate(`/stores/${nextStore.slug}`)
     notify(
       isArabic
-        ? `تم التبديل إلى ${nextStore.name}. السلة فاضية وجاهزة.`
-        : `Switched to ${nextStore.name}. Your cart is now empty.`,
+        ? `تم التبديل إلى متجر ${nextStore.name}. السلة مخصصة لهذا المتجر الآن.`
+        : `Switched to ${nextStore.name}. Bag is now assigned to this store.`
     )
   }
 
   const keepCurrentStoreCart = () => {
-    const currentStore = stores.find((store) => store.name === cart[0]?.brand)
+    const currentStore = stores.find((store) => store.name === platformCart[0]?.product.vendorName)
     setPendingSwitch(null)
     if (currentStore) navigate(`/stores/${currentStore.slug}`)
   }
@@ -1751,11 +2644,8 @@ export function CustomerApp() {
     <div className={`app-shell ${isArabic ? "is-arabic" : ""}`}>
       <header className="delivery-bar">
         <button
-          onClick={() =>
-            setLocation((current) =>
-              current === "Zamalek, Cairo" ? "Maadi, Cairo" : "Zamalek, Cairo",
-            )
-          }
+          type="button"
+          onClick={() => setIsLocationPickerOpen(true)}
         >
           <LocateFixed size={14} />
           <span>{isArabic ? "التوصيل إلى" : "Delivering to"}</span>
@@ -1763,7 +2653,7 @@ export function CustomerApp() {
           <ChevronRight size={14} />
         </button>
         <span className="delivery-time">
-          <i /> 24 min
+          <i /> {location.includes("Zamalek") || location.includes("الزمالك") ? "18–25 min" : location.includes("Zayed") || location.includes("زايد") ? "35–45 min" : "25–35 min"}
         </span>
       </header>
 
@@ -1809,25 +2699,46 @@ export function CustomerApp() {
           <IconButton label="Search" onClick={() => setSearchOpen(true)}>
             <Search size={19} />
           </IconButton>
+          <IconButton
+            label="Customer Account"
+            onClick={() => setIsAccountOpen(true)}
+            className={currentCustomer ? "has-user" : ""}
+          >
+            <User size={19} />
+            {currentCustomer && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "6px",
+                  right: "6px",
+                  width: "7px",
+                  height: "7px",
+                  borderRadius: "50%",
+                  background: "var(--lime)",
+                  boxShadow: "0 0 6px var(--lime)",
+                }}
+              />
+            )}
+          </IconButton>
           <motion.button
             className="bag-button"
-            aria-label={`${cart.length} items in bag`}
+            aria-label={`${cartCount} items in bag`}
             onClick={() => {
               setActiveTab("cart")
               setCartOpen(true)
             }}
-            animate={cart.length ? { scale: [1, 1.13, 1] } : {}}
+            animate={cartCount ? { scale: [1, 1.13, 1] } : {}}
             transition={{ duration: 0.3 }}
           >
             <ShoppingBag size={19} />
             <AnimatePresence mode="popLayout">
               <motion.span
-                key={cart.length}
+                key={cartCount}
                 initial={{ y: -8, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 8, opacity: 0 }}
               >
-                {cart.length}
+                {cartCount}
               </motion.span>
             </AnimatePresence>
           </motion.button>
@@ -2400,7 +3311,7 @@ export function CustomerApp() {
       <BottomNavigation
         active={activeTab}
         favoritesCount={favorites.length}
-        cartCount={cart.length}
+        cartCount={cartCount}
         language={language}
         onNavigate={navigateMobile}
       />
@@ -2420,44 +3331,22 @@ export function CustomerApp() {
         )}
         {cartOpen && (
           <CartPanel
-            cart={cart}
+            cart={platformCart}
             onClose={() => setCartOpen(false)}
-            onRemove={(productId) =>
-              setCart((items) => {
-                const removeIndex = items.findIndex(
-                  (product) => product.id === productId,
-                )
-                return items.filter((_, index) => index !== removeIndex)
-              })
+            onRemove={(productId, size) => platformRemoveFromCart(productId, size)}
+            onUpdateQuantity={(productId, size, qty) =>
+              platformUpdateCartQuantity(productId, size, qty)
             }
-            onCheckout={() => {
-              if (!currentCustomer) {
-                setCartOpen(false);
-                setAuthMode('login');
-                setIsAuthModalOpen(true);
-                showToast(
-                  isArabic
-                    ? 'يجب تسجيل الدخول أو إنشاء حساب أولاً لإتمام الطلب'
-                    : 'Please login or create an account to complete your order',
-                  'error'
-                );
-                return;
-              }
-              // User is logged in: trigger real order placement and open tracker!
-              if (cart[0]) {
-                const storeObj = stores.find(s => s.name === cart[0].brand);
-                placeOrder({
-                  customerId: currentCustomer.id,
-                  name: currentCustomer.name,
-                  phone: currentCustomer.phone,
-                  area: currentCustomer.area || location,
-                  address: currentCustomer.address || location,
-                  paymentMethod: 'cash_on_delivery',
-                  notes: 'Order placed via Futuristic Storefront',
-                });
-              }
-              setCartOpen(false);
-              setOrderOpen(true);
+            onCheckout={handleCheckout}
+            currentCustomer={currentCustomer}
+            location={location}
+            deliveryFee={deliveryFee}
+            isArabic={isArabic}
+            onRequestAuth={() => {
+              setCartOpen(false)
+              setIsPendingCheckoutAfterAuth(true)
+              setAuthMode('login')
+              setIsAuthModalOpen(true)
             }}
           />
         )}
@@ -2474,16 +3363,49 @@ export function CustomerApp() {
             }
           />
         )}
-        {orderOpen && cart[0] && (
+        {orderOpen && (activeOrder || orders[0]) && (
           <OrderTracker
-            storeName={cart[0].brand}
-            destination={location}
+            order={activeOrder || orders[0]}
             onClose={() => setOrderOpen(false)}
+            onSubmitRating={submitOrderRating}
+            isArabic={isArabic}
           />
         )}
-        {pendingSwitch && cart[0] && (
+        {isLocationPickerOpen && (
+          <LocationPickerModal
+            currentLocation={location}
+            onSelectLocation={(newLoc) => {
+              setLocation(newLoc)
+              notify(isArabic ? `تم تحديث العنوان إلى: ${newLoc}` : `Delivery updated to: ${newLoc}`)
+            }}
+            onClose={() => setIsLocationPickerOpen(false)}
+            isArabic={isArabic}
+          />
+        )}
+        {isAccountOpen && (
+          <AccountDrawer
+            customer={currentCustomer}
+            orders={orders}
+            onClose={() => setIsAccountOpen(false)}
+            onLogout={() => {
+              logoutCustomer()
+              setIsAccountOpen(false)
+            }}
+            onTrackOrder={(ord) => {
+              setActiveTrackingOrderId(ord.id)
+              setOrderOpen(true)
+            }}
+            onRequestAuth={() => {
+              setIsAccountOpen(false)
+              setAuthMode('login')
+              setIsAuthModalOpen(true)
+            }}
+            isArabic={isArabic}
+          />
+        )}
+        {pendingSwitch && (
           <StoreSwitchDialog
-            currentStore={cart[0].brand}
+            currentStore={platformCart[0]?.product.vendorName || pendingSwitch.store.name}
             nextStore={pendingSwitch.store.name}
             isArabic={isArabic}
             onKeep={keepCurrentStoreCart}
@@ -2495,6 +3417,7 @@ export function CustomerApp() {
             product={selectedProduct}
             onClose={() => setSelectedProduct(null)}
             onAdd={addToCart}
+            isArabic={isArabic}
           />
         )}
       </AnimatePresence>

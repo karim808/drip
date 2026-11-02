@@ -78,6 +78,8 @@ export interface Product {
   description: string;
   fabricDetails?: string;
   fitType?: string;
+  color?: string;
+  tag?: string;
 }
 
 export interface OrderItem {

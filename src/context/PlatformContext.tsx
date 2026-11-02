@@ -80,7 +80,7 @@ interface PlatformContextType {
 
   // Cart (Customer Portal)
   cart: CartItem[];
-  addToCart: (product: Product, size: string) => void;
+  addToCart: (product: Product, size: string, forceClearVendor?: boolean) => void;
   removeFromCart: (productId: string, size: string) => void;
   updateCartQuantity: (productId: string, size: string, qty: number) => void;
   clearCart: () => void;
@@ -344,7 +344,24 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [customers, setCustomers] = useState<CustomerUser[]>(() =>
     sanitizeStoredEntities(loadFromStorage('vf_customers_v1', initialCustomers), initialCustomers)
   );
-  const [currentCustomer, setCurrentCustomer] = useState<CustomerUser | null>(null);
+  const [currentCustomer, setCurrentCustomer] = useState<CustomerUser | null>(() => {
+    try {
+      const saved = localStorage.getItem('fastdrip_current_customer');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    try {
+      if (currentCustomer) {
+        localStorage.setItem('fastdrip_current_customer', JSON.stringify(currentCustomer));
+      } else {
+        localStorage.removeItem('fastdrip_current_customer');
+      }
+    } catch {}
+  }, [currentCustomer]);
 
   const [activeVendorId, setActiveVendorIdState] = useState<string>('');
   const [activeDriverId, setActiveDriverIdState] = useState<string>('');
@@ -836,10 +853,11 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   // Cart operations
-  const addToCart = (product: Product, size: string) => {
+  const addToCart = (product: Product, size: string, forceClearVendor: boolean = false) => {
     const hasOtherVendor = cart.some((c) => c.product.vendorId !== product.vendorId);
     if (hasOtherVendor) {
       if (
+        !forceClearVendor &&
         !window.confirm(
           'سلة المشتريات تحتوي على قطع من براند آخر. نظراً لأن التوصيل مباشر وفوري من نفس المحل، هل تود إفراغ السلة وبدء طلب من ' +
             product.vendorName +
