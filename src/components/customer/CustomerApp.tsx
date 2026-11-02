@@ -2792,6 +2792,32 @@ export function CustomerApp() {
                 </button>
               )
             })}
+            <button
+              type="button"
+              className="menu-location-button"
+              style={{
+                marginTop: '16px',
+                padding: '12px 14px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                borderRadius: '12px',
+                background: 'rgba(255, 255, 255, 0.06)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                color: 'var(--white)',
+                fontSize: '13px',
+                cursor: 'pointer',
+                width: '100%'
+              }}
+              onClick={() => {
+                setMenuOpen(false);
+                setIsLocationPickerOpen(true);
+              }}
+            >
+              <LocateFixed size={16} style={{ color: 'var(--lime)' }} />
+              <span>{isArabic ? `التوصيل إلى: ${location}` : `Delivering to: ${location}`}</span>
+              <ChevronRight size={14} style={{ marginLeft: 'auto', opacity: 0.6 }} />
+            </button>
             <p>{copy.menuFooter}</p>
           </motion.aside>
         )}

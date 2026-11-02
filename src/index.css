@@ -57,16 +57,7 @@
 }
 
 .delivery-bar {
-  height: 38px;
-  padding: 0 var(--pad);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: var(--muted);
-  font: 500 10px/1 'DM Mono', monospace;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: none;
 }
 
 .delivery-bar button, .delivery-time {
@@ -87,37 +78,38 @@
 .floating-nav {
   position: fixed;
   z-index: 50;
-  top: 50px;
+  top: max(8px, env(safe-area-inset-top, 8px));
   left: 50%;
-  width: calc(100% - 24px);
+  width: calc(100% - 16px);
   max-width: 1320px;
-  height: 62px;
-  padding: 7px 8px 7px 18px;
+  height: 50px;
+  padding: 4px 6px 4px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border: 1px solid rgba(255,255,255,.15);
-  border-radius: 18px;
-  background: rgba(8,10,9,.82);
-  box-shadow: 0 20px 50px rgba(0,0,0,.24);
+  border-radius: 14px;
+  background: rgba(8,10,9,.88);
+  box-shadow: 0 16px 40px rgba(0,0,0,.35);
   backdrop-filter: blur(16px);
   transform: translateX(-50%);
+  transition: top .25s ease, height .25s ease, padding .25s ease, border-radius .25s ease;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 18px;
+  gap: 6px;
+  font-size: 15px;
   font-weight: 700;
-  letter-spacing: -.07em;
+  letter-spacing: -.06em;
 }
 
 .brand > img {
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 5px;
 }
 
 .brand-word {
@@ -126,17 +118,17 @@
 
 .brand-word strong { color: var(--lime); }
 
-.nav-actions { display: flex; align-items: center; gap: 4px; }
+.nav-actions { display: flex; align-items: center; gap: 2px; }
 .language-toggle {
-  width: 74px;
-  height: 44px;
-  padding: 0 7px;
+  width: 62px;
+  height: 36px;
+  padding: 0 5px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 3px;
   border: 1px solid rgba(255,255,255,.1);
-  border-radius: 13px;
+  border-radius: 10px;
   color: var(--muted);
   background: rgba(255,255,255,.035);
   direction: ltr;
@@ -148,11 +140,11 @@
 .language-toggle i { width: 1px; height: 11px; background: var(--line); }
 .language-toggle span.active { color: var(--lime); }
 .icon-button, .bag-button {
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
-  border-radius: 13px;
+  border-radius: 10px;
   transition: background .25s, color .25s;
 }
 .icon-button:hover, .bag-button:hover { background: rgba(255,255,255,.1); }
@@ -160,16 +152,16 @@
 .bag-button { position: relative; }
 .bag-button span {
   position: absolute;
-  top: 5px;
-  right: 4px;
-  width: 17px;
-  height: 17px;
+  top: 3px;
+  right: 2px;
+  width: 15px;
+  height: 15px;
   display: grid;
   place-items: center;
   color: var(--ink);
   background: var(--lime);
   border-radius: 50%;
-  font: 600 9px/1 'DM Mono', monospace;
+  font: 600 8px/1 'DM Mono', monospace;
 }
 .desktop-links { display: none; }
 
@@ -213,7 +205,7 @@
 }
 .hero-meta {
   position: absolute;
-  top: 132px;
+  top: 72px;
   left: var(--pad);
   right: var(--pad);
   display: flex;
@@ -781,7 +773,57 @@ footer { padding: 62px var(--pad) 22px; color: var(--ink); background: var(--lim
 @media (min-width: 700px) {
   .app-shell { padding-bottom: 0; }
   .bottom-nav { display: none; }
-  .floating-nav { padding-left: 24px; }
+  .delivery-bar {
+    height: 38px;
+    padding: 0 var(--pad);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--muted);
+    font: 500 10px/1 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .floating-nav {
+    top: 48px;
+    width: calc(100% - 24px);
+    height: 62px;
+    padding: 7px 8px 7px 24px;
+    border-radius: 18px;
+  }
+  .brand {
+    gap: 8px;
+    font-size: 18px;
+    letter-spacing: -.07em;
+  }
+  .brand > img {
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+  }
+  .nav-actions { gap: 4px; }
+  .language-toggle {
+    width: 74px;
+    height: 44px;
+    padding: 0 7px;
+    border-radius: 13px;
+  }
+  .icon-button, .bag-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 13px;
+  }
+  .bag-button span {
+    top: 5px;
+    right: 4px;
+    width: 17px;
+    height: 17px;
+    font-size: 9px;
+  }
+  .hero-meta {
+    top: 132px;
+  }
   .desktop-links { display: flex; align-items: center; gap: 28px; color: rgba(255,255,255,.72); font-size: 12px; }
   .desktop-links a:hover, .desktop-links button:hover { color: var(--lime); }
   .menu-button { display: none; }
