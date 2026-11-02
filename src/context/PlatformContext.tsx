@@ -443,6 +443,10 @@ export const PlatformProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         showToast(err.error || 'غير مصرح لك بتنفيذ هذا الإجراء', 'error');
         return false;
       }
+      const data = await res.json().catch(() => ({}));
+      if (data?.token && requiredRole === 'admin') {
+        window.localStorage.setItem('fastdrip_token_admin', data.token);
+      }
       return true;
     } catch {
       showToast('تعذر التحقق من الصلاحية الأمنية من الخادم', 'error');
