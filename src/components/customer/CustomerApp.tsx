@@ -1,6 +1,6 @@
 import { usePlatform } from '../../context/PlatformContext';
 import React from "react"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import {
   ArrowDown,
   ArrowLeft,
@@ -306,6 +306,22 @@ const stores = [
     slug: "noir-atelier",
   },
 ]
+
+const STORE_COORDINATES: Record<string, { lat: number; lng: number; areaAr: string }> = {
+  "UNTITLED CAIRO": { lat: 29.9602, lng: 31.2785, areaAr: "المعادي - دجلة" },
+  "SHABAB CO.": { lat: 30.0626, lng: 31.2224, areaAr: "الزمالك" },
+  "ZAG STORE": { lat: 30.0131, lng: 31.4289, areaAr: "التجمع الخامس" },
+  "OVERSIZED EG": { lat: 30.0886, lng: 31.3283, areaAr: "مصر الجديدة والكوربة" },
+  "NOIR ATELIER": { lat: 30.0221, lng: 30.9833, areaAr: "الشيخ زايد - أركان" },
+}
+
+const DEFAULT_ZONE_COORDS: Record<string, { lat: number; lng: number }> = {
+  "Zamalek, Cairo": { lat: 30.0626, lng: 31.2224 },
+  "Maadi, Cairo": { lat: 29.9602, lng: 31.2785 },
+  "New Cairo": { lat: 30.0131, lng: 31.4289 },
+  "Heliopolis": { lat: 30.0886, lng: 31.3283 },
+  "Sheikh Zayed": { lat: 30.0221, lng: 30.9833 },
+}
 
 type PartnerStore = typeof stores[number]
 type PendingStoreSwitch = {
@@ -2538,6 +2554,43 @@ export function CustomerApp() {
   const [favorites, setFavorites] = useState<number[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [location, setLocation] = useState("Zamalek, Cairo")
+  const [customerCoords, setCustomerCoords] = useState<{ lat: number; lng: number } | null>(
+    currentCustomer?.coordinates || null
+  )
+  const [isRadarGpsLoading, setIsRadarGpsLoading] = useState(false)
+
+  const activeRadarCoords = useMemo(() => {
+    if (customerCoords) return customerCoords
+    if (location.includes("Maadi") || location.includes("المعادي")) return DEFAULT_ZONE_COORDS["Maadi, Cairo"]
+    if (location.includes("New Cairo") || location.includes("التجمع")) return DEFAULT_ZONE_COORDS["New Cairo"]
+    if (location.includes("Heliopolis") || location.includes("مصر الجديدة")) return DEFAULT_ZONE_COORDS["Heliopolis"]
+    if (location.includes("Zayed") || location.includes("زايد")) return DEFAULT_ZONE_COORDS["Sheikh Zayed"]
+    return DEFAULT_ZONE_COORDS["Zamalek, Cairo"]
+  }, [customerCoords, location])
+
+  const closestStoreInfo = useMemo(() => {
+    let closest = stores[0]
+    let minKm = Infinity
+
+    for (const s of stores) {
+      const sc = STORE_COORDINATES[s.name] || { lat: 30.0626, lng: 31.2224 }
+      const direct = calculateGeoDistanceKm(activeRadarCoords.lat, activeRadarCoords.lng, sc.lat, sc.lng)
+      const road = Math.max(1.2, Math.round(direct * 1.25 * 10) / 10)
+      if (road < minKm) {
+        minKm = road
+        closest = s
+      }
+    }
+
+    const eta = minKm <= 4 ? "15–20 min" : minKm <= 12 ? "20–30 min" : minKm <= 25 ? "30–45 min" : "45–60 min"
+
+    return {
+      store: closest,
+      distanceKm: minKm,
+      eta,
+      coordinates: STORE_COORDINATES[closest.name] || { lat: 30.0626, lng: 31.2224 },
+    }
+  }, [activeRadarCoords])
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [email, setEmail] = useState("")
   const [notice, setNotice] = useState("")
@@ -3370,8 +3423,9 @@ export function CustomerApp() {
                     key={zone}
                     className={location === zone ? "active" : ""}
                     onClick={() => {
+                      setCustomerCoords(DEFAULT_ZONE_COORDS[zone] || null)
                       setLocation(zone)
-                      notify(`Delivery estimate updated to ${time}.`)
+                      notify(isArabic ? `تم تحديث المنطقة إلى ${zone} وتحديد أقرب متجر.` : `Delivery zone updated to ${zone}.`)
                     }}
                   >
                     <span>{zone}</span>
@@ -3379,23 +3433,148 @@ export function CustomerApp() {
                   </button>
                 ))}
               </div>
+
+              <button
+                type="button"
+                disabled={isRadarGpsLoading}
+                className="coverage-gps-trigger"
+                onClick={async () => {
+                  setIsRadarGpsLoading(true)
+                  try {
+                    const loc = await resolveUserLocation(isArabic)
+                    setCustomerCoords(loc.coords)
+                    setLocation(loc.areaName)
+                    notify(isArabic ? `📍 تم تحديد موقعك: ${loc.areaName} وتحديث أقرب فرع!` : `📍 Location detected: ${loc.areaName}`)
+                  } catch {
+                    notify(isArabic ? 'يرجى اختيار منطقتك من القائمة' : 'Please select your zone from the list')
+                  } finally {
+                    setIsRadarGpsLoading(false)
+                  }
+                }}
+              >
+                <Navigation size={13} className={isRadarGpsLoading ? 'animate-spin' : ''} />
+                <span>
+                  {isRadarGpsLoading
+                    ? (isArabic ? 'جاري تحديد موقعك الفعلي...' : 'Detecting your GPS location...')
+                    : (isArabic ? '📍 موقعي الحالي تلقائياً (GPS)' : '📍 Auto-Detect My Location (GPS)')}
+                </span>
+              </button>
+
+              {/* Nearest Partner Boutique Recommendation Card */}
+              <div className="closest-store-card">
+                <div className="closest-store-pill">
+                  <span className="dot-pulse" />
+                  <span>{isArabic ? "⚡ أقرب متجر لموقعك الآن" : "⚡ NEAREST BOUTIQUE TO YOU"}</span>
+                </div>
+                <h4 className="closest-store-name">{closestStoreInfo.store.name}</h4>
+                <p className="closest-store-sub">
+                  {isArabic ? (
+                    <>
+                      أنت حالياً بالقرب من <strong>{location}</strong>. الفرع الأقرب لعنوانك هو <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — يبعد حوالي <strong>{closestStoreInfo.distanceKm} كم</strong> مع توصيل سريع خلال <strong>{closestStoreInfo.eta}</strong>.
+                    </>
+                  ) : (
+                    <>
+                      You are near <strong>{location}</strong>. Closest boutique is <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — approx <strong>{closestStoreInfo.distanceKm} km</strong> away, courier ETA <strong>{closestStoreInfo.eta}</strong>.
+                    </>
+                  )}
+                </p>
+                <div className="closest-store-actions">
+                  <button
+                    type="button"
+                    className="closest-store-cta"
+                    onClick={() => goToStorePage(closestStoreInfo.store)}
+                  >
+                    <span>{isArabic ? `تسوق من متجر ${closestStoreInfo.store.name}` : `Shop from ${closestStoreInfo.store.name}`}</span>
+                    <ArrowRight size={14} />
+                  </button>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${closestStoreInfo.coordinates.lat},${closestStoreInfo.coordinates.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="closest-directions-cta"
+                    title={isArabic ? "فتح اتجاهات Google Maps" : "Open Google Maps directions"}
+                  >
+                    <Navigation size={12} />
+                    <span>{isArabic ? "الملاحة بالخريطة (Maps)" : "Directions"}</span>
+                  </a>
+                </div>
+              </div>
             </Reveal>
             <Reveal className="coverage-map" delay={0.1}>
               <div className="map-grid" />
-              {stores.map((store, index) => (
-                <button
-                  key={store.name}
-                  className={`map-node map-node-${index + 1}`}
-                  onClick={() => goToStorePage(store)}
-                  aria-label={`Open ${store.name}`}
-                >
-                  <i />
-                  <span>{store.name}</span>
-                </button>
-              ))}
-              <span className="map-location">
-                <LocateFixed size={15} /> {location}
-              </span>
+
+              {/* Floating Tactical Radar HUD */}
+              <div className="map-closest-hud">
+                <div className="hud-badge">
+                  <span className="hud-pulse" />
+                  <span>{isArabic ? "أقرب متجر لموقعك" : "CLOSEST TO YOU"}</span>
+                </div>
+                <div className="hud-title">
+                  <strong>{closestStoreInfo.store.name}</strong>
+                  <span>{closestStoreInfo.distanceKm} km • {closestStoreInfo.eta}</span>
+                </div>
+                <div className="hud-btns">
+                  <button
+                    type="button"
+                    className="hud-go-btn"
+                    onClick={() => goToStorePage(closestStoreInfo.store)}
+                  >
+                    {isArabic ? "ادخل للمتجر ➔" : "Enter Store ➔"}
+                  </button>
+                  <a
+                    href={`https://www.google.com/maps/dir/?api=1&destination=${closestStoreInfo.coordinates.lat},${closestStoreInfo.coordinates.lng}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hud-dir-btn"
+                    title={isArabic ? "فتح الملاحة بالخريطة" : "Google Maps navigation"}
+                  >
+                    <Navigation size={11} />
+                    <span>Maps</span>
+                  </a>
+                </div>
+              </div>
+
+              {stores.map((store, index) => {
+                const isClosest = closestStoreInfo.store.name === store.name
+                return (
+                  <button
+                    key={store.name}
+                    className={`map-node map-node-${index + 1} ${isClosest ? "is-closest" : ""}`}
+                    onClick={() => goToStorePage(store)}
+                    aria-label={`Open ${store.name}`}
+                  >
+                    <i />
+                    <span>{store.name}</span>
+                    {isClosest && (
+                      <span className="closest-tag">
+                        {isArabic ? "الأقرب" : "NEAREST"}
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+
+              <button
+                type="button"
+                className="map-location"
+                disabled={isRadarGpsLoading}
+                onClick={async () => {
+                  setIsRadarGpsLoading(true)
+                  try {
+                    const loc = await resolveUserLocation(isArabic)
+                    setCustomerCoords(loc.coords)
+                    setLocation(loc.areaName)
+                    notify(isArabic ? `📍 تم تحديد موقعك: ${loc.areaName}` : `📍 Location detected: ${loc.areaName}`)
+                  } finally {
+                    setIsRadarGpsLoading(false)
+                  }
+                }}
+                style={{ cursor: 'pointer', border: 'none' }}
+                title={isArabic ? "انقر لتحديد موقعك الحقيقي عبر GPS" : "Click to auto-detect your location"}
+              >
+                <LocateFixed size={15} className={isRadarGpsLoading ? 'animate-spin' : ''} />
+                <span>{location}</span>
+              </button>
               <span className="map-ring" />
             </Reveal>
           </section>
