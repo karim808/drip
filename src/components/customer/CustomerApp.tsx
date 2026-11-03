@@ -41,9 +41,18 @@ import {
 } from "lucide-react"
 import { CustomerPaymentMethod, CustomerUser, Order, OrderStatus, Product as BackendProduct, Vendor } from '../../types';
 import { LocationPickerMap } from '../maps/LocationPickerMap';
-import { CoverageRadarMap } from '../maps/CoverageRadarMap';
+import { CoverageRadarMap, STORE_COORDINATES } from '../maps/CoverageRadarMap';
+import { LocationPermissionPrompt } from './LocationPermissionPrompt';
+import { ManualLocationSearchModal } from './ManualLocationSearchModal';
 import { calculateGeoDistanceKm, getCairoAreaName } from '../../data/mockData';
-import { resolveUserLocation } from '../../utils/geolocation';
+import {
+  resolveUserLocation,
+  requestBrowserLocation,
+  getSavedLocation,
+  saveSavedLocation,
+  hasUserDecidedLocation,
+  markLocationDecided,
+} from '../../utils/geolocation';
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
 const fastDripMark = "/brand/fast-drip-mark.webp"
 
@@ -2554,44 +2563,223 @@ export function CustomerApp() {
   const [cart, setCart] = useState<Product[]>([])
   const [favorites, setFavorites] = useState<number[]>([])
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
-  const [location, setLocation] = useState("Zamalek, Cairo")
+  // 1. Initial saved location check (from account or storage)
+  const initialSavedLocation = useMemo(() => {
+    if (currentCustomer?.coordinates && (currentCustomer.address || currentCustomer.area)) {
+      return {
+        coords: currentCustomer.coordinates,
+        address: currentCustomer.address || currentCustomer.area || '',
+        areaName: currentCustomer.area || currentCustomer.address || '',
+        source: 'account' as const,
+      };
+    }
+    return getSavedLocation();
+  }, [currentCustomer]);
+
+  const [location, setLocation] = useState<string>(() => {
+    if (initialSavedLocation?.areaName || initialSavedLocation?.address) {
+      return initialSavedLocation.areaName || initialSavedLocation.address;
+    }
+    return ""; // Do not silently assume customer is in Zamalek
+  });
+
   const [customerCoords, setCustomerCoords] = useState<{ lat: number; lng: number } | null>(
-    currentCustomer?.coordinates || null
-  )
-  const [isRadarGpsLoading, setIsRadarGpsLoading] = useState(false)
+    () => initialSavedLocation?.coords || null
+  );
 
+  const [isRadarGpsLoading, setIsRadarGpsLoading] = useState(false);
+  const [isManualSearchOpen, setIsManualSearchOpen] = useState(false);
+  const [selectedCoverageStore, setSelectedCoverageStore] = useState<typeof stores[0] | null>(null);
+
+  const [locationPromptState, setLocationPromptState] = useState<'prompt' | 'locating' | 'denied' | 'resolved' | 'dismissed'>(() => {
+    if (initialSavedLocation?.coords) return 'resolved';
+    if (hasUserDecidedLocation()) return 'dismissed';
+    return 'prompt';
+  });
+  const [locationErrorMessage, setLocationErrorMessage] = useState('');
+
+  // 2. Real Store Coordinates & Status from Backend Vendors
+  const eligibleStores = useMemo(() => {
+    return stores.map((s) => {
+      const backendVendor = vendors.find(
+        (v) => v.id === s.vendorId || v.slug === s.slug || v.name === s.name
+      );
+      const coord = backendVendor?.coordinates || STORE_COORDINATES[s.name] || { lat: 30.0626, lng: 31.2224 };
+      const status = backendVendor?.status || 'active';
+      return {
+        ...s,
+        coordinates: coord,
+        status,
+        areaAr: STORE_COORDINATES[s.name]?.areaAr || backendVendor?.area || s.location,
+      };
+    });
+  }, [vendors]);
+
+  // Center radar map: customer location if available, otherwise city overview
   const activeRadarCoords = useMemo(() => {
-    if (customerCoords) return customerCoords
-    if (location.includes("Maadi") || location.includes("المعادي")) return DEFAULT_ZONE_COORDS["Maadi, Cairo"]
-    if (location.includes("New Cairo") || location.includes("التجمع")) return DEFAULT_ZONE_COORDS["New Cairo"]
-    if (location.includes("Heliopolis") || location.includes("مصر الجديدة")) return DEFAULT_ZONE_COORDS["Heliopolis"]
-    if (location.includes("Zayed") || location.includes("زايد")) return DEFAULT_ZONE_COORDS["Sheikh Zayed"]
-    return DEFAULT_ZONE_COORDS["Zamalek, Cairo"]
-  }, [customerCoords, location])
+    if (customerCoords) return customerCoords;
+    if (location.includes("Maadi") || location.includes("المعادي")) return DEFAULT_ZONE_COORDS["Maadi, Cairo"];
+    if (location.includes("New Cairo") || location.includes("التجمع")) return DEFAULT_ZONE_COORDS["New Cairo"];
+    if (location.includes("Heliopolis") || location.includes("مصر الجديدة")) return DEFAULT_ZONE_COORDS["Heliopolis"];
+    if (location.includes("Zayed") || location.includes("زايد")) return DEFAULT_ZONE_COORDS["Sheikh Zayed"];
+    return { lat: 30.0444, lng: 31.2357 }; // Cairo city overview
+  }, [customerCoords, location]);
 
+  // Real delivery estimation calculation helper
+  const calculateStoreDeliveryEstimate = (
+    cLat: number,
+    cLng: number,
+    sLat: number,
+    sLng: number,
+    storeStatus: string = 'active'
+  ) => {
+    const directKm = calculateGeoDistanceKm(cLat, cLng, sLat, sLng);
+    const roadDistKm = Math.max(1.2, Math.round(directKm * 1.25 * 10) / 10);
+
+    if (storeStatus !== 'active') {
+      return {
+        roadDistanceKm: roadDistKm,
+        etaString: language === 'ar' ? 'الفرع مغلق حالياً' : 'Store temporarily closed',
+        isEligibleExpress: false,
+        isClosed: true,
+        statusText: language === 'ar' ? 'غير متاح للطلب والتوصيل حالياً' : 'Unavailable for delivery',
+      };
+    }
+
+    // Greater than 40km: outside express radius -> honest standard shipping window
+    if (roadDistKm > 40) {
+      return {
+        roadDistanceKm: roadDistKm,
+        etaString: language === 'ar' ? 'شحن محافظات (٢٤–٤٨ ساعة)' : 'Standard Shipping (24–48 hrs)',
+        isEligibleExpress: false,
+        isClosed: false,
+        statusText: language === 'ar' ? 'خارج نطاق التوصيل الفوري السريع (> 40 كم)' : 'Outside express courier radius (> 40 km)',
+      };
+    }
+
+    const prepMins = 10;
+    const travelMins = Math.round(roadDistKm * 2.2);
+    const minEta = Math.max(15, prepMins + travelMins - 4);
+    const maxEta = prepMins + travelMins + 6;
+
+    return {
+      roadDistanceKm: roadDistKm,
+      etaString: `${minEta}–${maxEta} ${language === 'ar' ? 'دقيقة' : 'min'}`,
+      isEligibleExpress: true,
+      isClosed: false,
+      statusText: language === 'ar' ? 'توصيل فوري بالدراجة النارية' : 'Direct courier dispatch',
+    };
+  };
+
+  // 3. Automatic Nearest Eligible Store Detection
   const closestStoreInfo = useMemo(() => {
-    let closest = stores[0]
-    let minKm = Infinity
+    const activeStores = eligibleStores.filter((s) => s.status === 'active');
+    const storePool = activeStores.length > 0 ? activeStores : eligibleStores;
 
-    for (const s of stores) {
-      const sc = STORE_COORDINATES[s.name] || { lat: 30.0626, lng: 31.2224 }
-      const direct = calculateGeoDistanceKm(activeRadarCoords.lat, activeRadarCoords.lng, sc.lat, sc.lng)
-      const road = Math.max(1.2, Math.round(direct * 1.25 * 10) / 10)
+    let closest = storePool[0];
+    let minKm = Infinity;
+
+    for (const s of storePool) {
+      const direct = calculateGeoDistanceKm(activeRadarCoords.lat, activeRadarCoords.lng, s.coordinates.lat, s.coordinates.lng);
+      const road = Math.max(1.2, Math.round(direct * 1.25 * 10) / 10);
       if (road < minKm) {
-        minKm = road
-        closest = s
+        minKm = road;
+        closest = s;
       }
     }
 
-    const eta = minKm <= 4 ? "15–20 min" : minKm <= 12 ? "20–30 min" : minKm <= 25 ? "30–45 min" : "45–60 min"
+    const estimate = calculateStoreDeliveryEstimate(
+      activeRadarCoords.lat,
+      activeRadarCoords.lng,
+      closest.coordinates.lat,
+      closest.coordinates.lng,
+      closest.status
+    );
 
     return {
       store: closest,
-      distanceKm: minKm,
-      eta,
-      coordinates: STORE_COORDINATES[closest.name] || { lat: 30.0626, lng: 31.2224 },
+      distanceKm: estimate.roadDistanceKm,
+      eta: estimate.etaString,
+      estimate,
+      coordinates: closest.coordinates,
+    };
+  }, [activeRadarCoords, eligibleStores, language]);
+
+  // Selected store (either explicitly clicked on map or automatically nearest)
+  const activeDisplayStore = selectedCoverageStore || closestStoreInfo.store;
+  const isDisplayingNearest = !selectedCoverageStore || selectedCoverageStore.name === closestStoreInfo.store.name;
+
+  const activeDisplayEstimate = useMemo(() => {
+    const sc = STORE_COORDINATES[activeDisplayStore.name] || { lat: 30.0626, lng: 31.2224 };
+    return calculateStoreDeliveryEstimate(
+      activeRadarCoords.lat,
+      activeRadarCoords.lng,
+      sc.lat,
+      sc.lng,
+      (activeDisplayStore as any).status || 'active'
+    );
+  }, [activeRadarCoords, activeDisplayStore, language]);
+
+  // Synchronized location update handler
+  const handleLocationUpdate = (
+    coords: { lat: number; lng: number },
+    address: string,
+    areaName: string,
+    source: 'gps' | 'manual' = 'manual'
+  ) => {
+    setCustomerCoords(coords);
+    const cleanArea = areaName || address;
+    setLocation(cleanArea);
+    saveSavedLocation({ coords, address, areaName: cleanArea, source });
+    markLocationDecided(true);
+    setLocationPromptState('resolved');
+    setSelectedCoverageStore(null); // Reset manual selection so nearest store is automatically computed & highlighted
+
+    if (currentCustomer) {
+      const updated = {
+        ...currentCustomer,
+        coordinates: coords,
+        address: address || cleanArea,
+        area: cleanArea,
+      };
+      setCurrentCustomer(updated);
+      try {
+        localStorage.setItem('fastdrip_current_customer', JSON.stringify(updated));
+      } catch {}
     }
-  }, [activeRadarCoords])
+
+    showToast(
+      language === 'ar'
+        ? `📍 تم تحديد موقعك: ${cleanArea} وتحديث أقرب فرع تلقائياً!`
+        : `📍 Location set: ${cleanArea}. Nearest store updated!`,
+      'success'
+    );
+  };
+
+  // Browser Geolocation trigger
+  const handleUseGps = async () => {
+    setLocationPromptState('locating');
+    setIsRadarGpsLoading(true);
+    try {
+      const res = await requestBrowserLocation(language === 'ar');
+      if (res.status === 'granted' && res.coords) {
+        handleLocationUpdate(
+          res.coords,
+          res.address || 'Cairo, Egypt',
+          res.areaName || 'Cairo',
+          'gps'
+        );
+      } else {
+        setLocationErrorMessage(res.errorMessage || '');
+        setLocationPromptState('denied');
+      }
+    } catch (err: any) {
+      setLocationErrorMessage(err?.message || (language === 'ar' ? 'تعذر الوصول إلى GPS' : 'GPS location error'));
+      setLocationPromptState('denied');
+    } finally {
+      setIsRadarGpsLoading(false);
+    }
+  };
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
   const [email, setEmail] = useState("")
   const [notice, setNotice] = useState("")
@@ -3409,9 +3597,27 @@ export function CustomerApp() {
               </h2>
               <p>
                 {isArabic
-                  ? "اختار منطقة التوصيل عشان تشوف أقرب شبكة شركاء ووقت الوصول المتوقع."
-                  : "Select a delivery zone to preview the closest partner network and estimated arrival window."}
+                  ? "اختار منطقة التوصيل أو حدد موقعك التلقائي لاكتشاف أقرب شبكة شركاء ووقت الوصول الحقيقي."
+                  : "Select a delivery zone or use GPS to discover the closest partner network and precise arrival window."}
               </p>
+
+              {/* FAST DRIP Premium Location Permission Experience */}
+              {locationPromptState !== 'resolved' && locationPromptState !== 'dismissed' && (
+                <div style={{ marginBottom: '20px' }}>
+                  <LocationPermissionPrompt
+                    state={locationPromptState === 'locating' ? 'locating' : locationPromptState === 'denied' ? 'denied' : 'prompt'}
+                    onUseGps={handleUseGps}
+                    onEnterManually={() => setIsManualSearchOpen(true)}
+                    onDismiss={() => {
+                      setLocationPromptState('dismissed');
+                      markLocationDecided(true);
+                    }}
+                    errorMessage={locationErrorMessage}
+                    isArabic={isArabic}
+                  />
+                </div>
+              )}
+
               <div className="coverage-zones">
                 {[
                   ["Zamalek, Cairo", "18–25 min"],
@@ -3424,9 +3630,8 @@ export function CustomerApp() {
                     key={zone}
                     className={location === zone ? "active" : ""}
                     onClick={() => {
-                      setCustomerCoords(DEFAULT_ZONE_COORDS[zone] || null)
-                      setLocation(zone)
-                      notify(isArabic ? `تم تحديث المنطقة إلى ${zone} وتحديد أقرب متجر.` : `Delivery zone updated to ${zone}.`)
+                      const coords = DEFAULT_ZONE_COORDS[zone] || { lat: 30.0626, lng: 31.2224 };
+                      handleLocationUpdate(coords, zone, zone, 'manual');
                     }}
                   >
                     <span>{zone}</span>
@@ -3435,85 +3640,144 @@ export function CustomerApp() {
                 ))}
               </div>
 
-              <button
-                type="button"
-                disabled={isRadarGpsLoading}
-                className="coverage-gps-trigger"
-                onClick={async () => {
-                  setIsRadarGpsLoading(true)
-                  try {
-                    const loc = await resolveUserLocation(isArabic)
-                    setCustomerCoords(loc.coords)
-                    setLocation(loc.areaName)
-                    notify(isArabic ? `📍 تم تحديد موقعك: ${loc.areaName} وتحديث أقرب فرع!` : `📍 Location detected: ${loc.areaName}`)
-                  } catch {
-                    notify(isArabic ? 'يرجى اختيار منطقتك من القائمة' : 'Please select your zone from the list')
-                  } finally {
-                    setIsRadarGpsLoading(false)
-                  }
-                }}
-              >
-                <Navigation size={13} className={isRadarGpsLoading ? 'animate-spin' : ''} />
-                <span>
-                  {isRadarGpsLoading
-                    ? (isArabic ? 'جاري تحديد موقعك الفعلي...' : 'Detecting your GPS location...')
-                    : (isArabic ? '📍 موقعي الحالي تلقائياً (GPS)' : '📍 Auto-Detect My Location (GPS)')}
-                </span>
-              </button>
+              {/* Synchronized Location Action Toolbar */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '14px', flexWrap: 'wrap' }}>
+                <button
+                  type="button"
+                  disabled={isRadarGpsLoading || locationPromptState === 'locating'}
+                  className="coverage-gps-trigger"
+                  style={{ flex: 1, minWidth: '200px' }}
+                  onClick={handleUseGps}
+                >
+                  <Navigation size={13} className={(isRadarGpsLoading || locationPromptState === 'locating') ? 'animate-spin' : ''} />
+                  <span>
+                    {(isRadarGpsLoading || locationPromptState === 'locating')
+                      ? (isArabic ? 'جاري تحديد موقعك الفعلي...' : 'LOCATING YOU...')
+                      : (isArabic ? '📍 استخدام موقعي الحالي (GPS)' : '📍 Use My Current Location (GPS)')}
+                  </span>
+                </button>
 
-              {/* Nearest Partner Boutique Recommendation Card */}
-              <div className="closest-store-card">
+                <button
+                  type="button"
+                  onClick={() => setIsManualSearchOpen(true)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '11px 16px',
+                    backgroundColor: '#141816',
+                    border: '1px solid #232A26',
+                    borderRadius: '8px',
+                    color: '#FFFFFF',
+                    fontSize: '12px',
+                    fontFamily: "'DM Mono', monospace",
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = '#D1FE17';
+                    e.currentTarget.style.color = '#D1FE17';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = '#232A26';
+                    e.currentTarget.style.color = '#FFFFFF';
+                  }}
+                >
+                  <Search size={13} style={{ color: '#D1FE17' }} />
+                  <span>{isArabic ? 'إدخال يدوي' : 'Enter Manually'}</span>
+                </button>
+              </div>
+
+              {/* Nearest or Selected Partner Boutique Recommendation Card */}
+              <div className="closest-store-card" style={{ marginTop: '20px' }}>
                 <div className="closest-store-pill">
                   <span className="dot-pulse" />
-                  <span>{isArabic ? "⚡ أقرب ستور لموقعك الآن" : "⚡ NEAREST STORE TO YOU"}</span>
+                  <span>
+                    {isDisplayingNearest
+                      ? (isArabic ? "⚡ أقرب ستور لموقعك الآن" : "⚡ NEAREST STORE TO YOU")
+                      : (isArabic ? "📍 المتجر المحدد على الخريطة" : "📍 SELECTED PARTNER STORE")}
+                  </span>
                 </div>
-                <h4 className="closest-store-name">{closestStoreInfo.store.name}</h4>
+                <h4 className="closest-store-name">{activeDisplayStore.name}</h4>
+
+                {/* Real Route Estimation Metrics */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '11px', color: '#8E9B93', fontFamily: "'DM Mono', monospace", marginTop: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                  <span>🛣️ {activeDisplayEstimate.roadDistanceKm} كم مسار فعلي</span>
+                  <span>•</span>
+                  <span>⏱️ {activeDisplayEstimate.etaString}</span>
+                  {activeDisplayEstimate.isEligibleExpress && (
+                    <>
+                      <span>•</span>
+                      <span style={{ color: '#D1FE17', fontWeight: 700 }}>⚡ فاست دريب دليفري</span>
+                    </>
+                  )}
+                </div>
+
                 <p className="closest-store-sub">
                   {isArabic ? (
                     <>
-                      بناءً على موقعك في <strong>{location}</strong>، أقرب فرع لعنوانك هو <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — توصيل طلباتك مباشرة لبابك خلال <strong>{closestStoreInfo.eta}</strong>.
+                      بناءً على موقعك في <strong>{location || "الموقع المحدد"}</strong>، {isDisplayingNearest ? "أقرب فرع لعنوانك هو" : "الفرع المحدد على الخريطة هو"} <strong>{activeDisplayStore.name}</strong> ({activeDisplayStore.location}) — {activeDisplayEstimate.isEligibleExpress ? `توصيل طلباتك مباشرة لبابك خلال ${activeDisplayEstimate.etaString}` : activeDisplayEstimate.statusText}.
                     </>
                   ) : (
                     <>
-                      Based on your location in <strong>{location}</strong>, the closest boutique is <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — fast delivery to your door in <strong>{closestStoreInfo.eta}</strong>.
+                      Based on your location in <strong>{location || "your selected area"}</strong>, {isDisplayingNearest ? "the closest boutique is" : "selected boutique is"} <strong>{activeDisplayStore.name}</strong> ({activeDisplayStore.location}) — {activeDisplayEstimate.isEligibleExpress ? `fast delivery to your door in ${activeDisplayEstimate.etaString}` : activeDisplayEstimate.statusText}.
                     </>
                   )}
                 </p>
-                <div className="closest-store-actions">
+
+                <div className="closest-store-actions" style={{ display: 'flex', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     className="closest-store-cta"
-                    onClick={() => goToStorePage(closestStoreInfo.store)}
-                    style={{ width: '100%', justifyContent: 'center' }}
+                    onClick={() => goToStorePage(activeDisplayStore)}
+                    style={{ flex: 1, minWidth: '220px', justifyContent: 'center' }}
                   >
-                    <span>{isArabic ? `زيارة وتصفح ستور ${closestStoreInfo.store.name} ➔` : `Visit & Shop ${closestStoreInfo.store.name} Online ➔`}</span>
+                    <span>{isArabic ? `زيارة وتصفح ستور ${activeDisplayStore.name} ➔` : `Visit & Shop ${activeDisplayStore.name} Online ➔`}</span>
                     <ArrowRight size={14} />
                   </button>
+
+                  {!isDisplayingNearest && closestStoreInfo.store && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCoverageStore(null)}
+                      style={{
+                        padding: '10px 14px',
+                        backgroundColor: '#181D1A',
+                        border: '1px solid #232A26',
+                        borderRadius: '8px',
+                        color: '#D1FE17',
+                        fontSize: '11px',
+                        fontFamily: "'DM Mono', monospace",
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                      }}
+                      title={isArabic ? "العودة لأقرب متجر لموقعك" : "Reset to nearest store"}
+                    >
+                      {isArabic ? "العودة للأقرب" : "Reset to Nearest"}
+                    </button>
+                  )}
                 </div>
               </div>
             </Reveal>
             <Reveal className="coverage-map-container" delay={0.1}>
               <CoverageRadarMap
-                stores={stores}
+                stores={eligibleStores}
                 activeCoords={activeRadarCoords}
                 closestStore={closestStoreInfo.store}
                 closestDistanceKm={closestStoreInfo.distanceKm}
                 closestEta={closestStoreInfo.eta}
-                locationName={location}
+                selectedStore={activeDisplayStore}
+                onSelectStore={(s) => setSelectedCoverageStore(s)}
+                selectedDistanceKm={activeDisplayEstimate.roadDistanceKm}
+                selectedEta={activeDisplayEstimate.etaString}
+                locationName={location || (isArabic ? 'موقع غير محدد' : 'Location Not Set')}
                 isArabic={isArabic}
                 onOpenStore={goToStorePage}
-                onAutoDetectGps={async () => {
-                  setIsRadarGpsLoading(true)
-                  try {
-                    const loc = await resolveUserLocation(isArabic)
-                    setCustomerCoords(loc.coords)
-                    setLocation(loc.areaName)
-                    notify(isArabic ? `📍 تم تحديد موقعك: ${loc.areaName} وتحديث أقرب فرع!` : `📍 Location detected: ${loc.areaName}`)
-                  } finally {
-                    setIsRadarGpsLoading(false)
-                  }
-                }}
-                isGpsLoading={isRadarGpsLoading}
+                onAutoDetectGps={handleUseGps}
+                onOpenManualSearch={() => setIsManualSearchOpen(true)}
+                isGpsLoading={isRadarGpsLoading || locationPromptState === 'locating'}
               />
             </Reveal>
           </section>
@@ -3762,6 +4026,15 @@ export function CustomerApp() {
             isArabic={isArabic}
           />
         )}
+        <ManualLocationSearchModal
+          isOpen={isManualSearchOpen}
+          onClose={() => setIsManualSearchOpen(false)}
+          onSelectLocation={(data) => {
+            handleLocationUpdate(data.coords, data.address, data.areaName, 'manual');
+          }}
+          currentAddress={location}
+          isArabic={isArabic}
+        />
         {isAccountOpen && (
           <AccountDrawer
             customer={currentCustomer}
