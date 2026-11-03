@@ -422,6 +422,18 @@
 .coverage-zones button { padding: 14px 2px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 11px; text-align: left; }
 .coverage-zones button strong { font: 9px 'DM Mono', monospace; }
 .coverage-zones button.active { color: var(--lime); }
+.coverage-map-container {
+  position: relative;
+  width: 100%;
+}
+.coverage-map-wrapper {
+  position: relative;
+  min-height: 480px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #0e1110;
+}
 .coverage-map { position: relative; min-height: 440px; overflow: hidden; border: 1px solid var(--line); background: #101312; }
 .map-grid { position: absolute; inset: 0; opacity: .22; background-image: linear-gradient(rgba(255,255,255,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.16) 1px, transparent 1px); background-size: 42px 42px; transform: perspective(420px) rotateX(12deg) scale(1.2); }
 .map-node { position: absolute; z-index: 2; display: flex; align-items: center; gap: 7px; color: var(--white); font: 8px 'DM Mono', monospace; }
@@ -598,22 +610,26 @@
 .hud-btns {
   margin-top: 8px;
   display: flex;
-  gap: 6px;
 }
 .hud-go-btn {
-  flex: 1;
-  padding: 6px 10px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
   background: var(--lime);
   color: var(--ink);
-  font: 700 10px 'DM Mono', monospace;
+  font: 700 11px 'DM Mono', monospace;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
   white-space: nowrap;
 }
 .hud-go-btn:hover {
-  opacity: 0.9;
+  background: var(--white);
+  transform: translateY(-1px);
 }
 .hud-dir-btn {
   padding: 6px 9px;

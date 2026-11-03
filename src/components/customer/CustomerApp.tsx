@@ -41,6 +41,7 @@ import {
 } from "lucide-react"
 import { CustomerPaymentMethod, CustomerUser, Order, OrderStatus, Product as BackendProduct, Vendor } from '../../types';
 import { LocationPickerMap } from '../maps/LocationPickerMap';
+import { CoverageRadarMap } from '../maps/CoverageRadarMap';
 import { calculateGeoDistanceKm, getCairoAreaName } from '../../data/mockData';
 import { resolveUserLocation } from '../../utils/geolocation';
 import { AnimatePresence, motion, useReducedMotion } from "motion/react"
@@ -3464,17 +3465,17 @@ export function CustomerApp() {
               <div className="closest-store-card">
                 <div className="closest-store-pill">
                   <span className="dot-pulse" />
-                  <span>{isArabic ? "⚡ أقرب متجر لموقعك الآن" : "⚡ NEAREST BOUTIQUE TO YOU"}</span>
+                  <span>{isArabic ? "⚡ أقرب ستور لموقعك الآن" : "⚡ NEAREST STORE TO YOU"}</span>
                 </div>
                 <h4 className="closest-store-name">{closestStoreInfo.store.name}</h4>
                 <p className="closest-store-sub">
                   {isArabic ? (
                     <>
-                      أنت حالياً بالقرب من <strong>{location}</strong>. الفرع الأقرب لعنوانك هو <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — يبعد حوالي <strong>{closestStoreInfo.distanceKm} كم</strong> مع توصيل سريع خلال <strong>{closestStoreInfo.eta}</strong>.
+                      بناءً على موقعك في <strong>{location}</strong>، أقرب فرع لعنوانك هو <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — توصيل طلباتك مباشرة لبابك خلال <strong>{closestStoreInfo.eta}</strong>.
                     </>
                   ) : (
                     <>
-                      You are near <strong>{location}</strong>. Closest boutique is <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — approx <strong>{closestStoreInfo.distanceKm} km</strong> away, courier ETA <strong>{closestStoreInfo.eta}</strong>.
+                      Based on your location in <strong>{location}</strong>, the closest boutique is <strong>{closestStoreInfo.store.name}</strong> ({closestStoreInfo.store.location}) — fast delivery to your door in <strong>{closestStoreInfo.eta}</strong>.
                     </>
                   )}
                 </p>
@@ -3483,99 +3484,37 @@ export function CustomerApp() {
                     type="button"
                     className="closest-store-cta"
                     onClick={() => goToStorePage(closestStoreInfo.store)}
+                    style={{ width: '100%', justifyContent: 'center' }}
                   >
-                    <span>{isArabic ? `تسوق من متجر ${closestStoreInfo.store.name}` : `Shop from ${closestStoreInfo.store.name}`}</span>
+                    <span>{isArabic ? `زيارة وتصفح ستور ${closestStoreInfo.store.name} ➔` : `Visit & Shop ${closestStoreInfo.store.name} Online ➔`}</span>
                     <ArrowRight size={14} />
                   </button>
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${closestStoreInfo.coordinates.lat},${closestStoreInfo.coordinates.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="closest-directions-cta"
-                    title={isArabic ? "فتح اتجاهات Google Maps" : "Open Google Maps directions"}
-                  >
-                    <Navigation size={12} />
-                    <span>{isArabic ? "الملاحة بالخريطة (Maps)" : "Directions"}</span>
-                  </a>
                 </div>
               </div>
             </Reveal>
-            <Reveal className="coverage-map" delay={0.1}>
-              <div className="map-grid" />
-
-              {/* Floating Tactical Radar HUD */}
-              <div className="map-closest-hud">
-                <div className="hud-badge">
-                  <span className="hud-pulse" />
-                  <span>{isArabic ? "أقرب متجر لموقعك" : "CLOSEST TO YOU"}</span>
-                </div>
-                <div className="hud-title">
-                  <strong>{closestStoreInfo.store.name}</strong>
-                  <span>{closestStoreInfo.distanceKm} km • {closestStoreInfo.eta}</span>
-                </div>
-                <div className="hud-btns">
-                  <button
-                    type="button"
-                    className="hud-go-btn"
-                    onClick={() => goToStorePage(closestStoreInfo.store)}
-                  >
-                    {isArabic ? "ادخل للمتجر ➔" : "Enter Store ➔"}
-                  </button>
-                  <a
-                    href={`https://www.google.com/maps/dir/?api=1&destination=${closestStoreInfo.coordinates.lat},${closestStoreInfo.coordinates.lng}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hud-dir-btn"
-                    title={isArabic ? "فتح الملاحة بالخريطة" : "Google Maps navigation"}
-                  >
-                    <Navigation size={11} />
-                    <span>Maps</span>
-                  </a>
-                </div>
-              </div>
-
-              {stores.map((store, index) => {
-                const isClosest = closestStoreInfo.store.name === store.name
-                return (
-                  <button
-                    key={store.name}
-                    className={`map-node map-node-${index + 1} ${isClosest ? "is-closest" : ""}`}
-                    onClick={() => goToStorePage(store)}
-                    aria-label={`Open ${store.name}`}
-                  >
-                    <i />
-                    <span>{store.name}</span>
-                    {isClosest && (
-                      <span className="closest-tag">
-                        {isArabic ? "الأقرب" : "NEAREST"}
-                      </span>
-                    )}
-                  </button>
-                )
-              })}
-
-              <button
-                type="button"
-                className="map-location"
-                disabled={isRadarGpsLoading}
-                onClick={async () => {
+            <Reveal className="coverage-map-container" delay={0.1}>
+              <CoverageRadarMap
+                stores={stores}
+                activeCoords={activeRadarCoords}
+                closestStore={closestStoreInfo.store}
+                closestDistanceKm={closestStoreInfo.distanceKm}
+                closestEta={closestStoreInfo.eta}
+                locationName={location}
+                isArabic={isArabic}
+                onOpenStore={goToStorePage}
+                onAutoDetectGps={async () => {
                   setIsRadarGpsLoading(true)
                   try {
                     const loc = await resolveUserLocation(isArabic)
                     setCustomerCoords(loc.coords)
                     setLocation(loc.areaName)
-                    notify(isArabic ? `📍 تم تحديد موقعك: ${loc.areaName}` : `📍 Location detected: ${loc.areaName}`)
+                    notify(isArabic ? `📍 تم تحديد موقعك: ${loc.areaName} وتحديث أقرب فرع!` : `📍 Location detected: ${loc.areaName}`)
                   } finally {
                     setIsRadarGpsLoading(false)
                   }
                 }}
-                style={{ cursor: 'pointer', border: 'none' }}
-                title={isArabic ? "انقر لتحديد موقعك الحقيقي عبر GPS" : "Click to auto-detect your location"}
-              >
-                <LocateFixed size={15} className={isRadarGpsLoading ? 'animate-spin' : ''} />
-                <span>{location}</span>
-              </button>
-              <span className="map-ring" />
+                isGpsLoading={isRadarGpsLoading}
+              />
             </Reveal>
           </section>
 
